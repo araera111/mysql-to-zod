@@ -1,6 +1,5 @@
 import { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
-import { TypeScriptLoader } from "cosmiconfig-typescript-loader";
 import { Either, isLeft, isRight, left, right } from "fp-ts/Either";
 import { assoc, isNil } from "ramda";
 import { MysqlToZodOption, mysqlToZodOptionSchema } from "./options";
@@ -17,10 +16,7 @@ const basicConfig: MysqlToZodOption = {
 
 export const configLoad = async (): Promise<Either<string, MysqlToZodOption>> => {
   const explorer = cosmiconfig("mysqlToZod", {
-    searchPlaces: ["mysqlToZod.config.ts"],
-    loaders: {
-      ".ts": TypeScriptLoader(),
-    },
+    searchPlaces: ["mysqlToZod.config.js"],
   });
 
   const cfg = await explorer.search();

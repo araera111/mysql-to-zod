@@ -1,6 +1,4 @@
-import { MysqlToZodOption } from "./src/options";
-
-const options: MysqlToZodOption = {
+const options = {
   isAddType: true,
   isCamel: true,
   isTypeUpperCamel: true,
