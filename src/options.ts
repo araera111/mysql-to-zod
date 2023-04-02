@@ -21,7 +21,7 @@ export const mysqlToZodOptionSchema = z.object({
   isTypeUpperCamel: z.boolean().optional().default(true),
   outFilePath: z.string().optional().default("./mysqlToZod"),
   fileName: z.string().optional().default("schema.ts"),
-  dbConnection: z.string(),
+  dbConnection: z.string().optional(),
   tableNames: z.string().array().optional().default([]),
   nullType: z
     .union([z.literal("nullable"), z.literal("nullish")])
