@@ -42,14 +42,13 @@ export const convertToZodType = (type: string) => {
     case "BIGINT":
     case "FLOAT":
     case "DOUBLE":
+    case "YEAR":
       return "z.number()";
     case "BIT":
       return "z.boolean()";
     case "DATE":
-    case "TIME":
     case "DATETIME":
     case "TIMESTAMP":
-    case "YEAR":
       return "z.date()";
     case "CHAR":
     case "VARCHAR":
@@ -61,6 +60,7 @@ export const convertToZodType = (type: string) => {
     case "LONGTEXT":
     case "ENUM":
     case "SET":
+    case "TIME":
       return "z.string()";
     case "BINARY":
     case "VARBINARY":

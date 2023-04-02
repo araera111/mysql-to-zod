@@ -6,6 +6,7 @@ import { mkdirp, writeFile } from "fs-extra";
 import { EOL } from "os";
 import { join } from "path";
 import prettier from "prettier";
+import { isNil } from "ramda";
 import { createSchemaFile } from "./createSchemaFile";
 import { getTableDefinition, getTables } from "./dbManipulateFunctions";
 import { init } from "./init";
@@ -17,6 +18,7 @@ const main = async () => {
   if (isLeft(initEither)) throw new Error(initEither.left);
 
   const { outFilePath, fileName, dbConnection, tableNames } = initEither.right;
+  if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
   // table一覧を取得
   const tables = await getTables(tableNames, dbConnection);
