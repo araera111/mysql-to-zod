@@ -1,10 +1,11 @@
 {
   "name": "mysql-to-zod",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert MySQL schemas into Zod schemas",
   "source": "src/main.ts",
   "main": "dist/main.js",
   "module": "dist/module.js",
+  "bin": "dist/main.js",
   "scripts": {
     "mysql-to-zod": "tsx ./src/main.ts",
     "dev": "tsx ./src/main.ts",
