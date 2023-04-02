@@ -1,5 +1,6 @@
 import { toCamel } from "ts-case-convert";
 import { z } from "zod";
+import { MysqlToZodOption } from "./options";
 
 /*
   const typeMap = {
@@ -93,23 +94,18 @@ export const toCamelWrapper = (str: string, isCamel: boolean, isUpperCamel: bool
   return str;
 };
 
-export const createSchema = (
-  tableName: string,
-  columns: Column[],
-  isAddType: boolean,
-  isCamel: boolean,
-  isUpperCamel: boolean
-) => {
+export const createSchema = (tableName: string, columns: Column[], options: MysqlToZodOption) => {
+  const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schema = columns
     .map((x) => {
       const { column, type, nullable } = x;
       const zodType = convertToZodType(type);
-      const zodNullable = nullable ? ".nullable()" : "";
+      const zodNullable = nullable ? `.${nullType}()` : "";
       return `${column}: ${zodType}${zodNullable},`;
     })
     .join("");
 
-  const validTableName = toCamelWrapper(tableName, isCamel, isUpperCamel);
+  const validTableName = toCamelWrapper(tableName, isCamel, isTypeUpperCamel);
 
   const addTypeString = `export type ${validTableName} = z.infer<typeof ${validTableName}Schema>;`;
 
