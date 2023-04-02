@@ -59,6 +59,8 @@ const options = {
   fileName: "schema.ts", //fileName
   dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
   tableNames: [], //if empty, all tables.
+  nullType: "nullable" // "nullable" | "nullish" default is "nullable"
+
 };
 module.exports = options;
 ```
