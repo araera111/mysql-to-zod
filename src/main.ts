@@ -7,7 +7,6 @@ import { EOL } from "os";
 import { join } from "path";
 import prettier from "prettier";
 import { createSchemaFile } from "./createSchemaFile";
-import { client } from "./dbClient";
 import { getTableDefinition, getTables } from "./dbManipulateFunctions";
 import { init } from "./init";
 
@@ -48,7 +47,6 @@ ${EOL}`;
   writeFile(savePath, result, (err) => {
     if (err) throw err;
   });
-  client(dbConnection).destroy();
   return 1;
 };
 
