@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "inlineSources": true,
+    "sourceMap": true,
+    "sourceRoot": "/",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "removeComments": true
+  },
+  "include": ["./src"],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "upload.mjs"]
+}
