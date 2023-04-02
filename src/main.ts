@@ -16,8 +16,7 @@ const main = async () => {
   const initEither = await init(program);
   if (isLeft(initEither)) throw new Error(initEither.left);
 
-  const { isAddType, isCamel, isTypeUpperCamel, outFilePath, fileName, dbConnection, tableNames } =
-    initEither.right;
+  const { outFilePath, fileName, dbConnection, tableNames } = initEither.right;
 
   // table一覧を取得
   const tables = await getTables(tableNames, dbConnection);
@@ -30,7 +29,7 @@ const main = async () => {
   let str = importStr;
   for (const table of tables) {
     const tableDefinition = await getTableDefinition(table, dbConnection);
-    const s = createSchemaFile(tableDefinition, isAddType, isCamel, isTypeUpperCamel ?? true);
+    const s = createSchemaFile(tableDefinition, initEither.right);
     str += `${s}
 ${EOL}`;
   }

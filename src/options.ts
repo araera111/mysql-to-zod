@@ -11,6 +11,7 @@ import { z } from "zod";
   exportをつけるかどうか: boolean
   型名をアッパーキャメルケースにするかどうか: boolean
   DBに同時接続する数: number
+  nullのタイプ nullish or nullable default: nullable
 */
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional().default(true),
@@ -22,7 +23,10 @@ export const mysqlToZodOptionSchema = z.object({
   fileName: z.string().optional().default("schema.ts"),
   dbConnection: z.string(),
   tableNames: z.string().array().optional().default([]),
-  // useNullish: z.boolean().optional(),
+  nullType: z
+    .union([z.literal("nullable"), z.literal("nullish")])
+    .optional()
+    .default("nullable"),
   // dbConnectionLimit: z.number().optional().default(1),
 });
 // type

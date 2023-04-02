@@ -12,6 +12,7 @@ const basicConfig: MysqlToZodOption = {
   fileName: "schema.ts",
   dbConnection: "mysql://root:root@localhost:3306/db",
   tableNames: [],
+  nullType: "nullable",
 };
 
 export const configLoad = async (): Promise<Either<string, MysqlToZodOption>> => {
