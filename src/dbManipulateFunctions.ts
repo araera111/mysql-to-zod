@@ -1,3 +1,4 @@
+import { writeFile } from "fs-extra";
 import mysql from "mysql2/promise";
 import { isEmpty } from "ramda";
 import { z } from "zod";
@@ -17,6 +18,7 @@ export const getTables = async (tableNames: string[], dbConnection: string): Pro
 export const getTableDefinition = async (tableName: string, dbConnection: string) => {
   const connection = await mysql.createConnection(dbConnection);
   const [table] = await connection.query("show create table ??", tableName);
+  writeFile("./debug.json", JSON.stringify(table + tableName, null, 2));
   if (!Array.isArray(table)) return [];
   const result = table.map((x: any) => Object.values(x)).flat();
   await connection.destroy();
