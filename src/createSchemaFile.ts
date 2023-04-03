@@ -15,6 +15,7 @@ export const convertToColumn = (ast: any) => {
 
 // astのCREATEかどうかを判定する関数
 export const isCreate = (ast: AST): ast is Create => "create_definitions" in ast;
+
 export const createSchemaFile = (
   tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
   options: MysqlToZodOption
