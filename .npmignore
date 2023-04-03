@@ -5,3 +5,4 @@ pnpm-lock.yaml
 todo.txt
 yarn.lock
 jest.config.json
+.vscode
