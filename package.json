@@ -39,7 +39,6 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "cross-env": "^7.0.3",
-    "crossenv": "^0.0.2-security",
     "esbuild": "^0.17.15",
     "eslint": "^8.37.0",
     "eslint-config-airbnb-base": "^15.0.0",
