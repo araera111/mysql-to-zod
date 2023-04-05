@@ -94,6 +94,14 @@ export const toCamelWrapper = (str: string, isCamel: boolean, isUpperCamel: bool
   return str;
 };
 
+// 1文字目が数字の場合は、先頭と末尾に''をつける関数
+export const addUnderscore = (str: string) => {
+  if (str.match(/^[0-9]/)) {
+    return `'${str}'`;
+  }
+  return str;
+};
+
 export const createSchema = (tableName: string, columns: Column[], options: MysqlToZodOption) => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schema = columns
@@ -101,7 +109,8 @@ export const createSchema = (tableName: string, columns: Column[], options: Mysq
       const { column, type, nullable } = x;
       const zodType = convertToZodType(type);
       const zodNullable = nullable ? `.${nullType}()` : "";
-      return `${column}: ${zodType}${zodNullable},`;
+
+      return `${addUnderscore(column)}: ${zodType}${zodNullable},`;
     })
     .join("");
 
