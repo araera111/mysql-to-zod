@@ -95,7 +95,7 @@ export const toCamelWrapper = (str: string, isCamel: boolean, isUpperCamel: bool
 };
 
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
-export const addUnderscore = (str: string) => {
+export const addSingleQuotation = (str: string) => {
   if (str.match(/^[0-9]/)) {
     return `'${str}'`;
   }
@@ -110,7 +110,7 @@ export const createSchema = (tableName: string, columns: Column[], options: Mysq
       const zodType = convertToZodType(type);
       const zodNullable = nullable ? `.${nullType}()` : "";
 
-      return `${addUnderscore(column)}: ${zodType}${zodNullable},`;
+      return `${addSingleQuotation(column)}: ${zodType}${zodNullable},`;
     })
     .join("");
 

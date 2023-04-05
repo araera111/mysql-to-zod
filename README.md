@@ -60,9 +60,22 @@ const options = {
   dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
   tableNames: [], //if empty, all tables.
   nullType: "nullable" // "nullable" | "nullish" default is "nullable"
-
 };
 module.exports = options;
+```
+
+If dbConnection contains "@" or other special characters, pass it as Config for Knex.
+
+```js:mysqlToZod.config.js
+const options = {
+  dbConnection: {
+    host : '127.0.0.1',
+    port : 3306,
+    user : 'your_database_user',
+    password : 'your_database_password',
+    database : 'myapp_test'
+    }
+}
 ```
 
 ## License
