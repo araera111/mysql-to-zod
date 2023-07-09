@@ -9,6 +9,11 @@
 ```bash
 npx mysql-to-zod mysql://user:pass@localhost:3306/dbname
 ```
+## default gif
+![default](https://github.com/araera111/mysql-to-zod/assets/63596736/650265b4-414c-49f3-b88c-cf437921960c)
+
+## option gif
+![option](https://github.com/araera111/mysql-to-zod/assets/63596736/b00af2ab-1a3c-4516-8e90-67a6e29f4a9b)
 
 ## Demo
 
