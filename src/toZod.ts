@@ -1,4 +1,5 @@
 import { toCamel } from "ts-case-convert";
+import { match } from "ts-pattern";
 import { z } from "zod";
 import { MysqlToZodOption } from "./options";
 
@@ -33,46 +34,38 @@ import { MysqlToZodOption } from "./options";
     set: "string",
   };
 */
-export const convertToZodType = (type: string) => {
-  switch (type) {
-    case "TINYINT":
-    case "SMALLINT":
-    case "MEDIUMINT":
-    case "INT":
-    case "BIGINT":
-    case "FLOAT":
-    case "DOUBLE":
-    case "YEAR":
-      return "z.number()";
-    case "BIT":
-      return "z.boolean()";
-    case "DATE":
-    case "DATETIME":
-    case "TIMESTAMP":
-      return "z.date()";
-    case "CHAR":
-    case "VARCHAR":
-    case "DECIMAL":
-    case "NUMERIC":
-    case "TINYTEXT":
-    case "TEXT":
-    case "MEDIUMTEXT":
-    case "LONGTEXT":
-    case "ENUM":
-    case "SET":
-    case "TIME":
-      return "z.string()";
-    case "BINARY":
-    case "VARBINARY":
-    case "TINYBLOB":
-    case "BLOB":
-    case "MEDIUMBLOB":
-    case "LONGBLOB":
-      return "z.buffer()";
-    default:
-      return "z.unknown()";
-  }
-};
+export const convertToZodType = (type: string) =>
+  match(type)
+    .with("TINYINT", () => "z.number()")
+    .with("SMALLINT", () => "z.number()")
+    .with("MEDIUMINT", () => "z.number()")
+    .with("INT", () => "z.number()")
+    .with("BIGINT", () => "z.number()")
+    .with("FLOAT", () => "z.number()")
+    .with("DOUBLE", () => "z.number()")
+    .with("YEAR", () => "z.number()")
+    .with("BIT", () => "z.boolean()")
+    .with("DATE", () => "z.date()")
+    .with("DATETIME", () => "z.date()")
+    .with("TIMESTAMP", () => "z.date()")
+    .with("CHAR", () => "z.string()")
+    .with("VARCHAR", () => "z.string()")
+    .with("DECIMAL", () => "z.string()")
+    .with("NUMERIC", () => "z.string()")
+    .with("TINYTEXT", () => "z.string()")
+    .with("TEXT", () => "z.string()")
+    .with("MEDIUMTEXT", () => "z.string()")
+    .with("LONGTEXT", () => "z.string()")
+    .with("ENUM", () => "z.string()")
+    .with("SET", () => "z.string()")
+    .with("TIME", () => "z.string()")
+    .with("BINARY", () => "z.buffer()")
+    .with("VARBINARY", () => "z.buffer()")
+    .with("TINYBLOB", () => "z.buffer()")
+    .with("BLOB", () => "z.buffer()")
+    .with("MEDIUMBLOB", () => "z.buffer()")
+    .with("LONGBLOB", () => "z.buffer()")
+    .otherwise(() => "z.unknown()");
 
 export const columnsSchema = z.object({
   column: z.string(),
@@ -89,7 +82,11 @@ export const toUpperCamel = (str: string) => {
 };
 
 // tocamelwrapper
-export const toCamelWrapper = (str: string, isCamel: boolean, isUpperCamel: boolean) => {
+export const toCamelWrapper = (
+  str: string,
+  isCamel: boolean,
+  isUpperCamel: boolean
+) => {
   if (isUpperCamel) return toUpperCamel(str);
   if (isCamel) return toCamel(str);
   return str;
@@ -103,7 +100,11 @@ export const addSingleQuotation = (str: string) => {
   return str;
 };
 
-export const createSchema = (tableName: string, columns: Column[], options: MysqlToZodOption) => {
+export const createSchema = (
+  tableName: string,
+  columns: Column[],
+  options: MysqlToZodOption
+) => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schema = columns
     .map((x) => {
