@@ -73,6 +73,7 @@ export const convertToZodType = (type: string) => {
       return "z.unknown()";
   }
 };
+
 export const columnsSchema = z.object({
   column: z.string(),
   type: z.string(),
