@@ -34,7 +34,7 @@ import { MysqlToZodOption } from "./options";
     set: "string",
   };
 */
-export const convertToZodType = (type: string) =>
+export const convertToZodType = (type: string, option: MysqlToZodOption) =>
   match(type)
     .with("TINYINT", () => "z.number()")
     .with("SMALLINT", () => "z.number()")
@@ -109,7 +109,7 @@ export const createSchema = (
   const schema = columns
     .map((x) => {
       const { column, type, nullable } = x;
-      const zodType = convertToZodType(type);
+      const zodType = convertToZodType(type, options);
       const zodNullable = nullable ? `.${nullType}()` : "";
 
       return `${addSingleQuotation(column)}: ${zodType}${zodNullable},`;

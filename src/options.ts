@@ -12,12 +12,11 @@ import { z } from "zod";
   型名をアッパーキャメルケースにするかどうか: boolean
   DBに同時接続する数: number
   nullのタイプ nullish or nullable default: nullable
+  isDateToString:Date型をstringにするかどうか: boolean
 */
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional().default(true),
   isCamel: z.boolean().optional().default(true),
-  // isOverwrite: z.boolean().optional().default(true),
-  // isExport: z.boolean().optional().default(true),
   isTypeUpperCamel: z.boolean().optional().default(true),
   outFilePath: z.string().optional().default("./mysqlToZod"),
   fileName: z.string().optional().default("schema.ts"),
@@ -27,6 +26,7 @@ export const mysqlToZodOptionSchema = z.object({
     .union([z.literal("nullable"), z.literal("nullish")])
     .optional()
     .default("nullable"),
+  isDateToString: z.boolean().optional().default(false),
   // dbConnectionLimit: z.number().optional().default(1),
 });
 // type
