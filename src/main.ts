@@ -36,15 +36,11 @@ const main = async () => {
 ${EOL}`;
   }
 
-  // prettierでフォーマットする
-  const result = prettier.format(str, { parser: "babel-ts" });
+  const result = await prettier.format(str, { parser: "babel-ts" });
 
-  // mkdirpを行う
   await mkdirp(outFilePath);
 
-  // prettierでフォーマットした結果をoutFilePathに書き込む
   const savePath = join(process.cwd(), outFilePath, fileName);
-  console.log(savePath);
   writeFile(savePath, result, (err) => {
     if (err) throw err;
   });
