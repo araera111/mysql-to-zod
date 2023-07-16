@@ -14,7 +14,8 @@ export const convertToColumn = (ast: any) => {
 };
 
 // astのCREATEかどうかを判定する関数
-export const isCreate = (ast: AST): ast is Create => "create_definitions" in ast;
+export const isCreate = (ast: AST): ast is Create =>
+  "create_definitions" in ast;
 
 export const createSchemaFile = (
   tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
@@ -22,9 +23,11 @@ export const createSchemaFile = (
 ) => {
   const parser = new Parser();
   const [tableName, tableDefinitionString] = tableDefinition;
-  if (isNil(tableName) || isNil(tableDefinitionString)) return left("createSchemeFileError");
+  if (isNil(tableName) || isNil(tableDefinitionString))
+    return left("createSchemaFileError");
   const ast = parser.astify(tableDefinitionString);
-  if (Array.isArray(ast) || !isCreate(ast)) return left("createSchemeFileError");
+  if (Array.isArray(ast) || !isCreate(ast))
+    return left("createSchemaFileError");
 
   const columns = columnsSchema
     .array()

@@ -3,6 +3,39 @@ import { match } from "ts-pattern";
 import { z } from "zod";
 import { MysqlToZodOption } from "./options";
 
+/* 
+  knex result
+      {
+      tinyint_column: -128,
+      smallint_column: -32768,
+      mediumint_column: -8388608,
+      int_column: -2147483648,
+      bigint_column: -9223372036854776000,
+      float_column: -3.40282e+38,
+      double_column: -1.7976931348623155e+308,
+      decimal_column: '1234.56',
+      date_column: 2023-07-12T15:00:00.000Z,
+      time_column: '23:59:59',
+      datetime_column: 2023-07-13T14:59:59.000Z,
+      timestamp_column: 2023-07-13T14:59:59.000Z,
+      year_column: 2023,
+      char_column: 'char_value',
+      varchar_column: 'varchar_value',
+      binary_column: <Buffer 31 31 31 00 00 00 00 00 00 00>,
+      varbinary_column: <Buffer 76 61 72 62 69 6e 61 72 79 5f 76 61 6c 75 65>,
+      tinyblob_column: <Buffer 74 69 6e 79 62 6c 6f 62 5f 76 61 6c 75 65>,
+      blob_column: <Buffer 62 6c 6f 62 5f 76 61 6c 75 65>,
+      mediumblob_column: <Buffer 6d 65 64 69 75 6d 62 6c 6f 62 5f 76 61 6c 75 65>,
+      longblob_column: <Buffer 6c 6f 6e 67 62 6c 6f 62 5f 76 61 6c 75 65>,
+      tinytext_column: 'tinytext_value',
+      text_column: 'text_value',
+      mediumtext_column: 'mediumtext_value',
+      longtext_column: 'longtext_value',
+      enum_column: 'value1',
+      set_column: 'value2'
+    }
+*/
+
 /*
   const typeMap = {
     tinyint: "number",
@@ -33,7 +66,21 @@ import { MysqlToZodOption } from "./options";
     enum: "string",
     set: "string",
   };
-*/
+  */
+
+/* convert invalidDate to 1000-01-01 00:00:00 */
+export const toValidDateSchemaText = `const toValidDatetimeSchema = z.preprocess((val) => {
+  const date = format(new Date(String(val)), "yyyy-MM-dd HH:mm:ss");
+  return date !== "Invalid Date" ? date : "1000-01-01 00:00:00";
+}, z.date());`;
+
+/* export const toValidDateSchemaText = `const toValidDateSchema = z.preprocess((val) => {
+  const date = format(new Date(String(val)), "yyyy-MM-dd");
+  return date !== "Invalid Date" ? date : "1000-01-01";
+}, z.string());`;
+ */
+const dateToString = (option: MysqlToZodOption) =>
+  option.isInvalidDateToValidDate ? "toValidDatetimeSchema" : "z.date()";
 export const convertToZodType = (type: string) =>
   match(type)
     .with("TINYINT", () => "z.number()")
@@ -109,7 +156,7 @@ export const createSchema = (
   const schema = columns
     .map((x) => {
       const { column, type, nullable } = x;
-      const zodType = convertToZodType(type);
+      const zodType = convertToZodType(type, options);
       const zodNullable = nullable ? `.${nullType}()` : "";
 
       return `${addSingleQuotation(column)}: ${zodType}${zodNullable},`;

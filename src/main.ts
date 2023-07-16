@@ -10,6 +10,7 @@ import { isNil } from "ramda";
 import { createSchemaFile } from "./createSchemaFile";
 import { getTableDefinition, getTables } from "./dbManipulateFunctions";
 import { init } from "./init";
+import { toValidDateSchemaText } from "./toZod";
 
 const program = new Command();
 
@@ -20,15 +21,22 @@ const main = async () => {
   const { outFilePath, fileName, dbConnection, tableNames } = initEither.right;
   if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
-  // table一覧を取得
+  // get table list
   const tables = await getTables(tableNames, dbConnection);
 
-  // import文を追加する
+  // add import statement
   const importStr = `import { z } from "zod";
   ${EOL}
   `;
 
   let str = importStr;
+
+  /* If the isInvalidDateToValidDate option is true, insert a toValidDateSchemaText that may not be used */
+  const insertToValidDateSchemaText = initEither.right.isInvalidDateToValidDate
+    ? toValidDateSchemaText
+    : ``;
+
+  str += insertToValidDateSchemaText;
   for (const table of tables) {
     const tableDefinition = await getTableDefinition(table, dbConnection);
     const s = createSchemaFile(tableDefinition, initEither.right);
