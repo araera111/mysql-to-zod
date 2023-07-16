@@ -9,10 +9,13 @@
 ```bash
 npx mysql-to-zod mysql://user:pass@localhost:3306/dbname
 ```
+
 ## default gif
+
 ![default](https://github.com/araera111/mysql-to-zod/assets/63596736/650265b4-414c-49f3-b88c-cf437921960c)
 
 ## option gif
+
 ![option](https://github.com/araera111/mysql-to-zod/assets/63596736/b00af2ab-1a3c-4516-8e90-67a6e29f4a9b)
 
 ## Demo
@@ -31,6 +34,7 @@ CREATE TABLE todo (
 ```
 
 ## example
+
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c6d4bf03-8109-4ccd-804f-59249a733696)
 
 
@@ -82,6 +86,7 @@ const options = {
   dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
   tableNames: [], //if empty, all tables.
   nullType: "nullable" // "nullable" | "nullish" default is "nullable"
+  zeroToValidDate: true // if contains new Date(0000-00-00 00:00:00), convert to new Date (1000-01-01 00:00:00)
 };
 module.exports = options;
 ```

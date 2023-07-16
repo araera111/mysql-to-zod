@@ -26,7 +26,7 @@ export const mysqlToZodOptionSchema = z.object({
     .union([z.literal("nullable"), z.literal("nullish")])
     .optional()
     .default("nullable"),
-  isDateToString: z.boolean().optional().default(false),
+  // isInvalidDateToValidDate: z.boolean().optional().default(true),
   // dbConnectionLimit: z.number().optional().default(1),
 });
 // type
