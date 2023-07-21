@@ -10,7 +10,6 @@ import { isNil } from "ramda";
 import { createSchemaFile } from "./createSchemaFile";
 import { getTableDefinition, getTables } from "./dbManipulateFunctions";
 import { init } from "./init";
-import { toValidDateSchemaText } from "./toZod";
 
 const program = new Command();
 
@@ -32,11 +31,11 @@ const main = async () => {
   let str = importStr;
 
   /* If the isInvalidDateToValidDate option is true, insert a toValidDateSchemaText that may not be used */
-  const insertToValidDateSchemaText = initEither.right.isInvalidDateToValidDate
+  /*   const insertToValidDateSchemaText = initEither.right.isInvalidDateToValidDate
     ? toValidDateSchemaText
     : ``;
 
-  str += insertToValidDateSchemaText;
+  str += insertToValidDateSchemaText; */
   for (const table of tables) {
     const tableDefinition = await getTableDefinition(table, dbConnection);
     const s = createSchemaFile(tableDefinition, initEither.right);
