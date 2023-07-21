@@ -79,8 +79,7 @@ export const toValidDateSchemaText = `const toValidDatetimeSchema = z.preprocess
   return date !== "Invalid Date" ? date : "1000-01-01";
 }, z.string());`;
  */
-const dateToString = (option: MysqlToZodOption) =>
-  option.isInvalidDateToValidDate ? "toValidDatetimeSchema" : "z.date()";
+
 export const convertToZodType = (type: string) =>
   match(type)
     .with("TINYINT", () => "z.number()")
@@ -156,7 +155,7 @@ export const createSchema = (
   const schema = columns
     .map((x) => {
       const { column, type, nullable } = x;
-      const zodType = convertToZodType(type, options);
+      const zodType = convertToZodType(type);
       const zodNullable = nullable ? `.${nullType}()` : "";
 
       return `${addSingleQuotation(column)}: ${zodType}${zodNullable},`;
