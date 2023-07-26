@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
 import { Either, isLeft, isRight, left, right } from "fp-ts/Either";
 import { assoc, isNil } from "ramda";
-import { MysqlToZodOption, mysqlToZodOptionSchema } from "../../options";
+import { MysqlToZodOption, mysqlToZodOptionSchema } from "../options";
 
 const basicConfig: MysqlToZodOption = {
   isAddType: true,

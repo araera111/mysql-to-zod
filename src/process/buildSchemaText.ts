@@ -1,9 +1,9 @@
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
-import { createSchemaFile } from "../../createSchemaFile";
-import { getTableDefinition } from "../../dbManipulateFunctions";
-import { MysqlToZodOption } from "../../options";
+import { createSchemaFile } from "../createSchemaFile";
+import { getTableDefinition } from "../dbManipulateFunctions";
+import { MysqlToZodOption } from "../options";
 
 type BuildSchemaTextParams = {
   tables: string[];

@@ -2,10 +2,10 @@ import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil } from "ramda";
-import { buildSchemaText } from "./features/process/buildSchemaText";
-import { getTables } from "./features/process/getTables";
-import { init } from "./features/process/init";
-import { output } from "./features/process/output";
+import { buildSchemaText } from "./specs/buildSchemaText";
+import { getTables } from "./process/getTables";
+import { init } from "./process/init";
+import { output } from "./process/output";
 
 const program = new Command();
 
