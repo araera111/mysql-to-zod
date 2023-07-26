@@ -2,8 +2,8 @@ import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
 import { createSchemaFile } from "../../createSchemaFile";
-import { MysqlToZodOption } from "../../options";
 import { getTableDefinition } from "../../dbManipulateFunctions";
+import { MysqlToZodOption } from "../../options";
 
 type BuildSchemaTextParams = {
   tables: string[];
@@ -40,7 +40,6 @@ ${schemaText}
 ${EOL}`;
     return loop(tailTables, newResult);
   };
-  const t = await loop(tables, "");
-  console.log(t);
-  return `${importStatement}${t}`;
+  const schemaTexts = await loop(tables, "");
+  return `${importStatement}${schemaTexts}`;
 };
