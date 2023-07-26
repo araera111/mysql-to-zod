@@ -15,7 +15,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "removeComments": true,
-    "noUncheckedIndexedAccess":true
+    "noUncheckedIndexedAccess": true
   },
   "include": ["./src"]
 }

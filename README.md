@@ -42,7 +42,6 @@ CREATE TABLE todo (
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c6d4bf03-8109-4ccd-804f-59249a733696)
 
-
 run:
 
 ```bash
@@ -52,7 +51,6 @@ npx mysql-to-zod mysql://user@pass:3306/dbname
 ## example
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c5495868-bbb7-4f15-910a-2719bc8b7ea4)
-
 
 ```typescript
 import { z } from "zod";
@@ -80,7 +78,6 @@ touch mysqlToZod.config.js
 ```
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/d3cdc363-1d1f-422f-9ee6-c2ad2c7136d0)
-
 
 ```js:mysqlToZod.config.js
 const options = {
@@ -110,6 +107,7 @@ const options = {
     }
 }
 ```
+
 ## has option
 
 Do NOT PASS MYSQL parameters

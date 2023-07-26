@@ -131,7 +131,7 @@ export const toUpperCamel = (str: string) => {
 export const toCamelWrapper = (
   str: string,
   isCamel: boolean,
-  isUpperCamel: boolean
+  isUpperCamel: boolean,
 ) => {
   if (isUpperCamel) return toUpperCamel(str);
   if (isCamel) return toCamel(str);
@@ -149,7 +149,7 @@ export const addSingleQuotation = (str: string) => {
 export const createSchema = (
   tableName: string,
   columns: Column[],
-  options: MysqlToZodOption
+  options: MysqlToZodOption,
 ) => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schema = columns

@@ -5,7 +5,7 @@ import { z } from "zod";
 // tableの一覧をmysqlからknexで取得する関数
 export const getTables = async (
   tableNames: string[],
-  dbConnection: string
+  dbConnection: string,
 ): Promise<string[]> => {
   // tableNamesが与えられている場合は、そのまま返す
   if (!isEmpty(tableNames)) return tableNames;

@@ -1,14 +1,14 @@
 // date-fnsをimport
-import { format } from 'date-fns';
-import * as esbuild from 'esbuild';
-import fs from 'fs-extra';
+import { format } from "date-fns";
+import * as esbuild from "esbuild";
+import fs from "fs-extra";
 
 // date-fnsでDATE型をYYYY-MM-DD HH:mm:ssに変換する関数
-const toYYYYMMDDHHmmss = (date) => format(date, 'yyyy_MM_dd_HH_mm_ss');
+const toYYYYMMDDHHmmss = (date) => format(date, "yyyy_MM_dd_HH_mm_ss");
 
 // 現行の./distにあるファイルをoldに移動
 const move = async () => {
-  const exists = await fs.existsSync('./dist');
+  const exists = await fs.existsSync("./dist");
   if (!exists) return;
 
   const now = toYYYYMMDDHHmmss(new Date());
@@ -18,15 +18,15 @@ const move = async () => {
 await move();
 
 // ./distを削除
-await fs.removeSync('./dist');
+await fs.removeSync("./dist");
 
 // build
 await esbuild.build({
-  entryPoints: ['./src/main.js'],
-  platform: 'node',
-  outfile: './dist/main.js',
-  tsconfig: 'tsconfig.build.json',
-  packages: 'external',
+  entryPoints: ["./src/main.js"],
+  platform: "node",
+  outfile: "./dist/main.js",
+  tsconfig: "tsconfig.build.json",
+  packages: "external",
   bundle: true,
-  minify: true
+  minify: true,
 });

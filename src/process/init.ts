@@ -40,7 +40,7 @@ export const configLoad = async (): Promise<
   configがleftで、argv[0]があるときは、argv[0]を使う
 */
 export const init = async (
-  program: Command
+  program: Command,
 ): Promise<Either<string, MysqlToZodOption>> => {
   const config = await configLoad();
   program.parse(process.argv);
@@ -59,6 +59,10 @@ export const init = async (
   const validConfig = isRight(config) ? config.right : basicConfig;
 
   return right(
-    assoc("dbConnection", dbConnection ?? validConfig.dbConnection, validConfig)
+    assoc(
+      "dbConnection",
+      dbConnection ?? validConfig.dbConnection,
+      validConfig,
+    ),
   );
 };

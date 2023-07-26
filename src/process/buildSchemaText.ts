@@ -21,7 +21,7 @@ export const buildSchemaText = async ({
 
   const loop = async (
     restTables: string[],
-    result: string
+    result: string,
   ): Promise<string> => {
     const nonEmptyTables = fromArray(restTables);
     if (isNone(nonEmptyTables)) return result;
@@ -31,7 +31,7 @@ export const buildSchemaText = async ({
 
     const tableDefinition = await getTableDefinition(
       headTable,
-      config.dbConnection
+      config.dbConnection,
     );
     const schemaText = createSchemaFile(tableDefinition, config);
 
