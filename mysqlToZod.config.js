@@ -1,7 +1,7 @@
 const options = {
   isAddType: true,
-  isCamel: false,
-  isTypeUpperCamel: false,
+  isCamel: true,
+  isTypeUpperCamel: true,
   outFilePath: "mysqlToZod",
   fileName: "schema.ts",
   tableNames: [],

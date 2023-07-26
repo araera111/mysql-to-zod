@@ -2,6 +2,11 @@
 
 > Convert MySQL schemas into Zod schemas
 
+## Notice
+
+If you have any questions about usage or suggestions for improvement, please visit disucussions.
+<https://github.com/araera111/mysql-to-zod/discussions>
+
 ## Usage
 
 ### no-option(default)
@@ -37,7 +42,6 @@ CREATE TABLE todo (
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c6d4bf03-8109-4ccd-804f-59249a733696)
 
-
 run:
 
 ```bash
@@ -47,7 +51,6 @@ npx mysql-to-zod mysql://user@pass:3306/dbname
 ## example
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c5495868-bbb7-4f15-910a-2719bc8b7ea4)
-
 
 ```typescript
 import { z } from "zod";
@@ -63,6 +66,7 @@ export type Todo = z.infer<typeof TodoSchema>;
 ```
 
 ## example
+
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/1cf874c7-bee9-49fd-8519-533b5c2744cf)
 
 ## options
@@ -74,7 +78,6 @@ touch mysqlToZod.config.js
 ```
 
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/d3cdc363-1d1f-422f-9ee6-c2ad2c7136d0)
-
 
 ```js:mysqlToZod.config.js
 const options = {
@@ -104,6 +107,7 @@ const options = {
     }
 }
 ```
+
 ## has option
 
 Do NOT PASS MYSQL parameters
