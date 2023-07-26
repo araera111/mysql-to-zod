@@ -20,4 +20,8 @@ export const output = async ({
   await mkdirp(outFilePath);
   const savePath = join(process.cwd(), outFilePath, fileName);
   await writeFileSync(savePath, formatted);
+  // eslint-disable-next-line no-console
+  console.log("schema file created!");
+  // eslint-disable-next-line no-console
+  console.log("path: ", savePath);
 };

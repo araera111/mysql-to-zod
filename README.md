@@ -2,6 +2,11 @@
 
 > Convert MySQL schemas into Zod schemas
 
+## Notice
+
+If you have any questions about usage or suggestions for improvement, please visit disucussions.
+<https://github.com/araera111/mysql-to-zod/discussions>
+
 ## Usage
 
 ### no-option(default)
@@ -63,6 +68,7 @@ export type Todo = z.infer<typeof TodoSchema>;
 ```
 
 ## example
+
 ![image](https://github.com/araera111/mysql-to-zod/assets/63596736/1cf874c7-bee9-49fd-8519-533b5c2744cf)
 
 ## options
