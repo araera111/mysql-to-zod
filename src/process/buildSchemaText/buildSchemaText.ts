@@ -1,9 +1,9 @@
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
-import { createSchemaFile } from "../createSchemaFile";
-import { getTableDefinition } from "../dbManipulateFunctions";
-import { MysqlToZodOption } from "../options";
+import { getTableDefinition } from "../../dbManipulateFunctions";
+import { MysqlToZodOption } from "../../options";
+import { createSchemaFile } from "./utils/createSchemaFile";
 
 type BuildSchemaTextParams = {
   tables: string[];
@@ -21,7 +21,7 @@ export const buildSchemaText = async ({
 
   const loop = async (
     restTables: string[],
-    result: string,
+    result: string
   ): Promise<string> => {
     const nonEmptyTables = fromArray(restTables);
     if (isNone(nonEmptyTables)) return result;
@@ -31,7 +31,7 @@ export const buildSchemaText = async ({
 
     const tableDefinition = await getTableDefinition(
       headTable,
-      config.dbConnection,
+      config.dbConnection
     );
     const schemaText = createSchemaFile(tableDefinition, config);
 

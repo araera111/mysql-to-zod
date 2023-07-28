@@ -2,7 +2,7 @@ import { left } from "fp-ts/Either";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
-import { MysqlToZodOption } from "./options";
+import { MysqlToZodOption } from "../../../options";
 import { columnsSchema, createSchema } from "./toZod";
 
 export const convertToColumn = (ast: any) => {

@@ -1,4 +1,4 @@
-import { convertToZodType } from "../toZod";
+import { convertToZodType } from "../process/buildSchemaText/utils/toZod";
 
 /*
 case "TINYINT":
@@ -186,5 +186,11 @@ describe("convertToZodType", () => {
     const type = "LONGBLOB";
     const result = "z.buffer()";
     expect(convertToZodType(type)).toBe(result);
+  });
+});
+
+describe("", () => {
+  it("", () => {
+    expect().toBe();
   });
 });

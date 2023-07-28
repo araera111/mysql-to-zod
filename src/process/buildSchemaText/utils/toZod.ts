@@ -1,7 +1,7 @@
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
 import { z } from "zod";
-import { MysqlToZodOption } from "./options";
+import { MysqlToZodOption } from "../../../options";
 
 /* 
   knex result
@@ -131,7 +131,7 @@ export const toUpperCamel = (str: string) => {
 export const toCamelWrapper = (
   str: string,
   isCamel: boolean,
-  isUpperCamel: boolean,
+  isUpperCamel: boolean
 ) => {
   if (isUpperCamel) return toUpperCamel(str);
   if (isCamel) return toCamel(str);
@@ -150,6 +150,7 @@ export const createSchema = (
   tableName: string,
   columns: Column[],
   options: MysqlToZodOption,
+  tableComment: string | undefined
 ) => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schema = columns
