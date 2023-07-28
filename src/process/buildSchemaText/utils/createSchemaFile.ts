@@ -46,7 +46,11 @@ export const createSchemaFile = (
         .flatMap((x: any) => (isNil(x) ? [] : x))
     );
 
-  const tableComment = getTableComment(ast);
+  const tableComment = getTableComment({
+    ast,
+    optionCommentsTable: options?.comments?.table,
+    tableName,
+  });
   const schema = createSchema(tableName, columns, options, tableComment);
   return schema;
 };

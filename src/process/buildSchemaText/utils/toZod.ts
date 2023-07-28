@@ -1,9 +1,8 @@
-import { isNil } from "ramda";
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
 import { z } from "zod";
 import { MysqlToZodOption } from "../../../options";
-import { convertTableComment } from "./buildSchemaTextUtil";
+import { composeTableSchemaTextList } from "./buildSchemaTextUtil";
 
 /* 
   knex result
@@ -155,7 +154,7 @@ export const createSchema = (
   tableComment: string | undefined
 ) => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
-  const schema = columns
+  const schemaString = columns
     .map((x) => {
       const { column, type, nullable } = x;
       const zodType = convertToZodType(type);
@@ -165,17 +164,27 @@ export const createSchema = (
     })
     .join("");
 
-  const validTableName = toCamelWrapper(tableName, isCamel, isTypeUpperCamel);
+  const convertedTableName = toCamelWrapper(
+    tableName,
+    isCamel,
+    isTypeUpperCamel
+  );
 
-  const addTypeString = `export type ${validTableName} = z.infer<typeof ${validTableName}Schema>;`;
+  const addTypeString = `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`;
 
-  // TODO need more clean code. to Function.
-  return isNil(tableComment)
-    ? `export const ${validTableName}Schema = z.object({${schema}}); ${
+  return composeTableSchemaTextList({
+    schemaString,
+    convertedTableName,
+    isAddType,
+    addTypeString,
+    tableComment,
+  }).join("\n");
+  /*   return isNil(tableComment)
+    ? `export const ${convertedTableName}Schema = z.object({${schema}}); ${
         isAddType ? addTypeString : ""
       } `.replaceAll("\t", "")
-    : `${convertTableComment(tableName, tableComment)}
-export const ${validTableName}Schema = z.object({${schema}}); ${
+    : `${tableComment}
+export const ${convertedTableName}Schema = z.object({${schema}}); ${
         isAddType ? addTypeString : ""
-      } `.replaceAll("\t", "");
+      } `.replaceAll("\t", ""); */
 };

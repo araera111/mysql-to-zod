@@ -15,12 +15,16 @@ import { z } from "zod";
   isDateToString:Date型をstringにするかどうか: boolean
 */
 
-export const optionCommentsSchema = z.object({
-  table: z.object({
-    active: z.boolean().default(true),
-    format: z.string().default("// [table:!name] : !text"),
-  }),
+export const optionCommentsTableSchema = z.object({
+  active: z.boolean().default(true),
+  format: z.string().default("// [table:!name] : !text"),
 });
+export type OptionCommentsTable = z.infer<typeof optionCommentsTableSchema>;
+
+export const optionCommentsSchema = z.object({
+  table: optionCommentsTableSchema.optional(),
+});
+export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional().default(true),
@@ -40,3 +44,19 @@ export const mysqlToZodOptionSchema = z.object({
 });
 // type
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
+
+export const basicMySQLToZodOption: MysqlToZodOption = {
+  isAddType: true,
+  isCamel: true,
+  isTypeUpperCamel: true,
+  outFilePath: "./mysqlToZod",
+  fileName: "schema.ts",
+  tableNames: [],
+  nullType: "nullable",
+  comments: {
+    table: {
+      active: true,
+      format: "// [table:!name] : !text",
+    },
+  },
+};
