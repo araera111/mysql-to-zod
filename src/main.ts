@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil } from "ramda";
-import { buildSchemaText } from "./process/buildSchemaText";
+import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
 import { getTables } from "./process/getTables";
 import { init } from "./process/init";
 import { output } from "./process/output";

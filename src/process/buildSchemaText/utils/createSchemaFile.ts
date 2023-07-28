@@ -2,7 +2,8 @@ import { left } from "fp-ts/Either";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
-import { MysqlToZodOption } from "./options";
+import { MysqlToZodOption } from "../../../options";
+import { getTableComment } from "./buildSchemaTextUtil";
 import { columnsSchema, createSchema } from "./toZod";
 
 export const convertToColumn = (ast: any) => {
@@ -44,6 +45,12 @@ export const createSchemaFile = (
         ?.map((x: any) => convertToColumn(x))
         .flatMap((x: any) => (isNil(x) ? [] : x))
     );
-  const schema = createSchema(tableName, columns, options);
+
+  const tableComment = getTableComment({
+    ast,
+    optionCommentsTable: options?.comments?.table,
+    tableName,
+  });
+  const schema = createSchema(tableName, columns, options, tableComment);
   return schema;
 };

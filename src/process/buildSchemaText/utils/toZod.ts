@@ -1,7 +1,8 @@
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
 import { z } from "zod";
-import { MysqlToZodOption } from "./options";
+import { MysqlToZodOption } from "../../../options";
+import { composeTableSchemaTextList } from "./buildSchemaTextUtil";
 
 /* 
   knex result
@@ -131,7 +132,7 @@ export const toUpperCamel = (str: string) => {
 export const toCamelWrapper = (
   str: string,
   isCamel: boolean,
-  isUpperCamel: boolean,
+  isUpperCamel: boolean
 ) => {
   if (isUpperCamel) return toUpperCamel(str);
   if (isCamel) return toCamel(str);
@@ -150,9 +151,10 @@ export const createSchema = (
   tableName: string,
   columns: Column[],
   options: MysqlToZodOption,
-) => {
+  tableComment: string | undefined
+): string => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
-  const schema = columns
+  const schemaString = columns
     .map((x) => {
       const { column, type, nullable } = x;
       const zodType = convertToZodType(type);
@@ -162,11 +164,20 @@ export const createSchema = (
     })
     .join("");
 
-  const validTableName = toCamelWrapper(tableName, isCamel, isTypeUpperCamel);
+  const convertedTableName = toCamelWrapper(
+    tableName,
+    isCamel,
+    isTypeUpperCamel
+  );
 
-  const addTypeString = `export type ${validTableName} = z.infer<typeof ${validTableName}Schema>;`;
+  const addTypeString = isAddType
+    ? `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`
+    : "";
 
-  return `export const ${validTableName}Schema = z.object({${schema}}); ${
-    isAddType ? addTypeString : ""
-  } `.replaceAll("\t", "");
+  return composeTableSchemaTextList({
+    schemaString,
+    convertedTableName,
+    addTypeString,
+    tableComment,
+  }).join("\n");
 };
