@@ -174,7 +174,7 @@ export const createSchema = (
     ? `export const ${validTableName}Schema = z.object({${schema}}); ${
         isAddType ? addTypeString : ""
       } `.replaceAll("\t", "")
-    : `${convertTableComment(tableName, tableComment)}\n
+    : `${convertTableComment(tableName, tableComment)}
 export const ${validTableName}Schema = z.object({${schema}}); ${
         isAddType ? addTypeString : ""
       } `.replaceAll("\t", "");
