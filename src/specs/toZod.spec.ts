@@ -187,11 +187,4 @@ describe("convertToZodType", () => {
     const result = "z.buffer()";
     expect(convertToZodType(type)).toBe(result);
   });
-  /*   it("Date, badValue", () => {
-    const type = "DATE";
-    const result = "toValidDatetimeSchema";
-    expect(
-      convertToZodType(type, { ..., isInvalidDateToValidDate: true })
-    ).toBe(result);
-  }); */
 });
