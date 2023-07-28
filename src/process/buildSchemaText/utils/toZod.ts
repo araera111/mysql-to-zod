@@ -152,7 +152,7 @@ export const createSchema = (
   columns: Column[],
   options: MysqlToZodOption,
   tableComment: string | undefined
-) => {
+): string => {
   const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
   const schemaString = columns
     .map((x) => {
@@ -179,12 +179,4 @@ export const createSchema = (
     addTypeString,
     tableComment,
   }).join("\n");
-  /*   return isNil(tableComment)
-    ? `export const ${convertedTableName}Schema = z.object({${schema}}); ${
-        isAddType ? addTypeString : ""
-      } `.replaceAll("\t", "")
-    : `${tableComment}
-export const ${convertedTableName}Schema = z.object({${schema}}); ${
-        isAddType ? addTypeString : ""
-      } `.replaceAll("\t", ""); */
 };
