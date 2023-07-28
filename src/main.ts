@@ -29,7 +29,7 @@ const main = async () => {
     fileName,
   });
 
-  return 1;
+  return 0;
 };
 
 main();
