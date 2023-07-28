@@ -188,9 +188,3 @@ describe("convertToZodType", () => {
     expect(convertToZodType(type)).toBe(result);
   });
 });
-
-describe("", () => {
-  it("", () => {
-    expect().toBe();
-  });
-});

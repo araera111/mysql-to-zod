@@ -1,7 +1,9 @@
+import { isNil } from "ramda";
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
 import { z } from "zod";
 import { MysqlToZodOption } from "../../../options";
+import { convertTableComment } from "./buildSchemaTextUtil";
 
 /* 
   knex result
@@ -167,7 +169,13 @@ export const createSchema = (
 
   const addTypeString = `export type ${validTableName} = z.infer<typeof ${validTableName}Schema>;`;
 
-  return `export const ${validTableName}Schema = z.object({${schema}}); ${
-    isAddType ? addTypeString : ""
-  } `.replaceAll("\t", "");
+  // TODO need more clean code. to Function.
+  return isNil(tableComment)
+    ? `export const ${validTableName}Schema = z.object({${schema}}); ${
+        isAddType ? addTypeString : ""
+      } `.replaceAll("\t", "")
+    : `${convertTableComment(tableName, tableComment)}\n
+export const ${validTableName}Schema = z.object({${schema}}); ${
+        isAddType ? addTypeString : ""
+      } `.replaceAll("\t", "");
 };
