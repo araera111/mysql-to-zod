@@ -44,6 +44,7 @@ export const createSchemaFile = (
         ?.map((x: any) => convertToColumn(x))
         .flatMap((x: any) => (isNil(x) ? [] : x))
     );
+
   const schema = createSchema(tableName, columns, options);
   return schema;
 };
