@@ -63,14 +63,12 @@ export const getTableComment = ({
 type ComposeTableSchemaTextParams = {
   schemaString: string;
   convertedTableName: string;
-  isAddType: boolean;
   addTypeString: string;
   tableComment: string | undefined;
 };
 export const composeTableSchemaTextList = ({
   schemaString,
   convertedTableName,
-  isAddType,
   addTypeString,
   tableComment,
 }: ComposeTableSchemaTextParams): string[] => {
@@ -78,7 +76,7 @@ export const composeTableSchemaTextList = ({
   const strList = [
     tableCommentString,
     `export const ${convertedTableName}Schema = z.object({${schemaString}});`,
-    isAddType ? addTypeString : "",
+    addTypeString,
   ].filter((x) => x !== "");
   return strList;
 };

@@ -170,12 +170,13 @@ export const createSchema = (
     isTypeUpperCamel
   );
 
-  const addTypeString = `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`;
+  const addTypeString = isAddType
+    ? `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`
+    : "";
 
   return composeTableSchemaTextList({
     schemaString,
     convertedTableName,
-    isAddType,
     addTypeString,
     tableComment,
   }).join("\n");
