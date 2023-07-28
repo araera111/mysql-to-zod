@@ -14,6 +14,14 @@ import { z } from "zod";
   nullのタイプ nullish or nullable default: nullable
   isDateToString:Date型をstringにするかどうか: boolean
 */
+
+export const optionCommentsSchema = z.object({
+  table: z.object({
+    active: z.boolean().default(true),
+    format: z.string().default("// [table:!name] : !text"),
+  }),
+});
+
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional().default(true),
   isCamel: z.boolean().optional().default(true),
@@ -26,6 +34,7 @@ export const mysqlToZodOptionSchema = z.object({
     .union([z.literal("nullable"), z.literal("nullish")])
     .optional()
     .default("nullable"),
+  comments: optionCommentsSchema.optional(),
   // isInvalidDateToValidDate: z.boolean().optional().default(true),
   // dbConnectionLimit: z.number().optional().default(1),
 });
