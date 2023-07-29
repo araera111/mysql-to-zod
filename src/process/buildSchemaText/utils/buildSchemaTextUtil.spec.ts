@@ -294,7 +294,10 @@ describe("composeColumnStringList", () => {
       ...basicMySQLToZodOption,
       nullType: "nullish",
     };
-    const result: string[] = ["// BlogTitle", "title: z.string().nullish(),\n"];
+    const result: string[] = [
+      "// title : BlogTitle",
+      "title: z.string().nullish(),\n",
+    ];
     expect(composeColumnStringList({ column, option })).toStrictEqual(result);
   });
 
@@ -310,7 +313,7 @@ describe("composeColumnStringList", () => {
       nullType: "nullish",
     };
     const result: string[] = [
-      "// BlogTitle2",
+      "// title : BlogTitle2",
       "title: z.string().nullish(),\n",
     ];
     expect(composeColumnStringList({ column, option })).toStrictEqual(result);
