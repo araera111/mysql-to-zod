@@ -120,3 +120,9 @@ export const composeColumnStringList = ({
 
   return result;
 };
+
+/* export const z.unknown() = z.custom<Buffer>(
+  (value) => Buffer.isBuffer(value),
+  { message: `Invalid type. Expected Buffer` }
+);
+ */
