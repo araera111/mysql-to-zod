@@ -1,5 +1,4 @@
 import { left } from "fp-ts/Either";
-import { writeFileSync } from "fs-extra";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
@@ -40,7 +39,6 @@ export const createSchemaFile = (
   const ast = parser.astify(tableDefinitionString);
   if (Array.isArray(ast) || !isCreate(ast))
     return left("createSchemaFileError");
-  writeFileSync("ast.json", JSON.stringify(ast, null, 2));
 
   const columns = columnsSchema
     .array()

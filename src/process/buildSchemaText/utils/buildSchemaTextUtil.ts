@@ -105,7 +105,14 @@ export const composeColumnStringList = ({
   const { nullType, comments } = option;
 
   const result: string[] = [
-    !isNil(comment) && comments?.column?.active ? `// ${comment}` : undefined,
+    !isNil(comment) && comments?.column?.active
+      ? convertComment({
+          name: column.column,
+          comment,
+          format: comments?.column?.format,
+          isTable: false,
+        })
+      : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
       nullable ? `.${nullType}()` : ""
     },\n`,
