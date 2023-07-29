@@ -6,5 +6,13 @@ const options = {
   fileName: "schema.ts",
   tableNames: [],
   nullType: "nullish",
+  comments: {
+    table: {
+      active: true,
+    },
+    column: {
+      active: true,
+    },
+  },
 };
 module.exports = options;

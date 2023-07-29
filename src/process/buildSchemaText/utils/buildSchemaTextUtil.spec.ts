@@ -1,7 +1,7 @@
 import { AST } from "node-sql-parser";
 import {
   MysqlToZodOption,
-  OptionCommentsTable,
+  OptionTableComments,
   basicMySQLToZodOption,
 } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
@@ -11,27 +11,36 @@ import {
   getTableComment,
 } from "./buildSchemaTextUtil";
 
-describe("convertTableComment", () => {
+describe("convertComment", () => {
   it("case1 if format is empty, default", () => {
     const tableName = "airport";
     const comment = "International Commercial Airports";
     const format = "";
+    const isTable = true;
     const result = "// [table:airport] : International Commercial Airports";
-    expect(convertComment({ name: tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
+      result
+    );
   });
   it("case2 replace !name !text", () => {
     const tableName = "airport";
     const comment = "International Commercial Airports";
     const format = "// !name : !text";
+    const isTable = true;
     const result = "// airport : International Commercial Airports";
-    expect(convertComment({ name: tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
+      result
+    );
   });
   it("case3 comment out", () => {
     const tableName = "airport";
     const comment = "International Commercial Airports";
     const format = `/* !name : !text */`;
+    const isTable = true;
     const result = "/* airport : International Commercial Airports */";
-    expect(convertComment({ name: tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
+      result
+    );
   });
   it("case4 multiple line comment out", () => {
     const tableName = "airport";
@@ -40,11 +49,23 @@ describe("convertTableComment", () => {
   table: !name
   comment : !text
 */`;
+    const isTable = true;
     const result = `/*
   table: airport
   comment : International Commercial Airports
 */`;
-    expect(convertComment({ name: tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
+      result
+    );
+  });
+
+  it("case5 column comment", () => {
+    const name = "title";
+    const comment = "BlogTitle";
+    const format = "";
+    const isTable = false;
+    const result = "// title : BlogTitle";
+    expect(convertComment({ name, comment, format, isTable })).toBe(result);
   });
 });
 
@@ -225,7 +246,7 @@ describe("getTableComment", () => {
   const basicTableName = "airport";
   it("case1 active:true, format:empty", () => {
     const ast: AST = { ...basicAST };
-    const optionCommentsTable: OptionCommentsTable = {
+    const optionCommentsTable: OptionTableComments = {
       active: true,
       format: "",
     };
@@ -237,7 +258,7 @@ describe("getTableComment", () => {
 
   it("case2 active:false -> undefined", () => {
     const ast: AST = { ...basicAST };
-    const optionCommentsTable: OptionCommentsTable = {
+    const optionCommentsTable: OptionTableComments = {
       active: false,
       format: "",
     };
@@ -249,7 +270,7 @@ describe("getTableComment", () => {
 
   it("case3 active:true format", () => {
     const ast: AST = { ...basicAST };
-    const optionCommentsTable: OptionCommentsTable = {
+    const optionCommentsTable: OptionTableComments = {
       active: true,
       format: "// [tableName:!name] : comment:!text",
     };

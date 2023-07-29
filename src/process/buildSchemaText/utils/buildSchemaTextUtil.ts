@@ -2,8 +2,10 @@ import { Create } from "node-sql-parser";
 import { isNil } from "ramda";
 import {
   MysqlToZodOption,
-  OptionCommentsTable,
-  optionCommentsTableSchema,
+  OptionTableComments,
+  defaultColumnCommentFormat,
+  defaultTableCommentFormat,
+  optionTableCommentsSchema,
 } from "../../../options";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 import { convertToZodType } from "./toZod";
@@ -20,23 +22,34 @@ type ConvertComment = {
   name: string;
   comment: string;
   format: string;
+  isTable: boolean;
 };
-export const convertComment = ({ name, comment, format }: ConvertComment) => {
-  if (format === "") return `// [table:${name}] : ${comment}`;
+export const convertComment = ({
+  name,
+  comment,
+  format,
+  isTable,
+}: ConvertComment) => {
+  if (format === "") {
+    const defaultFormat = isTable
+      ? defaultTableCommentFormat
+      : defaultColumnCommentFormat;
+    return defaultFormat.replace("!name", name).replace("!text", comment);
+  }
   return format.replace("!name", name).replace("!text", comment);
 };
 
 type GetTableCommentParams = {
   tableName: string;
   ast: Create;
-  optionCommentsTable: OptionCommentsTable | undefined;
+  optionCommentsTable: OptionTableComments | undefined;
 };
 export const getTableComment = ({
   tableName,
   ast,
   optionCommentsTable,
 }: GetTableCommentParams): string | undefined => {
-  const parsedOptionCommentsTable = optionCommentsTableSchema.parse(
+  const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
     optionCommentsTable ?? {}
   );
 
@@ -55,6 +68,7 @@ export const getTableComment = ({
     name: tableName,
     comment: comment.value.slice(1, -1),
     format: parsedOptionCommentsTable.format,
+    isTable: true,
   });
 };
 
@@ -88,9 +102,10 @@ export const composeColumnStringList = ({
   option,
 }: ComposeColumnStringListParams): string[] => {
   const { comment, nullable, type } = column;
-  const { nullType } = option;
+  const { nullType, comments } = option;
+
   const result: string[] = [
-    !isNil(comment) ? `// ${comment}` : undefined,
+    !isNil(comment) && comments?.column?.active ? `// ${comment}` : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
       nullable ? `.${nullType}()` : ""
     },\n`,
