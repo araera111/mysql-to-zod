@@ -103,12 +103,12 @@ export const convertToZodType = (type: string) =>
     .with("ENUM", () => "z.string()")
     .with("SET", () => "z.string()")
     .with("TIME", () => "z.string()")
-    .with("BINARY", () => "z.buffer()")
-    .with("VARBINARY", () => "z.buffer()")
-    .with("TINYBLOB", () => "z.buffer()")
-    .with("BLOB", () => "z.buffer()")
-    .with("MEDIUMBLOB", () => "z.buffer()")
-    .with("LONGBLOB", () => "z.buffer()")
+    .with("BINARY", () => "bufferSchema")
+    .with("VARBINARY", () => "bufferSchema")
+    .with("TINYBLOB", () => "bufferSchema")
+    .with("BLOB", () => "bufferSchema")
+    .with("MEDIUMBLOB", () => "bufferSchema")
+    .with("LONGBLOB", () => "bufferSchema")
     .otherwise(() => "z.unknown()");
 
 // stringをupperCamelに変換する関数

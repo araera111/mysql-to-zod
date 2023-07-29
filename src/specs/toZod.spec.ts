@@ -34,7 +34,7 @@ case "TINYINT":
     case "BLOB":
     case "MEDIUMBLOB":
     case "LONGBLOB":
-      return "z.buffer()";
+      return "bufferSchema";
     default:
       return "z.unknown()";
 */
@@ -159,32 +159,32 @@ describe("convertToZodType", () => {
   });
   it("BINARY", () => {
     const type = "BINARY";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
   it("VARBINARY", () => {
     const type = "VARBINARY";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
   it("TINYBLOB", () => {
     const type = "TINYBLOB";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
   it("BLOB", () => {
     const type = "BLOB";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
   it("MEDIUMBLOB", () => {
     const type = "MEDIUMBLOB";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
   it("LONGBLOB", () => {
     const type = "LONGBLOB";
-    const result = "z.buffer()";
+    const result = "bufferSchema";
     expect(convertToZodType(type)).toBe(result);
   });
 });

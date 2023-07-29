@@ -1,5 +1,6 @@
 import { Create } from "node-sql-parser";
 import { isNil } from "ramda";
+import { z } from "zod";
 import {
   MysqlToZodOption,
   OptionTableComments,
@@ -120,3 +121,8 @@ export const composeColumnStringList = ({
 
   return result;
 };
+
+export const bufferSchema = z.custom<Buffer>(
+  (value) => Buffer.isBuffer(value),
+  { message: `Invalid type. Expected Buffer` }
+);
