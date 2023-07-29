@@ -7,3 +7,12 @@ export const commentKeywordSchema = z
     value: z.string(),
   })
   .optional();
+
+export const columnsSchema = z.object({
+  column: z.string(),
+  type: z.string(),
+  nullable: z.boolean(),
+  comment: z.string().optional(),
+});
+
+export type Column = z.infer<typeof columnsSchema>;

@@ -1,6 +1,6 @@
 {
   "name": "mysql-to-zod",
-  "version": "1.4.0",
+  "version": "1.5.1",
   "description": "Convert MySQL schemas into Zod schemas",
   "source": "src/main.ts",
   "main": "dist/main.js",
@@ -15,7 +15,7 @@
     "lint-fix": "eslint --cache --fix src/ && prettier --write src/",
     "test": "jest",
     "type": "tsc --noEmit",
-    "publish": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
+    "pub": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
   },
   "keywords": [
     "typescript",

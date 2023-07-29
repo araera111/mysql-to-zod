@@ -3,8 +3,9 @@ import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
 import { MysqlToZodOption } from "../../../options";
+import { columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
-import { columnsSchema, createSchema } from "./toZod";
+import { createSchema } from "./createSchema";
 
 export const convertToColumn = (ast: any) => {
   if (isNil(ast.column)) return undefined;
@@ -19,7 +20,8 @@ export const convertToColumn = (ast: any) => {
     : ast?.definition?.dataType;
 
   const nullable = ast?.nullable?.type !== "not null";
-  return objectToCamel({ column, type, nullable });
+  const comment = ast?.comment?.value?.value;
+  return objectToCamel({ column, type, nullable, comment });
 };
 
 // astのCREATEかどうかを判定する関数

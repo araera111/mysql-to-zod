@@ -15,14 +15,27 @@ import { z } from "zod";
   isDateToString:Date型をstringにするかどうか: boolean
 */
 
-export const optionCommentsTableSchema = z.object({
+/* ColumnComment */
+export const defaultColumnCommentFormat = "// !name : !text";
+
+export const optionColumnCommentsSchema = z.object({
   active: z.boolean().default(true),
-  format: z.string().default("// [table:!name] : !text"),
+  format: z.string().default(defaultColumnCommentFormat),
 });
-export type OptionCommentsTable = z.infer<typeof optionCommentsTableSchema>;
+export type OptionColumnComments = z.infer<typeof optionColumnCommentsSchema>;
+
+/* TableComment */
+export const defaultTableCommentFormat = "// [table:!name] : !text";
+
+export const optionTableCommentsSchema = z.object({
+  active: z.boolean().default(true),
+  format: z.string().default(defaultTableCommentFormat),
+});
+export type OptionTableComments = z.infer<typeof optionTableCommentsSchema>;
 
 export const optionCommentsSchema = z.object({
-  table: optionCommentsTableSchema.optional(),
+  table: optionTableCommentsSchema.optional(),
+  column: optionColumnCommentsSchema.optional(),
 });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
@@ -39,10 +52,8 @@ export const mysqlToZodOptionSchema = z.object({
     .optional()
     .default("nullable"),
   comments: optionCommentsSchema.optional(),
-  // isInvalidDateToValidDate: z.boolean().optional().default(true),
-  // dbConnectionLimit: z.number().optional().default(1),
 });
-// type
+
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
 
 export const basicMySQLToZodOption: MysqlToZodOption = {
@@ -56,7 +67,11 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
   comments: {
     table: {
       active: true,
-      format: "// [table:!name] : !text",
+      format: defaultTableCommentFormat,
+    },
+    column: {
+      active: true,
+      format: defaultColumnCommentFormat,
     },
   },
 };

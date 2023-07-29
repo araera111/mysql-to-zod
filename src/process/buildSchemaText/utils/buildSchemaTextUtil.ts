@@ -1,36 +1,55 @@
 import { Create } from "node-sql-parser";
 import { isNil } from "ramda";
 import {
-  OptionCommentsTable,
-  optionCommentsTableSchema,
+  MysqlToZodOption,
+  OptionTableComments,
+  defaultColumnCommentFormat,
+  defaultTableCommentFormat,
+  optionTableCommentsSchema,
 } from "../../../options";
-import { commentKeywordSchema } from "../types/buildSchemaTextType";
+import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
+import { convertToZodType } from "./toZod";
 
-type ConvertTableCommentParams = {
-  tableName: string;
+// 1文字目が数字の場合は、先頭と末尾に''をつける関数
+export const addSingleQuotation = (str: string) => {
+  if (str.match(/^[0-9]/)) {
+    return `'${str}'`;
+  }
+  return str;
+};
+
+type ConvertComment = {
+  name: string;
   comment: string;
   format: string;
+  isTable: boolean;
 };
-export const convertTableComment = ({
-  tableName,
+export const convertComment = ({
+  name,
   comment,
   format,
-}: ConvertTableCommentParams) => {
-  if (format === "") return `// [table:${tableName}] : ${comment}`;
-  return format.replace("!name", tableName).replace("!text", comment);
+  isTable,
+}: ConvertComment) => {
+  if (format === "") {
+    const defaultFormat = isTable
+      ? defaultTableCommentFormat
+      : defaultColumnCommentFormat;
+    return defaultFormat.replace("!name", name).replace("!text", comment);
+  }
+  return format.replace("!name", name).replace("!text", comment);
 };
 
 type GetTableCommentParams = {
   tableName: string;
   ast: Create;
-  optionCommentsTable: OptionCommentsTable | undefined;
+  optionCommentsTable: OptionTableComments | undefined;
 };
 export const getTableComment = ({
   tableName,
   ast,
   optionCommentsTable,
 }: GetTableCommentParams): string | undefined => {
-  const parsedOptionCommentsTable = optionCommentsTableSchema.parse(
+  const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
     optionCommentsTable ?? {}
   );
 
@@ -45,18 +64,11 @@ export const getTableComment = ({
 
   if (isNil(comment)) return undefined;
 
-  /* 
-      {
-          keyword: "comment",
-          symbol: "=",
-          value: "'International Commercial Airports'",
-        },
-   delete single quote -> slice(1, -1)
-  */
-  return convertTableComment({
-    tableName,
+  return convertComment({
+    name: tableName,
     comment: comment.value.slice(1, -1),
     format: parsedOptionCommentsTable.format,
+    isTable: true,
   });
 };
 
@@ -79,4 +91,32 @@ export const composeTableSchemaTextList = ({
     addTypeString,
   ].filter((x) => x !== "");
   return strList;
+};
+
+type ComposeColumnStringListParams = {
+  column: Column;
+  option: MysqlToZodOption;
+};
+export const composeColumnStringList = ({
+  column,
+  option,
+}: ComposeColumnStringListParams): string[] => {
+  const { comment, nullable, type } = column;
+  const { nullType, comments } = option;
+
+  const result: string[] = [
+    !isNil(comment) && comments?.column?.active
+      ? convertComment({
+          name: column.column,
+          comment,
+          format: comments?.column?.format,
+          isTable: false,
+        })
+      : undefined,
+    `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
+      nullable ? `.${nullType}()` : ""
+    },\n`,
+  ].flatMap((x) => (isNil(x) ? [] : [x]));
+
+  return result;
 };
