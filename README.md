@@ -108,13 +108,81 @@ const options = {
 }
 ```
 
-## has option
+## Advanced Options
 
-Do NOT PASS MYSQL parameters
+### comment
 
-```sh
-npx mysql-to-zod
+CREATE TABLE statements can contain comments.
+
+```sql
+CREATE TABLE `todo` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task` varchar(255) NOT NULL,
+  `due_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='MY_TODO_LIST'
 ```
+
+By default, comments are inserted as follows
+
+```ts
+// [table:todo] : MY_TODO_LIST
+export const TodoSchema = z.object({
+  id: z.number(),
+  task: z.string(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+  comment: z.string().nullish(),
+});
+export type Todo = z.infer<typeof TodoSchema>;
+```
+
+In the CREATE TABLE statement, you can also add comments to each of the columns.
+
+```sql
+CREATE TABLE `blog` (
+  `title` varchar(30) DEFAULT NULL COMMENT 'BlogTitle',
+  `d` date DEFAULT NULL COMMENT 'CreationDate'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
+
+By default, comments are inserted as follows
+
+```ts
+export const BlogSchema = z.object({
+  // title : BlogTitle
+  title: z.string().nullish(),
+  // d : CreationDate
+  d: z.date().nullish(),
+});
+export type Blog = z.infer<typeof BlogSchema>;
+```
+
+Optionally, comments can be set to not be output. You can also set the output format.
+
+```ts
+const options = {
+  // other options ...
+  comments: {
+    table: {
+      active: true, // if false, table comment is not add;
+      format: '// [table:!name] : !text',
+    },
+    column: {
+      active: true, // if false, column comment is not add;
+      format: '// !name : !text'
+    },
+  },
+};
+module.exports = options;
+```
+
+```!name``` is converted to tablame. ```!text``` is converted to comment.
+if format is Empty, table comment format is ```'// [table:!name] : !text'```, column comment format is ```'// !name : !text'```.
 
 ## License
 
