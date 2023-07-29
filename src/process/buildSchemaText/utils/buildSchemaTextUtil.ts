@@ -16,18 +16,14 @@ export const addSingleQuotation = (str: string) => {
   return str;
 };
 
-type ConvertTableCommentParams = {
-  tableName: string;
+type ConvertComment = {
+  name: string;
   comment: string;
   format: string;
 };
-export const convertTableComment = ({
-  tableName,
-  comment,
-  format,
-}: ConvertTableCommentParams) => {
-  if (format === "") return `// [table:${tableName}] : ${comment}`;
-  return format.replace("!name", tableName).replace("!text", comment);
+export const convertComment = ({ name, comment, format }: ConvertComment) => {
+  if (format === "") return `// [table:${name}] : ${comment}`;
+  return format.replace("!name", name).replace("!text", comment);
 };
 
 type GetTableCommentParams = {
@@ -55,8 +51,8 @@ export const getTableComment = ({
 
   if (isNil(comment)) return undefined;
 
-  return convertTableComment({
-    tableName,
+  return convertComment({
+    name: tableName,
     comment: comment.value.slice(1, -1),
     format: parsedOptionCommentsTable.format,
   });

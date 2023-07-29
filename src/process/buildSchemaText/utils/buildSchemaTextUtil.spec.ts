@@ -7,7 +7,7 @@ import {
 import { Column } from "../types/buildSchemaTextType";
 import {
   composeColumnStringList,
-  convertTableComment,
+  convertComment,
   getTableComment,
 } from "./buildSchemaTextUtil";
 
@@ -17,21 +17,21 @@ describe("convertTableComment", () => {
     const comment = "International Commercial Airports";
     const format = "";
     const result = "// [table:airport] : International Commercial Airports";
-    expect(convertTableComment({ tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format })).toBe(result);
   });
   it("case2 replace !name !text", () => {
     const tableName = "airport";
     const comment = "International Commercial Airports";
     const format = "// !name : !text";
     const result = "// airport : International Commercial Airports";
-    expect(convertTableComment({ tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format })).toBe(result);
   });
   it("case3 comment out", () => {
     const tableName = "airport";
     const comment = "International Commercial Airports";
     const format = `/* !name : !text */`;
     const result = "/* airport : International Commercial Airports */";
-    expect(convertTableComment({ tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format })).toBe(result);
   });
   it("case4 multiple line comment out", () => {
     const tableName = "airport";
@@ -44,7 +44,7 @@ describe("convertTableComment", () => {
   table: airport
   comment : International Commercial Airports
 */`;
-    expect(convertTableComment({ tableName, comment, format })).toBe(result);
+    expect(convertComment({ name: tableName, comment, format })).toBe(result);
   });
 });
 
