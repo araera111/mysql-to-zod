@@ -181,7 +181,7 @@ const options = {
 module.exports = options;
 ```
 
-```!name``` is converted to tablenName. ```!text``` is converted to comment.
+```!name``` is converted to tableName. ```!text``` is converted to comment.
 if format is Empty, table comment format is ```'// [table:!name] : !text'```, column comment format is ```'// !name : !text'```.
 
 ## License
