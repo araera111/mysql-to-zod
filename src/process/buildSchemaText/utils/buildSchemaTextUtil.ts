@@ -1,10 +1,20 @@
 import { Create } from "node-sql-parser";
 import { isNil } from "ramda";
 import {
+  MysqlToZodOption,
   OptionCommentsTable,
   optionCommentsTableSchema,
 } from "../../../options";
-import { commentKeywordSchema } from "../types/buildSchemaTextType";
+import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
+import { convertToZodType } from "./toZod";
+
+// 1文字目が数字の場合は、先頭と末尾に''をつける関数
+export const addSingleQuotation = (str: string) => {
+  if (str.match(/^[0-9]/)) {
+    return `'${str}'`;
+  }
+  return str;
+};
 
 type ConvertTableCommentParams = {
   tableName: string;
@@ -45,14 +55,6 @@ export const getTableComment = ({
 
   if (isNil(comment)) return undefined;
 
-  /* 
-      {
-          keyword: "comment",
-          symbol: "=",
-          value: "'International Commercial Airports'",
-        },
-   delete single quote -> slice(1, -1)
-  */
   return convertTableComment({
     tableName,
     comment: comment.value.slice(1, -1),
@@ -79,4 +81,24 @@ export const composeTableSchemaTextList = ({
     addTypeString,
   ].filter((x) => x !== "");
   return strList;
+};
+
+type ComposeColumnStringListParams = {
+  column: Column;
+  option: MysqlToZodOption;
+};
+export const composeColumnStringList = ({
+  column,
+  option,
+}: ComposeColumnStringListParams): string[] => {
+  const { comment, nullable, type } = column;
+  const { nullType } = option;
+  const result: string[] = [
+    !isNil(comment) ? `// ${comment}` : undefined,
+    `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
+      nullable ? `.${nullType}()` : ""
+    },\n`,
+  ].flatMap((x) => (isNil(x) ? [] : [x]));
+
+  return result;
 };

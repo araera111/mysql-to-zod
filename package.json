@@ -15,7 +15,7 @@
     "lint-fix": "eslint --cache --fix src/ && prettier --write src/",
     "test": "jest",
     "type": "tsc --noEmit",
-    "publish": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
+    "pub": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
   },
   "keywords": [
     "typescript",

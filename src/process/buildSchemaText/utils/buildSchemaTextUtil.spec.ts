@@ -1,6 +1,15 @@
 import { AST } from "node-sql-parser";
-import { OptionCommentsTable } from "../../../options";
-import { convertTableComment, getTableComment } from "./buildSchemaTextUtil";
+import {
+  MysqlToZodOption,
+  OptionCommentsTable,
+  basicMySQLToZodOption,
+} from "../../../options";
+import { Column } from "../types/buildSchemaTextType";
+import {
+  composeColumnStringList,
+  convertTableComment,
+  getTableComment,
+} from "./buildSchemaTextUtil";
 
 describe("convertTableComment", () => {
   it("case1 if format is empty, default", () => {
@@ -249,5 +258,40 @@ describe("getTableComment", () => {
     expect(
       getTableComment({ ast, optionCommentsTable, tableName: basicTableName })
     ).toBe(result);
+  });
+});
+
+describe("composeColumnStringList", () => {
+  it("case1", () => {
+    const column: Column = {
+      type: "VARCHAR",
+      column: "title",
+      nullable: true,
+      comment: "BlogTitle",
+    };
+    const option: MysqlToZodOption = {
+      ...basicMySQLToZodOption,
+      nullType: "nullish",
+    };
+    const result: string[] = ["// BlogTitle", "title: z.string().nullish(),\n"];
+    expect(composeColumnStringList({ column, option })).toStrictEqual(result);
+  });
+
+  it("case2", () => {
+    const column: Column = {
+      type: "VARCHAR",
+      column: "title",
+      nullable: true,
+      comment: "BlogTitle2",
+    };
+    const option: MysqlToZodOption = {
+      ...basicMySQLToZodOption,
+      nullType: "nullish",
+    };
+    const result: string[] = [
+      "// BlogTitle2",
+      "title: z.string().nullish(),\n",
+    ];
+    expect(composeColumnStringList({ column, option })).toStrictEqual(result);
   });
 });

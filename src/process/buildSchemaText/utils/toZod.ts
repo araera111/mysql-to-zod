@@ -1,8 +1,5 @@
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
-import { z } from "zod";
-import { MysqlToZodOption } from "../../../options";
-import { composeTableSchemaTextList } from "./buildSchemaTextUtil";
 
 /* 
   knex result
@@ -114,14 +111,6 @@ export const convertToZodType = (type: string) =>
     .with("LONGBLOB", () => "z.buffer()")
     .otherwise(() => "z.unknown()");
 
-export const columnsSchema = z.object({
-  column: z.string(),
-  type: z.string(),
-  nullable: z.boolean(),
-});
-// type
-export type Column = z.infer<typeof columnsSchema>;
-
 // stringをupperCamelに変換する関数
 export const toUpperCamel = (str: string) => {
   const camel = toCamel(str);
@@ -137,47 +126,4 @@ export const toCamelWrapper = (
   if (isUpperCamel) return toUpperCamel(str);
   if (isCamel) return toCamel(str);
   return str;
-};
-
-// 1文字目が数字の場合は、先頭と末尾に''をつける関数
-export const addSingleQuotation = (str: string) => {
-  if (str.match(/^[0-9]/)) {
-    return `'${str}'`;
-  }
-  return str;
-};
-
-export const createSchema = (
-  tableName: string,
-  columns: Column[],
-  options: MysqlToZodOption,
-  tableComment: string | undefined
-): string => {
-  const { isAddType, isCamel, isTypeUpperCamel, nullType } = options;
-  const schemaString = columns
-    .map((x) => {
-      const { column, type, nullable } = x;
-      const zodType = convertToZodType(type);
-      const zodNullable = nullable ? `.${nullType}()` : "";
-
-      return `${addSingleQuotation(column)}: ${zodType}${zodNullable},`;
-    })
-    .join("");
-
-  const convertedTableName = toCamelWrapper(
-    tableName,
-    isCamel,
-    isTypeUpperCamel
-  );
-
-  const addTypeString = isAddType
-    ? `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`
-    : "";
-
-  return composeTableSchemaTextList({
-    schemaString,
-    convertedTableName,
-    addTypeString,
-    tableComment,
-  }).join("\n");
 };
