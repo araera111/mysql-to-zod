@@ -42,6 +42,7 @@ export const createSchema = (
     isTypeUpperCamel,
     typeOption: options.type,
   });
+  console.log({ typeOption });
 
   const typeString = composeTypeString({
     typeOption,
