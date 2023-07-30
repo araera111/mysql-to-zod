@@ -1,7 +1,7 @@
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
-import { getTableDefinition } from "../../dbManipulateFunctions";
+import { getTableDefinition } from "./utils/getTableDefinition";
 import { MysqlToZodOption } from "../../options";
 import { createSchemaFile } from "./utils/createSchemaFile";
 

@@ -1,5 +1,5 @@
 import { AST } from "node-sql-parser";
-import { isCreate } from "../process/buildSchemaText/utils/createSchemaFile";
+import { isCreate } from "./createSchemaFile";
 
 describe("isCreate", () => {
   it("case1 true", () => {

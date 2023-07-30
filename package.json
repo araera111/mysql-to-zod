@@ -13,7 +13,7 @@
     "dev": "tsx ./src/main.ts",
     "build": "zx ./build.mjs && zx ./addShebang.mjs",
     "lint-fix": "eslint --cache --fix src/ && prettier --write src/",
-    "test": "jest",
+    "test": "vitest",
     "type": "tsc --noEmit",
     "pub": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
   },
@@ -51,6 +51,7 @@
     "rimraf": "^5.0.1",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6",
+    "vitest": "^0.33.0",
     "zx": "^7.2.3"
   },
   "dependencies": {

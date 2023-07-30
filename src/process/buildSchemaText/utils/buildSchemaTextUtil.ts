@@ -18,6 +18,29 @@ export const addSingleQuotation = (str: string) => {
   return str;
 };
 
+type ReplaceTableNameParams = {
+  tableName: string;
+  replacement: string[];
+};
+
+export const replaceTableName = ({
+  tableName,
+  replacement,
+}: ReplaceTableNameParams): string => {
+  const [before, after] = replacement;
+  /* if replacement[0]or[1] undefined -> return original tableName */
+  if (isNil(before) || isNil(after)) return tableName;
+
+  /* if notRegexp -> replace */
+  /* use match? invalid regexp -> return original tablename */
+  if (!before.startsWith("/") && !after.endsWith("/"))
+    return tableName.replace(before, after);
+
+  /* if regexp -> replace */
+  const regex = new RegExp(before.slice(1, -1));
+  return tableName.replace(regex, after);
+};
+
 type ConvertComment = {
   name: string;
   comment: string;

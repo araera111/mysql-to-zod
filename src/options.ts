@@ -10,10 +10,40 @@ import { z } from "zod";
   取得するテーブル名: string[]
   exportをつけるかどうか: boolean
   型名をアッパーキャメルケースにするかどうか: boolean
-  DBに同時接続する数: number
   nullのタイプ nullish or nullable default: nullable
   isDateToString:Date型をstringにするかどうか: boolean
 */
+
+const caseUnionSchema = z.union([
+  z.literal("camel"),
+  z.literal("pascal"),
+  z.literal("snake"),
+  z.literal("none"),
+  z.literal("replace"),
+]);
+
+export const defaultTypeOptionSchema = z.object({
+  declared: z
+    .union([z.literal("none"), z.literal("type"), z.literal("interface")])
+    .default("none"),
+  format: caseUnionSchema.default("pascal"),
+  suffix: z.string().default(""),
+  prefix: z.string().default(""),
+  replacements: z.string().array().default([]),
+});
+export type DefaultTypeOption = z.infer<typeof defaultTypeOptionSchema>;
+
+export const defaultSchemaOptionSchema = z.object({
+  format: caseUnionSchema.default("camel"),
+  prefix: z.string().default(""),
+  suffix: z.string().default("Schema"),
+  replacements: z.string().array().default([]),
+  nullType: z
+    .union([z.literal("nullable"), z.literal("nullish")])
+    .optional()
+    .default("nullable"),
+});
+export type DefaultSchemaOption = z.infer<typeof defaultSchemaOptionSchema>;
 
 /* ColumnComment */
 export const defaultColumnCommentFormat = "// !name : !text";
@@ -39,10 +69,18 @@ export const optionCommentsSchema = z.object({
 });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
+/* 
+  schemaFormat: {
+  　型定義をつけるかどうか、という変数名
+    isAddType: boolean,
+    
+  }
+*/
+
 export const mysqlToZodOptionSchema = z.object({
-  isAddType: z.boolean().optional().default(true),
-  isCamel: z.boolean().optional().default(true),
-  isTypeUpperCamel: z.boolean().optional().default(true),
+  isAddType: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
+  isCamel: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
+  isTypeUpperCamel: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
   outFilePath: z.string().optional().default("./mysqlToZod"),
   fileName: z.string().optional().default("schema.ts"),
   dbConnection: z.any().optional(),
@@ -50,8 +88,10 @@ export const mysqlToZodOptionSchema = z.object({
   nullType: z
     .union([z.literal("nullable"), z.literal("nullish")])
     .optional()
-    .default("nullable"),
+    .default("nullable"), // I hope to have it DEPRECATED in the near future.
   comments: optionCommentsSchema.optional(),
+  type: defaultTypeOptionSchema.optional(),
+  schema: defaultSchemaOptionSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;

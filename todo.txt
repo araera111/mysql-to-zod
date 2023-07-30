@@ -1,1 +1,24 @@
-z.unknown()が存在した場合は、冒頭にひとつ追加しておく。
+feat/#36
+
+検討
+オプションについて考える。
+デフォルトは
+■デフォルト
+・Typeあり
+・schemaはcamelCase
+・TypeはUpperCamelCase(PascalCase)
+・export [type] = 
+
+■オプション
+type: {
+  declared: "none" | "type" | "interface"
+  format:   "camel" | "pascal" | "snake" | "none" | "replace",
+  replacements: string []
+}
+
+schema: {
+  format: "camel" | "pascal" | "snake" | "replace",
+  replacements: string []
+}
+
+TODO:
