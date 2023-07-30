@@ -18,13 +18,14 @@ const caseUnionSchema = z.union([
   z.literal("snake"),
   z.literal("replace"),
 ]);
+export type CaseUnion = z.infer<typeof caseUnionSchema>;
 
 export const typeOptionSchema = z.object({
   declared: z
     .union([z.literal("none"), z.literal("type"), z.literal("interface")])
     .default("type"),
   format: caseUnionSchema.default("pascal"),
-  prefix: z.string().default("export"),
+  prefix: z.string().default(""),
   suffix: z.string().default(""),
   replacements: z.string().array().default([]),
 });
@@ -32,7 +33,7 @@ export type TypeOption = z.infer<typeof typeOptionSchema>;
 
 export const SchemaOptionSchema = z.object({
   format: caseUnionSchema.default("camel"),
-  prefix: z.string().default("export"),
+  prefix: z.string().default(""),
   suffix: z.string().default("Schema"),
   replacements: z.string().array().default([]),
   nullType: z

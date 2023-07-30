@@ -1,6 +1,11 @@
 import { AST } from "node-sql-parser";
-import { TypeOption } from "../../../options";
-import { composeTypeStringList, isCreate } from "./createSchemaFile";
+import { CaseUnion, TypeOption } from "../../../options";
+import {
+  convertTableName,
+  isCreate,
+  toPascalWrapper,
+  composeTypeString as toTypeString,
+} from "./createSchemaFile";
 
 describe("isCreate", () => {
   it("case1 true", () => {
@@ -11,6 +16,31 @@ describe("isCreate", () => {
     };
     const result = true;
     expect(isCreate(obj)).toBe(result);
+  });
+});
+
+describe("convertTableName", () => {
+  it("case1 pascal", () => {
+    const tableName = "todo";
+    const format: CaseUnion = "pascal";
+    const replacements: string[] = [];
+    const result = "Todo";
+    expect(convertTableName({ tableName, format, replacements })).toBe(result);
+  });
+  it("case2 camel", () => {
+    const tableName = "todo";
+    const format: CaseUnion = "camel";
+    const replacements: string[] = [];
+    const result = "todo";
+    expect(convertTableName({ tableName, format, replacements })).toBe(result);
+  });
+});
+
+describe("toPascalWrapper", () => {
+  it("case 1", () => {
+    const str = "todo";
+    const result = "Todo";
+    expect(toPascalWrapper(str)).toBe(result);
   });
 });
 
@@ -26,24 +56,24 @@ describe("composeTypeStringList", () => {
     const tableName = "todo";
     const schemaName = "todoSchema";
     const result = "";
-    expect(
-      composeTypeStringList({ typeOption, tableName, schemaName })
-    ).toStrictEqual(result);
+    expect(toTypeString({ typeOption, tableName, schemaName })).toStrictEqual(
+      result
+    );
   });
 
   it("case2 pascal", () => {
     const typeOption: TypeOption = {
       declared: "type",
       format: "pascal",
-      prefix: "export",
+      prefix: "",
       suffix: "",
       replacements: [],
     };
     const tableName = "todo";
     const schemaName = "todoSchema";
     const result = "export type Todo = z.infer<typeof todoSchema>;";
-    expect(
-      composeTypeStringList({ typeOption, tableName, schemaName })
-    ).toStrictEqual(result);
+    expect(toTypeString({ typeOption, tableName, schemaName })).toStrictEqual(
+      result
+    );
   });
 });

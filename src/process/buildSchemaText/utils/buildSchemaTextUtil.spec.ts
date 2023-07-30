@@ -326,41 +326,53 @@ describe("replaceTableName", () => {
     const tableName = "foo_bar_baz";
     const replacement: string[] = ["_bar_", "_blah_"];
     const result = "foo_blah_baz";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 
   it("case2 not match", () => {
     const tableName = "foo_bar";
     const replacement: string[] = ["_bar_", "_blah_"];
     const result = "foo_bar";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 
   it("case3 regexp", () => {
     const tableName = "xcustomers";
     const replacement: string[] = ["/^x(.*)/", "$1_xref"];
     const result = "customers_xref";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 
   it("case4 regexp2 ^wp_", () => {
     const tableName = "wp_users";
     const replacement = ["/^wp_/", ""];
     const result = "users";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 
   it("case5 regexp3 log", () => {
     const tableName = "auditlog";
     const replacement = ["log", "_log"];
     const result = "audit_log";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 
   it("case6 regexp4 log", () => {
     const tableName = "foo_bar_baz";
     const replacement = ["/^(.*)_(.*)_(.*)$/", "$3_$2_$1"];
     const result = "baz_bar_foo";
-    expect(replaceTableName({ tableName, replacement })).toBe(result);
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
   });
 });

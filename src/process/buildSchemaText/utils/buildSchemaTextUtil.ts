@@ -20,14 +20,14 @@ export const addSingleQuotation = (str: string) => {
 
 type ReplaceTableNameParams = {
   tableName: string;
-  replacement: string[];
+  replacements: string[];
 };
 
 export const replaceTableName = ({
   tableName,
-  replacement,
+  replacements,
 }: ReplaceTableNameParams): string => {
-  const [before, after] = replacement;
+  const [before, after] = replacements;
   /* if replacement[0]or[1] undefined -> return original tableName */
   if (isNil(before) || isNil(after)) return tableName;
 
