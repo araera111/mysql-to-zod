@@ -2,11 +2,14 @@ import { AST } from "node-sql-parser";
 import {
   MysqlToZodOption,
   OptionTableComments,
+  SchemaOption,
   basicMySQLToZodOption,
 } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
 import {
+  combineSchemaNameAndSchemaString,
   composeColumnStringList,
+  composeSchemaName,
   convertComment,
   getTableComment,
   replaceTableName,
@@ -372,6 +375,44 @@ describe("replaceTableName", () => {
     const replacement = ["/^(.*)_(.*)_(.*)$/", "$3_$2_$1"];
     const result = "baz_bar_foo";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+});
+
+describe("composeSchemaNameString", () => {
+  const schemaOption: SchemaOption = {
+    replacements: [],
+    format: "camel",
+    prefix: "",
+    suffix: "Schema",
+    nullType: "nullable",
+  };
+  it("case1 basicOption", () => {
+    const option = { ...schemaOption };
+    const tableName = "todo";
+    const result = "todoSchema";
+    expect(
+      composeSchemaName({ schemaOption: option, tableName })
+    ).toStrictEqual(result);
+  });
+
+  it("case2 not suffix", () => {
+    const option: SchemaOption = { ...schemaOption, suffix: "" };
+    const tableName = "todo";
+    const result = "todo";
+    expect(
+      composeSchemaName({ schemaOption: option, tableName })
+    ).toStrictEqual(result);
+  });
+});
+
+describe("combineSchemaNameAndSchemaString", () => {
+  it("case1", () => {
+    const schemaName = "todoSchema";
+    const schemaString = "id: z.number().nullable(),";
+    const result = `export const todoSchema = z.object({id: z.number().nullable(),});`;
+    expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
       result
     );
   });

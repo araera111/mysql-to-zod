@@ -1,11 +1,11 @@
 import { AST } from "node-sql-parser";
 import { CaseUnion, TypeOption } from "../../../options";
 import {
+  composeTypeString,
   convertTableName,
-  isCreate,
   toPascalWrapper,
-  composeTypeString as toTypeString,
-} from "./createSchemaFile";
+} from "./buildSchemaTextUtil";
+import { isCreate } from "./createSchemaFile";
 
 describe("isCreate", () => {
   it("case1 true", () => {
@@ -44,7 +44,7 @@ describe("toPascalWrapper", () => {
   });
 });
 
-describe("composeTypeStringList", () => {
+describe("composeTypeString", () => {
   it("case1 default", () => {
     const typeOption: TypeOption = {
       declared: "none",
@@ -56,9 +56,9 @@ describe("composeTypeStringList", () => {
     const tableName = "todo";
     const schemaName = "todoSchema";
     const result = "";
-    expect(toTypeString({ typeOption, tableName, schemaName })).toStrictEqual(
-      result
-    );
+    expect(
+      composeTypeString({ typeOption, tableName, schemaName })
+    ).toStrictEqual(result);
   });
 
   it("case2 pascal", () => {
@@ -72,8 +72,8 @@ describe("composeTypeStringList", () => {
     const tableName = "todo";
     const schemaName = "todoSchema";
     const result = "export type Todo = z.infer<typeof todoSchema>;";
-    expect(toTypeString({ typeOption, tableName, schemaName })).toStrictEqual(
-      result
-    );
+    expect(
+      composeTypeString({ typeOption, tableName, schemaName })
+    ).toStrictEqual(result);
   });
 });

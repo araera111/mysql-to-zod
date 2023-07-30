@@ -1,8 +1,16 @@
+import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
+import { isNone } from "fp-ts/lib/Option";
 import { Create } from "node-sql-parser";
 import { isNil } from "ramda";
+import { toCamel, toPascal, toSnake } from "ts-case-convert";
+import { match } from "ts-pattern";
 import {
+  CaseUnion,
   MysqlToZodOption,
+  NullTypeUnion,
   OptionTableComments,
+  SchemaOption,
+  TypeOption,
   defaultColumnCommentFormat,
   defaultTableCommentFormat,
   optionTableCommentsSchema,
@@ -10,6 +18,17 @@ import {
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 import { convertToZodType } from "./toZod";
 
+type GetNullTypeParams = {
+  option: MysqlToZodOption;
+};
+export const getValidNullType = ({
+  option,
+}: GetNullTypeParams): NullTypeUnion => {
+  const schemaNullType = option?.schema?.nullType;
+  const oldNullType = option?.nullType;
+  if (isNil(schemaNullType)) return oldNullType || "nullable";
+  return schemaNullType;
+};
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
 export const addSingleQuotation = (str: string) => {
   if (str.match(/^[0-9]/)) {
@@ -96,23 +115,19 @@ export const getTableComment = ({
 };
 
 type ComposeTableSchemaTextParams = {
-  schemaString: string;
-  convertedTableName: string;
-  addTypeString: string;
+  schemaText: string;
+  typeString: string;
   tableComment: string | undefined;
 };
 export const composeTableSchemaTextList = ({
-  schemaString,
-  convertedTableName,
-  addTypeString,
+  schemaText,
+  typeString,
   tableComment,
 }: ComposeTableSchemaTextParams): string[] => {
   const tableCommentString = isNil(tableComment) ? "" : `\n${tableComment}`;
-  const strList = [
-    tableCommentString,
-    `export const ${convertedTableName}Schema = z.object({${schemaString}});`,
-    addTypeString,
-  ].filter((x) => x !== "");
+  const strList = [tableCommentString, schemaText, typeString].filter(
+    (x) => x !== ""
+  );
   return strList;
 };
 
@@ -125,7 +140,7 @@ export const composeColumnStringList = ({
   option,
 }: ComposeColumnStringListParams): string[] => {
   const { comment, nullable, type } = column;
-  const { nullType, comments } = option;
+  const { comments } = option;
 
   const result: string[] = [
     !isNil(comment) && comments?.column?.active
@@ -137,15 +152,143 @@ export const composeColumnStringList = ({
         })
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
-      nullable ? `.${nullType}()` : ""
+      nullable ? `.${getValidNullType({ option })}()` : ""
     },\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
   return result;
 };
 
-/* export const z.unknown() = z.custom<Buffer>(
-  (value) => Buffer.isBuffer(value),
-  { message: `Invalid type. Expected Buffer` }
-);
- */
+export const toPascalWrapper = (str: string) => toPascal(str);
+
+type ConvertTableNameParams = {
+  tableName: string;
+  format: CaseUnion;
+  replacements: string[][];
+};
+export const convertTableName = ({
+  tableName,
+  format,
+  replacements,
+}: ConvertTableNameParams) => {
+  if (format === "replace") {
+    const loop = (rest: string[][], tmpTableName: string): string => {
+      const nonEmptyReplacements = fromArray(rest);
+      if (isNone(nonEmptyReplacements)) return tmpTableName;
+      const headReplacements = head(nonEmptyReplacements.value);
+      const tailReplacements = tail(nonEmptyReplacements.value);
+      const string = replaceTableName({
+        tableName: tmpTableName,
+        replacements: headReplacements,
+      });
+      return loop(tailReplacements, string);
+    };
+    return loop(replacements, tableName);
+  }
+  return match(format)
+    .with("camel", () => toCamel(tableName))
+    .with("pascal", () => toPascal(tableName))
+    .with("snake", () => toSnake(tableName))
+    .with("original", () => tableName)
+    .exhaustive();
+};
+
+type CombineSchemaNameAndSchemaStringParams = {
+  schemaName: string;
+  schemaString: string;
+};
+export const combineSchemaNameAndSchemaString = ({
+  schemaName,
+  schemaString,
+}: CombineSchemaNameAndSchemaStringParams) =>
+  `export const ${schemaName} = z.object({${schemaString}});`;
+
+type composeSchemaNameParams = {
+  schemaOption: SchemaOption;
+  tableName: string;
+};
+
+export const composeSchemaName = ({
+  schemaOption,
+  tableName,
+}: composeSchemaNameParams): string => {
+  const { prefix, suffix, format, replacements } = schemaOption;
+  return `${prefix}${convertTableName({
+    tableName,
+    format,
+    replacements,
+  })}${suffix}`;
+};
+
+type ComposeTypeStringParams = {
+  typeOption: TypeOption;
+  tableName: string;
+  schemaName: string;
+};
+export const composeTypeString = ({
+  typeOption,
+  tableName,
+  schemaName,
+}: ComposeTypeStringParams): string => {
+  const { prefix, suffix, declared, format, replacements } = typeOption;
+
+  if (declared === "none") return "";
+
+  /* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
+  const str = `export ${declared} ${prefix}${convertTableName({
+    tableName,
+    format,
+    replacements,
+  })}${suffix} = z.infer<typeof ${schemaName}>;`;
+  return `${str}`;
+};
+
+type ReplaceOldTypeOptionParams = {
+  isAddType: boolean | undefined;
+  isCamel: boolean | undefined;
+  isTypeUpperCamel: boolean | undefined;
+  typeOption: TypeOption | undefined;
+};
+export const replaceOldTypeOption = ({
+  isAddType,
+  isCamel,
+  isTypeUpperCamel,
+  typeOption,
+}: ReplaceOldTypeOptionParams): TypeOption => {
+  if (isNil(typeOption)) {
+    const base: TypeOption = {
+      format: "pascal",
+      declared: "type",
+      prefix: "",
+      suffix: "",
+      replacements: [],
+    };
+    if (!isAddType) return { ...base, declared: "none" };
+    if (isTypeUpperCamel) return { ...base, format: "pascal" };
+    if (isCamel) return { ...base, format: "camel" };
+    return { ...base, format: "original" };
+  }
+  return typeOption;
+};
+
+type ReplaceOldSchemaOptionParams = {
+  isCamel: boolean | undefined;
+  schemaOption: SchemaOption | undefined;
+};
+export const replaceOldSchemaOption = ({
+  isCamel,
+  schemaOption,
+}: ReplaceOldSchemaOptionParams): SchemaOption => {
+  if (isNil(schemaOption)) {
+    const base: SchemaOption = {
+      nullType: "nullable",
+      format: "camel",
+      prefix: "",
+      suffix: "Schema",
+      replacements: [],
+    };
+    if (!isCamel) return { ...base, format: "original" };
+    return base;
+  }
+  return schemaOption;
+};

@@ -17,6 +17,7 @@ const caseUnionSchema = z.union([
   z.literal("pascal"),
   z.literal("snake"),
   z.literal("replace"),
+  z.literal("original"),
 ]);
 export type CaseUnion = z.infer<typeof caseUnionSchema>;
 
@@ -27,18 +28,21 @@ export const typeOptionSchema = z.object({
   format: caseUnionSchema.default("pascal"),
   prefix: z.string().default(""),
   suffix: z.string().default(""),
-  replacements: z.string().array().default([]),
+  replacements: z.string().array().array().default([]),
 });
 export type TypeOption = z.infer<typeof typeOptionSchema>;
+export const nullTypeUnionSchema = z
+  .union([z.literal("nullable"), z.literal("nullish")])
+  .default("nullable");
+
+export type NullTypeUnion = z.infer<typeof nullTypeUnionSchema>;
 
 export const SchemaOptionSchema = z.object({
   format: caseUnionSchema.default("camel"),
   prefix: z.string().default(""),
   suffix: z.string().default("Schema"),
-  replacements: z.string().array().default([]),
-  nullType: z
-    .union([z.literal("nullable"), z.literal("nullish")])
-    .default("nullable"),
+  replacements: z.string().array().array().default([]),
+  nullType: nullTypeUnionSchema,
 });
 export type SchemaOption = z.infer<typeof SchemaOptionSchema>;
 
@@ -67,17 +71,14 @@ export const optionCommentsSchema = z.object({
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
 export const mysqlToZodOptionSchema = z.object({
-  isAddType: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
-  isCamel: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
-  isTypeUpperCamel: z.boolean().optional().default(true), // I hope to have it DEPRECATED in the near future.
+  isAddType: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
+  isCamel: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
+  isTypeUpperCamel: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
   outFilePath: z.string().optional().default("./mysqlToZod"),
   fileName: z.string().optional().default("schema.ts"),
   dbConnection: z.any().optional(),
   tableNames: z.string().array().optional().default([]),
-  nullType: z
-    .union([z.literal("nullable"), z.literal("nullish")])
-    .optional()
-    .default("nullable"), // I hope to have it DEPRECATED in the near future.
+  nullType: nullTypeUnionSchema, // I hope to have it DEPRECATED in the near future.
   comments: optionCommentsSchema.optional(),
   type: typeOptionSchema.optional(),
   schema: SchemaOptionSchema.optional(),
