@@ -1,5 +1,11 @@
 feat/#36
 
+TODO:isAddType, etc. -> convert typeOption, schemaOption
+TODO:ReplaceType,Schema,TableName
+TODO:convertTableName
+TODO:composeTypeStringList
+TODO:composeSchemaStringList
+
 検討
 オプションについて考える。
 デフォルトは

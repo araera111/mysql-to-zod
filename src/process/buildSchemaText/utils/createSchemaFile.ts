@@ -2,7 +2,7 @@ import { left } from "fp-ts/Either";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
-import { MysqlToZodOption } from "../../../options";
+import { MysqlToZodOption, TypeOption } from "../../../options";
 import { columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
 import { createSchema } from "./createSchema";
@@ -55,4 +55,23 @@ export const createSchemaFile = (
   });
   const schema = createSchema(tableName, columns, options, tableComment);
   return schema;
+};
+
+type ComposeTypeStringListParams = {
+  typeOption: TypeOption;
+  tableName: string;
+  schemaName: string;
+};
+export const composeTypeStringList = ({
+  typeOption,
+  tableName,
+  schemaName,
+}: ComposeTypeStringListParams): string => {
+  const { prefix, suffix, declared } = typeOption;
+
+  if (declared === "none") return "";
+
+  /* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
+  const str = `${prefix} ${declared} ${tableName}${suffix} = z.infer<typeof ${schemaName}>;`;
+  return `${str}`;
 };
