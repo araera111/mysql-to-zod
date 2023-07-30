@@ -1,10 +1,14 @@
 import { MysqlToZodOption } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
 import {
+  combineSchemaNameAndSchemaString,
   composeColumnStringList,
+  composeSchemaName,
   composeTableSchemaTextList,
+  composeTypeString,
+  replaceOldSchemaOption,
+  replaceOldTypeOption,
 } from "./buildSchemaTextUtil";
-import { toCamelWrapper } from "./toZod";
 
 export const createSchema = (
   tableName: string,
@@ -13,26 +17,41 @@ export const createSchema = (
   tableComment: string | undefined
 ): string => {
   const { isAddType, isCamel, isTypeUpperCamel } = options;
+
   const schemaString = columns
     .map((x) =>
       composeColumnStringList({ column: x, option: options }).join("\n")
     )
     .join("");
 
-  const convertedTableName = toCamelWrapper(
-    tableName,
+  const schemaOption = replaceOldSchemaOption({
     isCamel,
-    isTypeUpperCamel
-  );
+    schemaOption: options.schema,
+  });
 
-  const addTypeString = isAddType
-    ? `export type ${convertedTableName} = z.infer<typeof ${convertedTableName}Schema>;`
-    : "";
+  const schemaName = composeSchemaName({ schemaOption, tableName });
+
+  const schemaText = combineSchemaNameAndSchemaString({
+    schemaName,
+    schemaString,
+  });
+
+  const typeOption = replaceOldTypeOption({
+    isAddType,
+    isCamel,
+    isTypeUpperCamel,
+    typeOption: options.type,
+  });
+
+  const typeString = composeTypeString({
+    typeOption,
+    tableName,
+    schemaName,
+  });
 
   return composeTableSchemaTextList({
-    schemaString,
-    convertedTableName,
-    addTypeString,
+    schemaText,
+    typeString,
     tableComment,
   }).join("\n");
 };

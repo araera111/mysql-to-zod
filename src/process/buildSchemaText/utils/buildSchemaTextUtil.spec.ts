@@ -2,13 +2,17 @@ import { AST } from "node-sql-parser";
 import {
   MysqlToZodOption,
   OptionTableComments,
+  SchemaOption,
   basicMySQLToZodOption,
 } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
 import {
+  combineSchemaNameAndSchemaString,
   composeColumnStringList,
+  composeSchemaName,
   convertComment,
   getTableComment,
+  replaceTableName,
 } from "./buildSchemaTextUtil";
 
 describe("convertComment", () => {
@@ -317,5 +321,99 @@ describe("composeColumnStringList", () => {
       "title: z.string().nullish(),\n",
     ];
     expect(composeColumnStringList({ column, option })).toStrictEqual(result);
+  });
+});
+
+describe("replaceTableName", () => {
+  it("case1 match", () => {
+    const tableName = "foo_bar_baz";
+    const replacement: string[] = ["_bar_", "_blah_"];
+    const result = "foo_blah_baz";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+
+  it("case2 not match", () => {
+    const tableName = "foo_bar";
+    const replacement: string[] = ["_bar_", "_blah_"];
+    const result = "foo_bar";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+
+  it("case3 regexp", () => {
+    const tableName = "xcustomers";
+    const replacement: string[] = ["/^x(.*)/", "$1_xref"];
+    const result = "customers_xref";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+
+  it("case4 regexp2 ^wp_", () => {
+    const tableName = "wp_users";
+    const replacement = ["/^wp_/", ""];
+    const result = "users";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+
+  it("case5 regexp3 log", () => {
+    const tableName = "auditlog";
+    const replacement = ["log", "_log"];
+    const result = "audit_log";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+
+  it("case6 regexp4 log", () => {
+    const tableName = "foo_bar_baz";
+    const replacement = ["/^(.*)_(.*)_(.*)$/", "$3_$2_$1"];
+    const result = "baz_bar_foo";
+    expect(replaceTableName({ tableName, replacements: replacement })).toBe(
+      result
+    );
+  });
+});
+
+describe("composeSchemaNameString", () => {
+  const schemaOption: SchemaOption = {
+    replacements: [],
+    format: "camel",
+    prefix: "",
+    suffix: "Schema",
+    nullType: "nullable",
+  };
+  it("case1 basicOption", () => {
+    const option = { ...schemaOption };
+    const tableName = "todo";
+    const result = "todoSchema";
+    expect(
+      composeSchemaName({ schemaOption: option, tableName })
+    ).toStrictEqual(result);
+  });
+
+  it("case2 not suffix", () => {
+    const option: SchemaOption = { ...schemaOption, suffix: "" };
+    const tableName = "todo";
+    const result = "todo";
+    expect(
+      composeSchemaName({ schemaOption: option, tableName })
+    ).toStrictEqual(result);
+  });
+});
+
+describe("combineSchemaNameAndSchemaString", () => {
+  it("case1", () => {
+    const schemaName = "todoSchema";
+    const schemaString = "id: z.number().nullable(),";
+    const result = `export const todoSchema = z.object({id: z.number().nullable(),});`;
+    expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
+      result
+    );
   });
 });

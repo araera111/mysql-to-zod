@@ -14,5 +14,15 @@ const options = {
       active: true,
     },
   },
+  schema: {
+    format: "replace",
+    prefix: "",
+    suffix: "",
+    replacements: [
+      ["blog", "bbblog"],
+      ["bbb", "AAAAA"],
+    ],
+    nullType: "nullable",
+  },
 };
 module.exports = options;

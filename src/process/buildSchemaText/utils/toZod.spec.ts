@@ -1,4 +1,4 @@
-import { convertToZodType } from "../process/buildSchemaText/utils/toZod";
+import { convertToZodType } from "./toZod";
 
 /*
 case "TINYINT":

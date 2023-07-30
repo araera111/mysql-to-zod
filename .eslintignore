@@ -6,3 +6,4 @@ upload.mjs
 *.mjs
 old
 mysqlToZod
+vite.config.ts

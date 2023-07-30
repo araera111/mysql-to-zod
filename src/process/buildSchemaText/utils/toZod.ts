@@ -111,8 +111,7 @@ export const convertToZodType = (type: string) =>
     .with("LONGBLOB", () => "z.unknown()")
     .otherwise(() => "z.unknown()");
 
-// stringをupperCamelに変換する関数
-export const toUpperCamel = (str: string) => {
+export const toPascalCase = (str: string) => {
   const camel = toCamel(str);
   return camel.charAt(0).toUpperCase() + camel.slice(1);
 };
@@ -123,7 +122,7 @@ export const toCamelWrapper = (
   isCamel: boolean,
   isUpperCamel: boolean
 ) => {
-  if (isUpperCamel) return toUpperCamel(str);
+  if (isUpperCamel) return toPascalCase(str);
   if (isCamel) return toCamel(str);
   return str;
 };
