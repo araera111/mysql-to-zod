@@ -1,7 +1,7 @@
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { Create } from "node-sql-parser";
-import { isNil } from "ramda";
+import { isEmpty, isNil } from "ramda";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
@@ -166,30 +166,33 @@ type ConvertTableNameParams = {
   format: CaseUnion;
   replacements: string[][];
 };
+
+const loopReplace = (replacements: string[][], tableName: string): string => {
+  const nonEmptyReplacements = fromArray(replacements);
+  if (isNone(nonEmptyReplacements)) return tableName;
+  const headReplacements = head(nonEmptyReplacements.value);
+  const tailReplacements = tail(nonEmptyReplacements.value);
+  const string = replaceTableName({
+    tableName,
+    replacements: headReplacements,
+  });
+  return loopReplace(tailReplacements, string);
+};
+
 export const convertTableName = ({
   tableName,
   format,
   replacements,
 }: ConvertTableNameParams) => {
-  if (format === "replace") {
-    const loop = (rest: string[][], tmpTableName: string): string => {
-      const nonEmptyReplacements = fromArray(rest);
-      if (isNone(nonEmptyReplacements)) return tmpTableName;
-      const headReplacements = head(nonEmptyReplacements.value);
-      const tailReplacements = tail(nonEmptyReplacements.value);
-      const string = replaceTableName({
-        tableName: tmpTableName,
-        replacements: headReplacements,
-      });
-      return loop(tailReplacements, string);
-    };
-    return loop(replacements, tableName);
-  }
+  const replaced = isEmpty(replacements)
+    ? tableName
+    : loopReplace(replacements, tableName);
+
   return match(format)
-    .with("camel", () => toCamel(tableName))
-    .with("pascal", () => toPascal(tableName))
-    .with("snake", () => toSnake(tableName))
-    .with("original", () => tableName)
+    .with("camel", () => toCamel(replaced))
+    .with("pascal", () => toPascal(replaced))
+    .with("snake", () => toSnake(replaced))
+    .with("original", () => replaced)
     .exhaustive();
 };
 
@@ -263,10 +266,10 @@ export const replaceOldTypeOption = ({
       suffix: "",
       replacements: [],
     };
-    if (!isAddType) return { ...base, declared: "none" };
-    if (isTypeUpperCamel) return { ...base, format: "pascal" };
-    if (isCamel) return { ...base, format: "camel" };
-    return { ...base, format: "original" };
+    if (isAddType === false) return { ...base, declared: "none" };
+    if (isTypeUpperCamel === true) return { ...base, format: "pascal" };
+    if (isCamel === true) return { ...base, format: "camel" };
+    return base;
   }
   return typeOption;
 };

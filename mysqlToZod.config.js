@@ -1,7 +1,4 @@
 const options = {
-  isAddType: true,
-  isCamel: true,
-  isTypeUpperCamel: true,
   outFilePath: "mysqlToZod",
   fileName: "schema.ts",
   tableNames: [],
@@ -14,15 +11,22 @@ const options = {
       active: true,
     },
   },
-  schema: {
-    format: "replace",
+  /*   schema: {
+    format: "camel",
     prefix: "",
-    suffix: "",
+    suffix: "Schema",
     replacements: [
       ["blog", "bbblog"],
       ["bbb", "AAAAA"],
     ],
     nullType: "nullable",
   },
+  type: {
+    declared: "type",
+    format: "pascal",
+    prefix: "",
+    suffix: "",
+    replacements: [],
+  }, */
 };
 module.exports = options;

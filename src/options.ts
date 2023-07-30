@@ -16,7 +16,6 @@ const caseUnionSchema = z.union([
   z.literal("camel"),
   z.literal("pascal"),
   z.literal("snake"),
-  z.literal("replace"),
   z.literal("original"),
 ]);
 export type CaseUnion = z.infer<typeof caseUnionSchema>;
