@@ -184,6 +184,112 @@ module.exports = options;
 ```!name``` is converted to tableName. ```!text``` is converted to comment.
 if format is Empty, table comment format is ```'// [table:!name] : !text'```, column comment format is ```'// !name : !text'```.
 
+### schema
+
+schemaOption can determine the format of schemaName and null.
+schemaName is converted from tableName.
+example: tableName ```todo_list```, schemaName ```TodoList```
+```export const ThisIsSchemaName = z.object({});```
+
+For schemaName, format is executed after replacements is processed. Next, prefix and suffix are added.
+
+example: tableName ```todo_list```, format ```camel```, prefix ```My```, suffix ```Schema```, replacements ```[["todo", "bodo"]]```
+
+```todo_list``` -> replacement -> ```bodo_list``` -> format -> ```bodoList``` -> prefix -> ```MyBodoList``` -> suffix -> ```MyBodoListSchema```
+
+result: ```export const MyBodoListSchema = z.object({});```
+
+replacement[0] is before replacement[1] is after.
+replacement[0] is RegExp or string. replacement[1] is string.
+
+```ts
+const options = {
+  // other options ...
+  schema: {
+    format: "camel", // camel | pascal | snake | original
+    prefix: "",
+    suffix: "Schema",
+    replacements: [],
+    nullType: "nullable",
+  },
+};
+module.exports = options;
+```
+
+#### format
+
+tableName ```todo_list```
+
+format```camel```
+
+```ts
+export const todoList = z.object({});
+```
+
+format```pascal```
+
+```ts
+export const TodoList = z.object({});
+```
+
+format```snake```
+
+```ts
+export const todo_list = z.object({});
+```
+
+format```original```
+
+```ts
+export const todo_list = z.object({});
+```
+
+#### prefix
+
+tableName ```todo_list```
+prefix ```My```
+
+```ts
+export const MyTodoList = z.object({});
+```
+
+#### suffix
+
+tableName ```todo_list```
+suffix ```Schema```
+
+```ts
+export const todo_listSchema = z.object({});
+```
+
+#### replacements
+
+example1：string
+tableName: ```foo_bar_baz```
+replacement[0] → ```_bar_```
+replacement[1] → ```_blah_```
+result → ```foo_blah_baz```
+
+exmaple2: regexp
+tableName: ```wp_users```
+replacement[0] → ```/^wp_/```
+replacement[1] → ```""```
+result → ```users```
+
+replacement is looped and all are applied.
+
+#### nullType
+
+```ts
+const options = {
+  // other options ...
+  schema: {
+    nullType: "nullable", // "nullable" | "nullish" default is "nullable"
+  },
+};
+module.exports = options;
+```
+
 ## License
 
 MIT
