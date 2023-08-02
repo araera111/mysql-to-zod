@@ -1,5 +1,7 @@
+import { isNil } from "ramda";
 import { toCamel } from "ts-case-convert";
 import { match } from "ts-pattern";
+import { CustomSchemaOptionList } from "../../../options";
 
 /* 
   knex result
@@ -72,14 +74,40 @@ export const toValidDateSchemaText = `const toValidDatetimeSchema = z.preprocess
   return date !== "Invalid Date" ? date : "1000-01-01 00:00:00";
 }, z.date());`;
 
-/* export const toValidDateSchemaText = `const toValidDateSchema = z.preprocess((val) => {
-  const date = format(new Date(String(val)), "yyyy-MM-dd");
-  return date !== "Invalid Date" ? date : "1000-01-01";
-}, z.string());`;
- */
+type MatchCustomSchemaOptionProps = {
+  type: string;
+  customSchemaOptionList: CustomSchemaOptionList;
+};
+export type MatchCustomSchmeaOptionResult = {
+  schemaName: string;
+  importDeclaration: string | undefined;
+};
+export const matchCustomSchemaOption = ({
+  type,
+  customSchemaOptionList,
+}: MatchCustomSchemaOptionProps): MatchCustomSchmeaOptionResult | undefined => {
+  const customeSchemaOption = customSchemaOptionList.find((x) => x[0] === type);
+  if (isNil(customeSchemaOption)) return undefined;
+  return {
+    schemaName: customeSchemaOption[1],
+    importDeclaration: customeSchemaOption[2],
+  };
+};
 
-export const convertToZodType = (type: string) =>
-  match(type)
+type ConvertToZodTypeProps = {
+  type: string;
+  customSchemaOptionList: CustomSchemaOptionList;
+};
+export const convertToZodType = ({
+  type,
+  customSchemaOptionList,
+}: ConvertToZodTypeProps) => {
+  const customSchemaName = matchCustomSchemaOption({
+    type,
+    customSchemaOptionList,
+  });
+  if (!isNil(customSchemaName)) return customSchemaName.schemaName;
+  return match(type)
     .with("TINYINT", () => "z.number()")
     .with("SMALLINT", () => "z.number()")
     .with("MEDIUMINT", () => "z.number()")
@@ -110,7 +138,7 @@ export const convertToZodType = (type: string) =>
     .with("MEDIUMBLOB", () => "z.unknown()")
     .with("LONGBLOB", () => "z.unknown()")
     .otherwise(() => "z.unknown()");
-
+};
 export const toPascalCase = (str: string) => {
   const camel = toCamel(str);
   return camel.charAt(0).toUpperCase() + camel.slice(1);

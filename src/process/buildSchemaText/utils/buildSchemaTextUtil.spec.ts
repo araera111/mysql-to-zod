@@ -296,11 +296,10 @@ describe("composeColumnStringList", () => {
     };
     const option: MysqlToZodOption = {
       ...basicMySQLToZodOption,
-      nullType: "nullish",
     };
     const result: string[] = [
       "// title : BlogTitle",
-      "title: z.string().nullish(),\n",
+      "title: z.string().nullable(),\n",
     ];
     expect(composeColumnStringList({ column, option })).toStrictEqual(result);
   });
@@ -318,7 +317,7 @@ describe("composeColumnStringList", () => {
     };
     const result: string[] = [
       "// title : BlogTitle2",
-      "title: z.string().nullish(),\n",
+      "title: z.string().nullable(),\n",
     ];
     expect(composeColumnStringList({ column, option })).toStrictEqual(result);
   });

@@ -69,6 +69,22 @@ export const optionCommentsSchema = z.object({
 });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
+/*
+  custom schema
+  [TYPE, SchemaName, Import(optional), Comment(optional)]
+*/
+export const customSchemaOptionSchema = z.union([
+  z.tuple([z.string(), z.string()]),
+  z.tuple([z.string(), z.string(), z.string()]),
+  z.tuple([z.string(), z.string(), z.string(), z.string()]),
+]);
+export type CustomSchemaOption = z.infer<typeof customSchemaOptionSchema>;
+
+export const customSchemaOptionListSchema = z.array(customSchemaOptionSchema);
+export type CustomSchemaOptionList = z.infer<
+  typeof customSchemaOptionListSchema
+>;
+
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
   isCamel: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
@@ -81,6 +97,7 @@ export const mysqlToZodOptionSchema = z.object({
   comments: optionCommentsSchema.optional(),
   type: typeOptionSchema.optional(),
   schema: SchemaOptionSchema.optional(),
+  customSchema: customSchemaOptionListSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
@@ -117,4 +134,5 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     suffix: "",
     replacements: [],
   },
+  customSchema: [["", "", ""]],
 };

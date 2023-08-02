@@ -151,9 +151,11 @@ export const composeColumnStringList = ({
           isTable: false,
         })
       : undefined,
-    `${addSingleQuotation(column.column)}: ${convertToZodType(type)}${
-      nullable ? `.${getValidNullType({ option })}()` : ""
-    },\n`,
+    `${addSingleQuotation(column.column)}: ${convertToZodType({
+      type,
+      /* TODO */
+      customSchemaOptionList: [],
+    })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
   return result;
