@@ -69,10 +69,14 @@ export const optionCommentsSchema = z.object({
 });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
-/* custom schema */
+/*
+  custom schema
+  [TYPE, SchemaName, Import(optional), Comment(optional)]
+*/
 export const customSchemaOptionSchema = z.union([
   z.tuple([z.string(), z.string()]),
   z.tuple([z.string(), z.string(), z.string()]),
+  z.tuple([z.string(), z.string(), z.string(), z.string()]),
 ]);
 export type CustomSchemaOption = z.infer<typeof customSchemaOptionSchema>;
 
