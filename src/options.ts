@@ -103,4 +103,18 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
       format: defaultColumnCommentFormat,
     },
   },
+  schema: {
+    format: "camel",
+    prefix: "",
+    suffix: "Schema",
+    replacements: [],
+    nullType: "nullable",
+  },
+  type: {
+    declared: "type",
+    format: "pascal",
+    prefix: "",
+    suffix: "",
+    replacements: [],
+  },
 };
