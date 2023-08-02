@@ -72,12 +72,6 @@ export const toValidDateSchemaText = `const toValidDatetimeSchema = z.preprocess
   return date !== "Invalid Date" ? date : "1000-01-01 00:00:00";
 }, z.date());`;
 
-/* export const toValidDateSchemaText = `const toValidDateSchema = z.preprocess((val) => {
-  const date = format(new Date(String(val)), "yyyy-MM-dd");
-  return date !== "Invalid Date" ? date : "1000-01-01";
-}, z.string());`;
- */
-
 export const convertToZodType = (type: string) =>
   match(type)
     .with("TINYINT", () => "z.number()")

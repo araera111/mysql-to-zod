@@ -1,3 +1,4 @@
+import { CustomSchemaOptionList } from "../../../options";
 import { convertToZodType } from "./toZod";
 
 /*
@@ -186,5 +187,11 @@ describe("convertToZodType", () => {
     const type = "LONGBLOB";
     const result = "z.unknown()";
     expect(convertToZodType(type)).toBe(result);
+  });
+  it("case custom1 myDate", () => {
+    const type = "DATETIME";
+    const result = "myDateSchema";
+    const customSchemaOption: CustomSchemaOptionList = [["DATETIME", "myDate"]];
+    expect(convertToZodType(type, customSchemaOption)).toBe(result);
   });
 });
