@@ -218,31 +218,8 @@ module.exports = options;
 
 #### format
 
-tableName ```todo_list```
+format value can be ```camel``` | ```pascal``` | ```snake``` | ```original```
 
-format```camel```
-
-```ts
-export const todoList = z.object({});
-```
-
-format```pascal```
-
-```ts
-export const TodoList = z.object({});
-```
-
-format```snake```
-
-```ts
-export const todo_list = z.object({});
-```
-
-format```original```
-
-```ts
-export const todo_list = z.object({});
-```
 
 #### prefix
 
@@ -279,6 +256,10 @@ result → ```users```
 replacement is looped and all are applied.
 
 #### nullType
+You can choose between ```nullable``` and ```nullish```.
+For example, String Type and null.
+```nullable``` is ```z.string().nullable()```
+```nullish``` is ```z.string().nullish()```
 
 ```ts
 const options = {
@@ -290,6 +271,21 @@ const options = {
 module.exports = options;
 ```
 
-## License
+### type
+The type option is almost the same as the schema option, as shown below.
+But null type cannot be selected.
 
+default typeOption
+```ts
+  type: {
+    declared: "type",
+    format: "pascal",
+    prefix: "",
+    suffix: "",
+    replacements: [],
+  },
+
+```
+
+## License
 MIT
