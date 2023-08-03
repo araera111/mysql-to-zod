@@ -113,17 +113,16 @@ export const matchCustomSchemaOption = ({
   comment,
 }: MatchCustomSchemaOptionProps): string | undefined => {
   if (!isNil(comment)) {
-    const [, schemaName] =
+    const result =
       customSchemaOptionList.find((x) =>
         x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
       ) ?? [];
-    return schemaName;
+    return result[1];
   }
 
-  const [, schemaName] =
-    customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  if (isNil(schemaName)) return undefined;
-  return schemaName;
+  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
+  if (isNil(result)) return undefined;
+  return result[1];
 };
 type GetNullTypeParams = {
   option: MysqlToZodOption;
@@ -474,7 +473,6 @@ export const columnToImportStatement = ({
     return foundOption[2];
   }
 
-  const [, , importStatement] =
-    customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  return importStatement;
+  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
+  return result[2];
 };
