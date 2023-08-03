@@ -312,18 +312,14 @@ export const columnToImportStatement = ({
   const { type, comment } = column;
 
   if (!isNil(comment)) {
-    const foundOption = customSchemaOptionList.find((x) =>
-      x[3] === undefined ? false : comment.includes(x[3])
-    );
-    if (isNil(foundOption)) return undefined;
+    const foundOption =
+      customSchemaOptionList.find((x) =>
+        x[3] === undefined ? false : comment.includes(x[3])
+      ) ?? [];
     return foundOption[2];
   }
 
-  const typeList = customSchemaOptionList.map((x) => x[0]);
-  const includesType = typeList.some((x) => x === type);
-  if (!includesType) return undefined;
-  const [, schemaName, importStatement] =
+  const [, , importStatement] =
     customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  if (isNil(schemaName) || isNil(importStatement)) return undefined;
   return importStatement;
 };
