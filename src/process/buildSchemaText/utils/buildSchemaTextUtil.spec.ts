@@ -1,5 +1,6 @@
 import { AST } from "node-sql-parser";
 import {
+  CustomSchemaOptionList,
   MysqlToZodOption,
   OptionTableComments,
   SchemaOption,
@@ -7,11 +8,15 @@ import {
 } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
 import {
+  columnToImportStatement,
   combineSchemaNameAndSchemaString,
   composeColumnStringList,
   composeSchemaName,
   convertComment,
+  convertToZodType,
   getTableComment,
+  matchComment,
+  matchCustomSchemaOption,
   replaceTableName,
 } from "./buildSchemaTextUtil";
 
@@ -414,5 +419,390 @@ describe("combineSchemaNameAndSchemaString", () => {
     expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
       result
     );
+  });
+});
+
+describe("columnToImportStatement", () => {
+  it("case1 not match", () => {
+    const column: Column = {
+      column: "id",
+      type: "int",
+      nullable: false,
+    };
+    const result = undefined;
+    expect(
+      columnToImportStatement({ column, customSchemaOptionList: [] })
+    ).toBe(result);
+  });
+
+  it("case2 type match", () => {
+    const column: Column = {
+      column: "id",
+      type: "INT",
+      nullable: false,
+    };
+
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      [
+        "INT",
+        "myIntegerSchema",
+        'import { myIntegerSchema } from "./globalSchema.ts";',
+      ],
+    ];
+    const result = 'import { myIntegerSchema } from "./globalSchema.ts";';
+    expect(columnToImportStatement({ column, customSchemaOptionList })).toBe(
+      result
+    );
+  });
+
+  it("case3 comment match", () => {
+    const column: Column = {
+      column: "id",
+      type: "INT",
+      nullable: false,
+      comment: "min0max999",
+    };
+
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      [
+        "INT",
+        "myIntegerSchema",
+        'import { myIntegerSchema } from "./globalSchema.ts";',
+      ],
+      [
+        "INT",
+        "min0Schema",
+        'import { min0max999Schema } from "./globalSchema.ts";',
+        "min0max999",
+      ],
+    ];
+    const result = 'import { min0max999Schema } from "./globalSchema.ts";';
+    expect(columnToImportStatement({ column, customSchemaOptionList })).toBe(
+      result
+    );
+  });
+});
+
+describe("matchComment", () => {
+  it("case1 includes", () => {
+    const comment = "min0max999";
+    const matcher = "min0";
+    const result = true;
+    expect(matchComment({ comment, matcher })).toBe(result);
+  });
+
+  it("case2 not includes", () => {
+    const comment = "min0max999";
+    const matcher = "man99";
+    const result = false;
+    expect(matchComment({ comment, matcher })).toBe(result);
+  });
+
+  it("case3 regexp", () => {
+    const comment = "min0max999";
+    const matcher = "/^min(.*)max(.*)$/";
+    const result = true;
+    expect(matchComment({ comment, matcher })).toBe(result);
+  });
+});
+
+/*
+case "TINYINT":
+    case "SMALLINT":
+    case "MEDIUMINT":
+    case "INT":
+    case "BIGINT":
+    case "FLOAT":
+    case "DOUBLE":
+    case "YEAR":
+      return "z.number()";
+    case "BIT":
+      return "z.boolean()";
+    case "DATE":
+    case "DATETIME":
+    case "TIMESTAMP":
+      return "z.date()";
+    case "CHAR":
+    case "VARCHAR":
+    case "DECIMAL":
+    case "NUMERIC":
+    case "TINYTEXT":
+    case "TEXT":
+    case "MEDIUMTEXT":
+    case "LONGTEXT":
+    case "ENUM":
+    case "SET":
+    case "TIME":
+      return "z.string()";
+    case "BINARY":
+    case "VARBINARY":
+    case "TINYBLOB":
+    case "BLOB":
+    case "MEDIUMBLOB":
+    case "LONGBLOB":
+      return "z.unknown()";
+    default:
+      return "z.unknown()";
+*/
+
+/* this test is created by github copilot */
+describe("convertToZodType", () => {
+  it("TINYINT", () => {
+    const type = "TINYINT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("SMALLINT", () => {
+    const type = "SMALLINT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("MEDIUMINT", () => {
+    const type = "MEDIUMINT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+
+  it("INT", () => {
+    const type = "INT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("BIGINT", () => {
+    const type = "BIGINT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("FLOAT", () => {
+    const type = "FLOAT";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("DOUBLE", () => {
+    const type = "DOUBLE";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("YEAR", () => {
+    const type = "YEAR";
+    const result = "z.number()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("BIT", () => {
+    const type = "BIT";
+    const result = "z.boolean()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("DATE", () => {
+    const type = "DATE";
+    const result = "z.date()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("DATETIME", () => {
+    const type = "DATETIME";
+    const result = "z.date()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("TIMESTAMP", () => {
+    const type = "TIMESTAMP";
+    const result = "z.date()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("CHAR", () => {
+    const type = "CHAR";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("VARCHAR", () => {
+    const type = "VARCHAR";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("DECIMAL", () => {
+    const type = "DECIMAL";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("NUMERIC", () => {
+    const type = "NUMERIC";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("TINYTEXT", () => {
+    const type = "TINYTEXT";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("TEXT", () => {
+    const type = "TEXT";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("MEDIUMTEXT", () => {
+    const type = "MEDIUMTEXT";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("LONGTEXT", () => {
+    const type = "LONGTEXT";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("ENUM", () => {
+    const type = "ENUM";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("SET", () => {
+    const type = "SET";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("TIME", () => {
+    const type = "TIME";
+    const result = "z.string()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("BINARY", () => {
+    const type = "BINARY";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("VARBINARY", () => {
+    const type = "VARBINARY";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("TINYBLOB", () => {
+    const type = "TINYBLOB";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("BLOB", () => {
+    const type = "BLOB";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("MEDIUMBLOB", () => {
+    const type = "MEDIUMBLOB";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("LONGBLOB", () => {
+    const type = "LONGBLOB";
+    const result = "z.unknown()";
+    expect(
+      convertToZodType({ type, customSchemaOptionList: [], comment: undefined })
+    ).toBe(result);
+  });
+  it("case custom1 myDate", () => {
+    const type = "DATETIME";
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      ["DATETIME", "myDate"],
+    ];
+    const result = "myDate";
+    expect(
+      convertToZodType({ type, customSchemaOptionList, comment: undefined })
+    ).toBe(result);
+  });
+
+  it("case custom2 myDate, comment", () => {
+    const type = "DATETIME";
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      ["DATETIME", "myDateMin1999", "../globalSchema.ts", "min1999"],
+    ];
+    const comment = "min1999";
+    const result = "myDateMin1999";
+    expect(convertToZodType({ type, customSchemaOptionList, comment })).toBe(
+      result
+    );
+  });
+});
+
+describe("matchCustomSchemaOption", () => {
+  it("case1 DATETIME", () => {
+    const type = "DATETIME";
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      ["DATETIME", "myDateSchema"],
+    ];
+    const result = "myDateSchema";
+    expect(
+      matchCustomSchemaOption({
+        type,
+        customSchemaOptionList,
+        comment: undefined,
+      })
+    ).toStrictEqual(result);
+  });
+
+  it("case2 DATE, import", () => {
+    const type = "DATE";
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      ["DATE", "myDateSchema", "../globalSchema.ts"],
+    ];
+    const result = "myDateSchema";
+    expect(
+      matchCustomSchemaOption({
+        type,
+        customSchemaOptionList,
+        comment: undefined,
+      })
+    ).toStrictEqual(result);
   });
 });

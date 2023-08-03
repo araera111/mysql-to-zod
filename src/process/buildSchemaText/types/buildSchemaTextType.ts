@@ -16,3 +16,10 @@ export const columnsSchema = z.object({
 });
 
 export type Column = z.infer<typeof columnsSchema>;
+
+export const schemaResultSchema = z.object({
+  schema: z.string(),
+  importDeclarationList: z.array(z.string()),
+});
+
+export type SchemaResult = z.infer<typeof schemaResultSchema>;

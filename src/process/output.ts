@@ -3,7 +3,10 @@ import { join } from "path";
 import prettier from "prettier";
 
 const formatByPrettier = async (str: string): Promise<string> =>
-  prettier.format(str, { parser: "babel-ts" });
+  prettier.format(str, {
+    parser: "babel-ts",
+    plugins: ["prettier-plugin-organize-imports"],
+  });
 
 type OutputParams = {
   schemaRawText: string;

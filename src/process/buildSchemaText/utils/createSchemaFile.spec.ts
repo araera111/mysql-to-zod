@@ -23,14 +23,14 @@ describe("convertTableName", () => {
   it("case1 pascal", () => {
     const tableName = "todo";
     const format: CaseUnion = "pascal";
-    const replacements: string[] = [];
+    const replacements: string[][] = [];
     const result = "Todo";
     expect(convertTableName({ tableName, format, replacements })).toBe(result);
   });
   it("case2 camel", () => {
     const tableName = "todo";
     const format: CaseUnion = "camel";
-    const replacements: string[] = [];
+    const replacements: string[][] = [];
     const result = "todo";
     expect(convertTableName({ tableName, format, replacements })).toBe(result);
   });

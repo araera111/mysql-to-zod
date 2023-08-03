@@ -11,22 +11,19 @@ const options = {
       active: true,
     },
   },
-  /*   schema: {
-    format: "camel",
-    prefix: "",
-    suffix: "Schema",
-    replacements: [
-      ["blog", "bbblog"],
-      ["bbb", "AAAAA"],
+  customSchema: [
+    ["DATETIME", "z.stringg()"],
+    [
+      "TIMESTAMP",
+      "timestampSchema",
+      'import { timestampSchema } from "./globalSchema.ts"',
     ],
-    nullType: "nullable",
-  },
-  type: {
-    declared: "type",
-    format: "pascal",
-    prefix: "",
-    suffix: "",
-    replacements: [],
-  }, */
+    [
+      "",
+      "creationDateSchema",
+      'import { creationDateSchema } from "./globalSchema.ts"',
+      "CreationDa",
+    ],
+  ],
 };
 module.exports = options;
