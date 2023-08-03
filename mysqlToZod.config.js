@@ -11,22 +11,9 @@ const options = {
       active: true,
     },
   },
-  /*   schema: {
-    format: "camel",
-    prefix: "",
-    suffix: "Schema",
-    replacements: [
-      ["blog", "bbblog"],
-      ["bbb", "AAAAA"],
-    ],
-    nullType: "nullable",
-  },
-  type: {
-    declared: "type",
-    format: "pascal",
-    prefix: "",
-    suffix: "",
-    replacements: [],
-  }, */
+  customSchema: [
+    ["DATETIME", "z.stringg()"],
+    ["TIMESTAMP", "timestampSchema", "./globalSchema.ts"],
+  ],
 };
 module.exports = options;

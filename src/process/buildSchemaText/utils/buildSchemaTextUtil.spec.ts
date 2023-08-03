@@ -7,6 +7,7 @@ import {
 } from "../../../options";
 import { Column } from "../types/buildSchemaTextType";
 import {
+  columnToImportStatement,
   combineSchemaNameAndSchemaString,
   composeColumnStringList,
   composeSchemaName,
@@ -414,5 +415,17 @@ describe("combineSchemaNameAndSchemaString", () => {
     expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
       result
     );
+  });
+});
+
+describe("columnToImportStatement", () => {
+  it("case1", () => {
+    const column: Column = {
+      column: "id",
+      type: "int",
+      nullable: false,
+    };
+    const result = "./globalSchema.ts";
+    expect(columnToImportStatement(column)).toBe(result);
   });
 });

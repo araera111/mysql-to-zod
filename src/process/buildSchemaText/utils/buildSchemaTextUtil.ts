@@ -153,8 +153,7 @@ export const composeColumnStringList = ({
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
-      /* TODO */
-      customSchemaOptionList: [],
+      customSchemaOptionList: option?.customSchema ?? [],
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
@@ -297,3 +296,6 @@ export const replaceOldSchemaOption = ({
   }
   return schemaOption;
 };
+
+export const columnToImportStatement = (column: Column): string | undefined =>
+  undefined;
