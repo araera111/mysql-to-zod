@@ -13,7 +13,17 @@ const options = {
   },
   customSchema: [
     ["DATETIME", "z.stringg()"],
-    ["TIMESTAMP", "timestampSchema", "./globalSchema.ts"],
+    [
+      "TIMESTAMP",
+      "timestampSchema",
+      'import { timestampSchema } from "./globalSchema.ts"',
+    ],
+    [
+      "",
+      "creationDateSchema",
+      'import { creationDateSchema } from "./globalSchema.ts"',
+      "CreationDa",
+    ],
   ],
 };
 module.exports = options;

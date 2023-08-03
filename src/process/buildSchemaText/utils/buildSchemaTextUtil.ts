@@ -17,8 +17,114 @@ import {
   optionTableCommentsSchema,
 } from "../../../options";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
-import { convertToZodType } from "./toZod";
 
+export const isMaybeRegExp = (str: string): boolean =>
+  str.startsWith("/") && str.endsWith("/");
+
+/* 
+  knex result
+      {
+      tinyint_column: -128,
+      smallint_column: -32768,
+      mediumint_column: -8388608,
+      int_column: -2147483648,
+      bigint_column: -9223372036854776000,
+      float_column: -3.40282e+38,
+      double_column: -1.7976931348623155e+308,
+      decimal_column: '1234.56',
+      date_column: 2023-07-12T15:00:00.000Z,
+      time_column: '23:59:59',
+      datetime_column: 2023-07-13T14:59:59.000Z,
+      timestamp_column: 2023-07-13T14:59:59.000Z,
+      year_column: 2023,
+      char_column: 'char_value',
+      varchar_column: 'varchar_value',
+      binary_column: <Buffer 31 31 31 00 00 00 00 00 00 00>,
+      varbinary_column: <Buffer 76 61 72 62 69 6e 61 72 79 5f 76 61 6c 75 65>,
+      tinyblob_column: <Buffer 74 69 6e 79 62 6c 6f 62 5f 76 61 6c 75 65>,
+      blob_column: <Buffer 62 6c 6f 62 5f 76 61 6c 75 65>,
+      mediumblob_column: <Buffer 6d 65 64 69 75 6d 62 6c 6f 62 5f 76 61 6c 75 65>,
+      longblob_column: <Buffer 6c 6f 6e 67 62 6c 6f 62 5f 76 61 6c 75 65>,
+      tinytext_column: 'tinytext_value',
+      text_column: 'text_value',
+      mediumtext_column: 'mediumtext_value',
+      longtext_column: 'longtext_value',
+      enum_column: 'value1',
+      set_column: 'value2'
+    }
+*/
+
+/*
+  const typeMap = {
+    tinyint: "number",
+    smallint: "number",
+    mediumint: "number",
+    int: "number",
+    bigint: "number",
+    float: "number",
+    double: "number",
+    decimal: "string",
+    date: "date",
+    time: "string",
+    datetime: "date",
+    timestamp: "date",
+    year: "number",
+    char: "string",
+    varchar: "string",
+    binary: "Buffer",
+    varbinary: "Buffer",
+    tinyblob: "Buffer",
+    blob: "Buffer",
+    mediumblob: "Buffer",
+    longblob: "Buffer",
+    tinytext: "string",
+    text: "string",
+    mediumtext: "string",
+    longtext: "string",
+    enum: "string",
+    set: "string",
+  };
+  */
+
+type MatchCommentParams = {
+  comment: string;
+  matcher: string;
+};
+export const matchComment = ({
+  comment,
+  matcher,
+}: MatchCommentParams): boolean => {
+  if (isMaybeRegExp(matcher)) {
+    const regex = new RegExp(matcher.slice(1, -1));
+    return comment.match(regex) !== null;
+  }
+  return comment.includes(matcher);
+};
+
+type MatchCustomSchemaOptionProps = {
+  type: string;
+  comment: string | undefined;
+  customSchemaOptionList: CustomSchemaOptionList;
+};
+
+export const matchCustomSchemaOption = ({
+  type,
+  customSchemaOptionList,
+  comment,
+}: MatchCustomSchemaOptionProps): string | undefined => {
+  if (!isNil(comment)) {
+    const [, schemaName] =
+      customSchemaOptionList.find((x) =>
+        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
+      ) ?? [];
+    return schemaName;
+  }
+
+  const [, schemaName] =
+    customSchemaOptionList.find((x) => x[0] === type) ?? [];
+  if (isNil(schemaName)) return undefined;
+  return schemaName;
+};
 type GetNullTypeParams = {
   option: MysqlToZodOption;
 };
@@ -52,9 +158,7 @@ export const replaceTableName = ({
   if (isNil(before) || isNil(after)) return tableName;
 
   /* if notRegexp -> replace */
-  /* use match? invalid regexp -> return original tablename */
-  if (!before.startsWith("/") && !after.endsWith("/"))
-    return tableName.replace(before, after);
+  if (!isMaybeRegExp(before)) return tableName.replace(before, after);
 
   /* if regexp -> replace */
   const regex = new RegExp(before.slice(1, -1));
@@ -132,6 +236,55 @@ export const composeTableSchemaTextList = ({
   return strList;
 };
 
+type ConvertToZodTypeProps = {
+  type: string;
+  comment: string | undefined;
+  customSchemaOptionList: CustomSchemaOptionList;
+};
+export const convertToZodType = ({
+  type,
+  comment,
+  customSchemaOptionList,
+}: ConvertToZodTypeProps): string => {
+  const customSchemaName = matchCustomSchemaOption({
+    type,
+    comment,
+    customSchemaOptionList,
+  });
+  if (!isNil(customSchemaName)) return customSchemaName;
+  return match(type)
+    .with("TINYINT", () => "z.number()")
+    .with("SMALLINT", () => "z.number()")
+    .with("MEDIUMINT", () => "z.number()")
+    .with("INT", () => "z.number()")
+    .with("BIGINT", () => "z.number()")
+    .with("FLOAT", () => "z.number()")
+    .with("DOUBLE", () => "z.number()")
+    .with("YEAR", () => "z.number()")
+    .with("BIT", () => "z.boolean()")
+    .with("DATE", () => "z.date()")
+    .with("DATETIME", () => "z.date()")
+    .with("TIMESTAMP", () => "z.date()")
+    .with("CHAR", () => "z.string()")
+    .with("VARCHAR", () => "z.string()")
+    .with("DECIMAL", () => "z.string()")
+    .with("NUMERIC", () => "z.string()")
+    .with("TINYTEXT", () => "z.string()")
+    .with("TEXT", () => "z.string()")
+    .with("MEDIUMTEXT", () => "z.string()")
+    .with("LONGTEXT", () => "z.string()")
+    .with("ENUM", () => "z.string()")
+    .with("SET", () => "z.string()")
+    .with("TIME", () => "z.string()")
+    .with("BINARY", () => "z.unknown()")
+    .with("VARBINARY", () => "z.unknown()")
+    .with("TINYBLOB", () => "z.unknown()")
+    .with("BLOB", () => "z.unknown()")
+    .with("MEDIUMBLOB", () => "z.unknown()")
+    .with("LONGBLOB", () => "z.unknown()")
+    .otherwise(() => "z.unknown()");
+};
+
 type ComposeColumnStringListParams = {
   column: Column;
   option: MysqlToZodOption;
@@ -155,6 +308,7 @@ export const composeColumnStringList = ({
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
       customSchemaOptionList: option?.customSchema ?? [],
+      comment,
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
@@ -305,6 +459,7 @@ type ColumnToImportStatementParams = {
   column: Column;
   customSchemaOptionList: CustomSchemaOptionList;
 };
+
 export const columnToImportStatement = ({
   column,
   customSchemaOptionList,
@@ -314,7 +469,7 @@ export const columnToImportStatement = ({
   if (!isNil(comment)) {
     const foundOption =
       customSchemaOptionList.find((x) =>
-        x[3] === undefined ? false : comment.includes(x[3])
+        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
       ) ?? [];
     return foundOption[2];
   }

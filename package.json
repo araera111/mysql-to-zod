@@ -66,6 +66,7 @@
     "mysql2": "^3.5.2",
     "node-sql-parser": "^4.8.0",
     "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
     "ramda": "^0.29.0",
     "ts-case-convert": "^2.0.2",
     "ts-node": "^10.9.1",
