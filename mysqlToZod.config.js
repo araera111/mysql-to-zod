@@ -1,16 +1,6 @@
 const options = {
   outFilePath: "mysqlToZod",
   fileName: "schema.ts",
-  tableNames: [],
-  nullType: "nullish",
-  comments: {
-    table: {
-      active: true,
-    },
-    column: {
-      active: true,
-    },
-  },
   customSchema: [
     ["DATETIME", "z.stringg()"],
     [
@@ -23,6 +13,12 @@ const options = {
       "creationDateSchema",
       'import { creationDateSchema } from "./globalSchema.ts"',
       "CreationDa",
+    ],
+    [
+      "",
+      "blogTitleSchema",
+      'import { blogTitleSchema } from "./globalSchema.ts"',
+      "/^B.*e$/",
     ],
   ],
 };
