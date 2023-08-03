@@ -1,5 +1,6 @@
 import { AST } from "node-sql-parser";
 import {
+  CustomSchemaOptionList,
   MysqlToZodOption,
   OptionTableComments,
   SchemaOption,
@@ -419,13 +420,62 @@ describe("combineSchemaNameAndSchemaString", () => {
 });
 
 describe("columnToImportStatement", () => {
-  it("case1", () => {
+  it("case1 not match", () => {
     const column: Column = {
       column: "id",
       type: "int",
       nullable: false,
     };
-    const result = "./globalSchema.ts";
-    expect(columnToImportStatement(column)).toBe(result);
+    const result = undefined;
+    expect(
+      columnToImportStatement({ column, customSchemaOptionList: [] })
+    ).toBe(result);
+  });
+
+  it("case2 type match", () => {
+    const column: Column = {
+      column: "id",
+      type: "INT",
+      nullable: false,
+    };
+
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      [
+        "INT",
+        "myIntegerSchema",
+        'import { myIntegerSchema } from "./globalSchema.ts";',
+      ],
+    ];
+    const result = 'import { myIntegerSchema } from "./globalSchema.ts";';
+    expect(columnToImportStatement({ column, customSchemaOptionList })).toBe(
+      result
+    );
+  });
+
+  it("case3 comment match", () => {
+    const column: Column = {
+      column: "id",
+      type: "INT",
+      nullable: false,
+      comment: "min0max999",
+    };
+
+    const customSchemaOptionList: CustomSchemaOptionList = [
+      [
+        "INT",
+        "myIntegerSchema",
+        'import { myIntegerSchema } from "./globalSchema.ts";',
+      ],
+      [
+        "INT",
+        "min0Schema",
+        'import { min0max999Schema } from "./globalSchema.ts";',
+        "min0max999",
+      ],
+    ];
+    const result = 'import { min0max999Schema } from "./globalSchema.ts";';
+    expect(columnToImportStatement({ column, customSchemaOptionList })).toBe(
+      result
+    );
   });
 });

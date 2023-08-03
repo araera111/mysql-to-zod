@@ -6,6 +6,7 @@ import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
   CaseUnion,
+  CustomSchemaOptionList,
   MysqlToZodOption,
   NullTypeUnion,
   OptionTableComments,
@@ -297,5 +298,32 @@ export const replaceOldSchemaOption = ({
   return schemaOption;
 };
 
-export const columnToImportStatement = (column: Column): string | undefined =>
-  undefined;
+/* 
+ [TYPE, SchemaName, Import(optional), Comment(optional)]
+*/
+type ColumnToImportStatementParams = {
+  column: Column;
+  customSchemaOptionList: CustomSchemaOptionList;
+};
+export const columnToImportStatement = ({
+  column,
+  customSchemaOptionList,
+}: ColumnToImportStatementParams): string | undefined => {
+  const { type, comment } = column;
+
+  if (!isNil(comment)) {
+    const foundOption = customSchemaOptionList.find((x) =>
+      x[3] === undefined ? false : comment.includes(x[3])
+    );
+    if (isNil(foundOption)) return undefined;
+    return foundOption[2];
+  }
+
+  const typeList = customSchemaOptionList.map((x) => x[0]);
+  const includesType = typeList.some((x) => x === type);
+  if (!includesType) return undefined;
+  const [, schemaName, importStatement] =
+    customSchemaOptionList.find((x) => x[0] === type) ?? [];
+  if (isNil(schemaName) || isNil(importStatement)) return undefined;
+  return importStatement;
+};
