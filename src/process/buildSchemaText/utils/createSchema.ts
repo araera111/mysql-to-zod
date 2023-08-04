@@ -32,7 +32,7 @@ export const createSchema = (
       .flatMap((x) =>
         columnToImportStatement({
           column: x,
-          customSchemaOptionList: options.schema?.zod ?? [],
+          customSchemaOptionList: options.schema?.zod?.implementation ?? [],
         })
       )
       .flatMap((x) => (isNil(x) ? [] : x)),

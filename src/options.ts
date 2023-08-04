@@ -28,6 +28,16 @@ export type CustomSchemaOptionList = z.infer<
   typeof customSchemaOptionListSchema
 >;
 
+export const customSchemaOptionObjectSchema = z.object({
+  type: z.string(),
+  schema: z.string(),
+  comment: z.string().optional(),
+});
+// type
+export type CustomSchemaOptionObject = z.infer<
+  typeof customSchemaOptionObjectSchema
+>;
+
 const caseUnionSchema = z.union([
   z.literal("camel"),
   z.literal("pascal"),
@@ -58,7 +68,9 @@ export const SchemaOptionSchema = z.object({
   suffix: z.string().default("Schema"),
   replacements: z.string().array().array().default([]),
   nullType: nullTypeUnionSchema,
-  zod: customSchemaOptionListSchema.optional(),
+  zod: z
+    .object({ implementation: customSchemaOptionListSchema.optional() })
+    .optional(),
 });
 export type SchemaOption = z.infer<typeof SchemaOptionSchema>;
 
@@ -126,7 +138,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullable",
-    zod: [],
+    zod: { implementation: [] },
   },
   type: {
     declared: "type",

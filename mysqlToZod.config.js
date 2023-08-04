@@ -17,7 +17,9 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    zod: [["DATETIME", "z.string()"]],
+    zod: {
+      implementation: [["DATETIME", "z.string()"]],
+    },
   },
 };
 module.exports = options;

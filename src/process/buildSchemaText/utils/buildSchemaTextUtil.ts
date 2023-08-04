@@ -306,7 +306,7 @@ export const composeColumnStringList = ({
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
-      customSchemaOptionList: option?.schema?.zod ?? [],
+      customSchemaOptionList: option?.schema?.zod?.implementation ?? [],
       comment,
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
