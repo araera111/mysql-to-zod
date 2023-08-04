@@ -12,6 +12,22 @@ import { z } from "zod";
   nullのタイプ nullish or nullable default: nullable
 */
 
+/*
+  custom schema
+  [TYPE, SchemaName, Import(optional), Comment(optional)]
+*/
+export const customSchemaOptionSchema = z.union([
+  z.tuple([z.string(), z.string()]),
+  z.tuple([z.string(), z.string(), z.string()]),
+  z.tuple([z.string(), z.string(), z.string(), z.string()]),
+]);
+export type CustomSchemaOption = z.infer<typeof customSchemaOptionSchema>;
+
+export const customSchemaOptionListSchema = z.array(customSchemaOptionSchema);
+export type CustomSchemaOptionList = z.infer<
+  typeof customSchemaOptionListSchema
+>;
+
 const caseUnionSchema = z.union([
   z.literal("camel"),
   z.literal("pascal"),
@@ -42,6 +58,7 @@ export const SchemaOptionSchema = z.object({
   suffix: z.string().default("Schema"),
   replacements: z.string().array().array().default([]),
   nullType: nullTypeUnionSchema,
+  zod: customSchemaOptionListSchema.optional(),
 });
 export type SchemaOption = z.infer<typeof SchemaOptionSchema>;
 
@@ -69,22 +86,6 @@ export const optionCommentsSchema = z.object({
 });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
 
-/*
-  custom schema
-  [TYPE, SchemaName, Import(optional), Comment(optional)]
-*/
-export const customSchemaOptionSchema = z.union([
-  z.tuple([z.string(), z.string()]),
-  z.tuple([z.string(), z.string(), z.string()]),
-  z.tuple([z.string(), z.string(), z.string(), z.string()]),
-]);
-export type CustomSchemaOption = z.infer<typeof customSchemaOptionSchema>;
-
-export const customSchemaOptionListSchema = z.array(customSchemaOptionSchema);
-export type CustomSchemaOptionList = z.infer<
-  typeof customSchemaOptionListSchema
->;
-
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
   isCamel: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
@@ -97,7 +98,6 @@ export const mysqlToZodOptionSchema = z.object({
   comments: optionCommentsSchema.optional(),
   type: typeOptionSchema.optional(),
   schema: SchemaOptionSchema.optional(),
-  customSchema: customSchemaOptionListSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
@@ -126,6 +126,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullable",
+    zod: [],
   },
   type: {
     declared: "type",
@@ -134,5 +135,4 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     suffix: "",
     replacements: [],
   },
-  customSchema: [["", "", ""]],
 };
