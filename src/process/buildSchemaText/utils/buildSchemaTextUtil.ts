@@ -6,11 +6,11 @@ import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
   CaseUnion,
-  CustomSchemaOptionList,
   MysqlToZodOption,
   NullTypeUnion,
   OptionTableComments,
   SchemaOption,
+  SchemaZodImplementationList,
   TypeOption,
   defaultColumnCommentFormat,
   defaultTableCommentFormat,
@@ -86,40 +86,15 @@ export const isMaybeRegExp = (str: string): boolean =>
   };
   */
 
-type MatchCommentParams = {
-  comment: string;
-  matcher: string;
-};
-export const matchComment = ({
-  comment,
-  matcher,
-}: MatchCommentParams): boolean => {
-  if (isMaybeRegExp(matcher)) {
-    const regex = new RegExp(matcher.slice(1, -1));
-    return comment.match(regex) !== null;
-  }
-  return comment.includes(matcher);
-};
-
 type MatchCustomSchemaOptionProps = {
   type: string;
-  comment: string | undefined;
-  customSchemaOptionList: CustomSchemaOptionList;
+  customSchemaOptionList: SchemaZodImplementationList;
 };
 
 export const matchCustomSchemaOption = ({
   type,
   customSchemaOptionList,
-  comment,
 }: MatchCustomSchemaOptionProps): string | undefined => {
-  if (!isNil(comment)) {
-    const result =
-      customSchemaOptionList.find((x) =>
-        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
-      ) ?? [];
-    return result[1];
-  }
-
   const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
   if (isNil(result)) return undefined;
   return result[1];
@@ -237,17 +212,14 @@ export const composeTableSchemaTextList = ({
 
 type ConvertToZodTypeProps = {
   type: string;
-  comment: string | undefined;
-  customSchemaOptionList: CustomSchemaOptionList;
+  customSchemaOptionList: SchemaZodImplementationList;
 };
 export const convertToZodType = ({
   type,
-  comment,
   customSchemaOptionList,
 }: ConvertToZodTypeProps): string => {
   const customSchemaName = matchCustomSchemaOption({
     type,
-    comment,
     customSchemaOptionList,
   });
   if (!isNil(customSchemaName)) return customSchemaName;
@@ -307,7 +279,6 @@ export const composeColumnStringList = ({
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
       customSchemaOptionList: option?.schema?.zod?.implementation ?? [],
-      comment,
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
@@ -456,22 +427,14 @@ export const replaceOldSchemaOption = ({
 */
 type ColumnToImportStatementParams = {
   column: Column;
-  customSchemaOptionList: CustomSchemaOptionList;
+  customSchemaOptionList: SchemaZodImplementationList;
 };
 
 export const columnToImportStatement = ({
   column,
   customSchemaOptionList,
 }: ColumnToImportStatementParams): string | undefined => {
-  const { type, comment } = column;
-
-  if (!isNil(comment)) {
-    const foundOption =
-      customSchemaOptionList.find((x) =>
-        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
-      ) ?? [];
-    return foundOption[2];
-  }
+  const { type } = column;
 
   const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
   return result[2];

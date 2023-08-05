@@ -16,16 +16,16 @@ import { z } from "zod";
   custom schema
   [TYPE, SchemaName, Import(optional), Comment(optional)]
 */
-export const customSchemaOptionSchema = z.union([
-  z.tuple([z.string(), z.string()]),
-  z.tuple([z.string(), z.string(), z.string()]),
-  z.tuple([z.string(), z.string(), z.string(), z.string()]),
-]);
-export type CustomSchemaOption = z.infer<typeof customSchemaOptionSchema>;
+export const schemaZodImplementationSchema = z.tuple([z.string(), z.string()]);
+export type SchemaZodImplementation = z.infer<
+  typeof schemaZodImplementationSchema
+>;
 
-export const customSchemaOptionListSchema = z.array(customSchemaOptionSchema);
-export type CustomSchemaOptionList = z.infer<
-  typeof customSchemaOptionListSchema
+export const schemaZodImplementationListSchema = z.array(
+  schemaZodImplementationSchema
+);
+export type SchemaZodImplementationList = z.infer<
+  typeof schemaZodImplementationListSchema
 >;
 
 export const customSchemaOptionObjectSchema = z.object({
@@ -69,7 +69,7 @@ export const SchemaOptionSchema = z.object({
   replacements: z.string().array().array().default([]),
   nullType: nullTypeUnionSchema,
   zod: z
-    .object({ implementation: customSchemaOptionListSchema.optional() })
+    .object({ implementation: schemaZodImplementationListSchema.optional() })
     .optional(),
 });
 export type SchemaOption = z.infer<typeof SchemaOptionSchema>;
