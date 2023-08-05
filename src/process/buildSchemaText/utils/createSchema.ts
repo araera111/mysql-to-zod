@@ -1,6 +1,6 @@
 import { pipe } from "fp-ts/lib/function";
 import { isNil, uniq } from "ramda";
-import { MysqlToZodOption } from "../../../options";
+import { MysqlToZodOption } from "../../../options/options";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
   columnToImportStatement,

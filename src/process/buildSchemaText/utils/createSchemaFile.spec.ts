@@ -1,5 +1,5 @@
 import { AST } from "node-sql-parser";
-import { CaseUnion, TypeOption } from "../../../options";
+import { CaseUnion, TypeOption } from "../../../options/options";
 import {
   composeTypeString,
   convertTableName,

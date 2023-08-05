@@ -1,11 +1,11 @@
 import { AST } from "node-sql-parser";
+import { OptionTableComments } from "../../../options/comments";
 import {
   MysqlToZodOption,
-  OptionTableComments,
-  SchemaOption,
   SchemaZodImplementationList,
   basicMySQLToZodOption,
-} from "../../../options";
+} from "../../../options/options";
+import { SchemaOption } from "../../../options/schema";
 import { Column } from "../types/buildSchemaTextType";
 import {
   columnToImportStatement,

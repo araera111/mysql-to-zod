@@ -3,7 +3,7 @@ import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
 import { uniq } from "ramda";
-import { MysqlToZodOption } from "../../options";
+import { MysqlToZodOption } from "../../options/options";
 import { SchemaResult } from "./types/buildSchemaTextType";
 import { createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";

@@ -6,7 +6,7 @@ import {
   MysqlToZodOption,
   basicMySQLToZodOption,
   mysqlToZodOptionSchema,
-} from "../options";
+} from "../options/options";
 
 export const configLoad = async (): Promise<
   Either<string, MysqlToZodOption>

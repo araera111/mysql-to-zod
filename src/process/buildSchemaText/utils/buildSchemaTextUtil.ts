@@ -5,17 +5,18 @@ import { isEmpty, isNil } from "ramda";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
-  CaseUnion,
-  MysqlToZodOption,
-  NullTypeUnion,
   OptionTableComments,
-  SchemaOption,
-  SchemaZodImplementationList,
-  TypeOption,
   defaultColumnCommentFormat,
   defaultTableCommentFormat,
   optionTableCommentsSchema,
-} from "../../../options";
+} from "../../../options/comments";
+import { CaseUnion, NullTypeUnion } from "../../../options/common";
+import {
+  MysqlToZodOption,
+  SchemaZodImplementationList,
+} from "../../../options/options";
+import { SchemaOption } from "../../../options/schema";
+import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
 export const isMaybeRegExp = (str: string): boolean =>
