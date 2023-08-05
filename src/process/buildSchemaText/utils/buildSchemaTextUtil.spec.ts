@@ -388,6 +388,7 @@ describe("composeSchemaNameString", () => {
     prefix: "",
     suffix: "Schema",
     nullType: "nullable",
+    inline: true,
   };
   it("case1 basicOption", () => {
     const option = { ...schemaOption };

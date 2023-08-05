@@ -48,6 +48,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullable",
+    inline: true,
     zod: { implementation: [] },
   },
   type: {

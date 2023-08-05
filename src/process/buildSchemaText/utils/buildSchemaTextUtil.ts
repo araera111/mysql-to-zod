@@ -411,6 +411,7 @@ export const replaceOldSchemaOption = ({
       prefix: "",
       suffix: "Schema",
       replacements: [],
+      inline: true,
     };
     if (!isCamel) return { ...base, format: "original" };
     return base;
