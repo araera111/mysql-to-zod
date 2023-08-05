@@ -218,7 +218,6 @@ export const convertToZodType = ({
 }: ConvertToZodTypeParams): string => {
   const impl = toImplementation({ type, schemaZodImplementationList });
   if (!isNil(impl)) return impl;
-
   return match(type)
     .with("TINYINT", () => "z.number()")
     .with("SMALLINT", () => "z.number()")

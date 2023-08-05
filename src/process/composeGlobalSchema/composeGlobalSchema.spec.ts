@@ -1,5 +1,8 @@
 import { MysqlToZodOption, basicMySQLToZodOption } from "../../options/options";
-import { composeGlobalSchema } from "./composeGlobalSchema";
+import {
+  composeGlobalSchema,
+  composeGlobalSchemaRow,
+} from "./composeGlobalSchema";
 
 /* 
 import z from 'zod'
@@ -16,8 +19,38 @@ describe("composeGlobalSchema", () => {
     const option: MysqlToZodOption = { ...basicMySQLToZodOption };
     const result = `import { z } from "zod";
 export const globalSchema = {
-  mysqlDate: z.date(),
+mysqlDATE: z.date(),
 };`;
     expect(composeGlobalSchema({ typeList, option })).toBe(result);
+  });
+
+  it("case2 TINYINT -> z.number();", () => {
+    const typeList = ["TINYINT"];
+    const option: MysqlToZodOption = { ...basicMySQLToZodOption };
+    const result = `import { z } from "zod";
+export const globalSchema = {
+mysqlTINYINT: z.number(),
+};`;
+    expect(composeGlobalSchema({ typeList, option })).toBe(result);
+  });
+
+  it("case3 TINYINT, DATE", () => {
+    const typeList = ["TINYINT", "DATE"];
+    const option: MysqlToZodOption = { ...basicMySQLToZodOption };
+    const result = `import { z } from "zod";
+export const globalSchema = {
+mysqlTINYINT: z.number(),
+mysqlDATE: z.date(),
+};`;
+    expect(composeGlobalSchema({ typeList, option })).toBe(result);
+  });
+});
+
+describe("composeGlobalSchemaRow", () => {
+  it("case 1", () => {
+    const type = "TINYINT";
+    const option: MysqlToZodOption = { ...basicMySQLToZodOption };
+    const result = "mysqlTINYINT: z.number(),\n";
+    expect(composeGlobalSchemaRow({ type, option })).toBe(result);
   });
 });
