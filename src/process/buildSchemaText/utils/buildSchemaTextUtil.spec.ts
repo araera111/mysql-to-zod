@@ -2,21 +2,19 @@ import { AST } from "node-sql-parser";
 import { OptionTableComments } from "../../../options/comments";
 import {
   MysqlToZodOption,
-  SchemaZodImplementationList,
   basicMySQLToZodOption,
 } from "../../../options/options";
-import { SchemaOption } from "../../../options/schema";
+import { SchemaOption, SchemaZodImplementation } from "../../../options/schema";
 import { Column } from "../types/buildSchemaTextType";
 import {
-  columnToImportStatement,
   combineSchemaNameAndSchemaString,
   composeColumnStringList,
   composeSchemaName,
   convertComment,
   convertToZodType,
   getTableComment,
-  matchCustomSchemaOption,
   replaceTableName,
+  toImplementation,
 } from "./buildSchemaTextUtil";
 
 describe("convertComment", () => {
@@ -421,40 +419,6 @@ describe("combineSchemaNameAndSchemaString", () => {
   });
 });
 
-describe("columnToImportStatement", () => {
-  it("case1 not match", () => {
-    const column: Column = {
-      column: "id",
-      type: "int",
-      nullable: false,
-    };
-    const result = undefined;
-    expect(
-      columnToImportStatement({ column, customSchemaOptionList: [] })
-    ).toBe(result);
-  });
-
-  it("case2 type match", () => {
-    const column: Column = {
-      column: "id",
-      type: "INT",
-      nullable: false,
-    };
-
-    const customSchemaOptionList: SchemaZodImplementationList = [
-      [
-        "INT",
-        "myIntegerSchema",
-        'import { myIntegerSchema } from "./globalSchema.ts";',
-      ],
-    ];
-    const result = 'import { myIntegerSchema } from "./globalSchema.ts";';
-    expect(columnToImportStatement({ column, customSchemaOptionList })).toBe(
-      result
-    );
-  });
-});
-
 /*
 case "TINYINT":
     case "SMALLINT":
@@ -499,185 +463,242 @@ describe("convertToZodType", () => {
   it("TINYINT", () => {
     const type = "TINYINT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("SMALLINT", () => {
     const type = "SMALLINT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("MEDIUMINT", () => {
     const type = "MEDIUMINT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
 
   it("INT", () => {
     const type = "INT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("BIGINT", () => {
     const type = "BIGINT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("FLOAT", () => {
     const type = "FLOAT";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("DOUBLE", () => {
     const type = "DOUBLE";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("YEAR", () => {
     const type = "YEAR";
     const result = "z.number()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("BIT", () => {
     const type = "BIT";
     const result = "z.boolean()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("DATE", () => {
     const type = "DATE";
     const result = "z.date()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("DATETIME", () => {
     const type = "DATETIME";
     const result = "z.date()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("TIMESTAMP", () => {
     const type = "TIMESTAMP";
     const result = "z.date()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("CHAR", () => {
     const type = "CHAR";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("VARCHAR", () => {
     const type = "VARCHAR";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("DECIMAL", () => {
     const type = "DECIMAL";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("NUMERIC", () => {
     const type = "NUMERIC";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("TINYTEXT", () => {
     const type = "TINYTEXT";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("TEXT", () => {
     const type = "TEXT";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("MEDIUMTEXT", () => {
     const type = "MEDIUMTEXT";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("LONGTEXT", () => {
     const type = "LONGTEXT";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("ENUM", () => {
     const type = "ENUM";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("SET", () => {
     const type = "SET";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("TIME", () => {
     const type = "TIME";
     const result = "z.string()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("BINARY", () => {
     const type = "BINARY";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("VARBINARY", () => {
     const type = "VARBINARY";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("TINYBLOB", () => {
     const type = "TINYBLOB";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("BLOB", () => {
     const type = "BLOB";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("MEDIUMBLOB", () => {
     const type = "MEDIUMBLOB";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("LONGBLOB", () => {
     const type = "LONGBLOB";
     const result = "z.unknown()";
-    expect(convertToZodType({ type, customSchemaOptionList: [] })).toBe(result);
+    expect(convertToZodType({ type, schemaZodImplementationList: [] })).toBe(
+      result
+    );
   });
   it("case custom1 myDate", () => {
     const type = "DATETIME";
-    const customSchemaOptionList: SchemaZodImplementationList = [
-      ["DATETIME", "myDate"],
+    const customSchemaOptionList: SchemaZodImplementation[] = [
+      ["DATETIME", "z.string()"],
     ];
-    const result = "myDate";
-    expect(convertToZodType({ type, customSchemaOptionList })).toBe(result);
+    const result = "z.string()";
+    expect(
+      convertToZodType({
+        type,
+        schemaZodImplementationList: customSchemaOptionList,
+      })
+    ).toBe(result);
   });
 });
 
-describe("matchCustomSchemaOption", () => {
-  it("case1 DATETIME", () => {
+describe("toImplementation", () => {
+  it("case1 match", () => {
     const type = "DATETIME";
-    const customSchemaOptionList: SchemaZodImplementationList = [
-      ["DATETIME", "myDateSchema"],
+    const schemaZodImplementationList: SchemaZodImplementation[] = [
+      ["DATETIME", "z.string()"],
     ];
-    const result = "myDateSchema";
-    expect(
-      matchCustomSchemaOption({
-        type,
-        customSchemaOptionList,
-      })
-    ).toStrictEqual(result);
+    const result = "z.string()";
+    expect(toImplementation({ type, schemaZodImplementationList })).toBe(
+      result
+    );
   });
 
-  it("case2 DATE, import", () => {
-    const type = "DATE";
-    const customSchemaOptionList: SchemaZodImplementationList = [
-      ["DATE", "myDateSchema", "../globalSchema.ts"],
+  it("case2 no match", () => {
+    const type = "DATETIME";
+    const schemaZodImplementationList: SchemaZodImplementation[] = [
+      ["DATE", "z.string()"],
     ];
-    const result = "myDateSchema";
-    expect(
-      matchCustomSchemaOption({
-        type,
-        customSchemaOptionList,
-      })
-    ).toStrictEqual(result);
+    const result = undefined;
+    expect(toImplementation({ type, schemaZodImplementationList })).toBe(
+      result
+    );
   });
 });

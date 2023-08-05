@@ -11,11 +11,8 @@ import {
   optionTableCommentsSchema,
 } from "../../../options/comments";
 import { CaseUnion, NullTypeUnion } from "../../../options/common";
-import {
-  MysqlToZodOption,
-  SchemaZodImplementationList,
-} from "../../../options/options";
-import { SchemaOption } from "../../../options/schema";
+import { MysqlToZodOption } from "../../../options/options";
+import { SchemaOption, SchemaZodImplementation } from "../../../options/schema";
 import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
@@ -87,19 +84,6 @@ export const isMaybeRegExp = (str: string): boolean =>
   };
   */
 
-type MatchCustomSchemaOptionProps = {
-  type: string;
-  customSchemaOptionList: SchemaZodImplementationList;
-};
-
-export const matchCustomSchemaOption = ({
-  type,
-  customSchemaOptionList,
-}: MatchCustomSchemaOptionProps): string | undefined => {
-  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  if (isNil(result)) return undefined;
-  return result[1];
-};
 type GetNullTypeParams = {
   option: MysqlToZodOption;
 };
@@ -211,19 +195,30 @@ export const composeTableSchemaTextList = ({
   return strList;
 };
 
-type ConvertToZodTypeProps = {
+type ToImplementationParams = {
   type: string;
-  customSchemaOptionList: SchemaZodImplementationList;
+  schemaZodImplementationList: SchemaZodImplementation[];
+};
+export const toImplementation = ({
+  type,
+  schemaZodImplementationList,
+}: ToImplementationParams): string | undefined => {
+  const f = schemaZodImplementationList.find((x) => x[0] === type);
+  if (isNil(f)) return undefined;
+  return f[1];
+};
+
+type ConvertToZodTypeParams = {
+  type: string;
+  schemaZodImplementationList: SchemaZodImplementation[];
 };
 export const convertToZodType = ({
   type,
-  customSchemaOptionList,
-}: ConvertToZodTypeProps): string => {
-  const customSchemaName = matchCustomSchemaOption({
-    type,
-    customSchemaOptionList,
-  });
-  if (!isNil(customSchemaName)) return customSchemaName;
+  schemaZodImplementationList,
+}: ConvertToZodTypeParams): string => {
+  const impl = toImplementation({ type, schemaZodImplementationList });
+  if (!isNil(impl)) return impl;
+
   return match(type)
     .with("TINYINT", () => "z.number()")
     .with("SMALLINT", () => "z.number()")
@@ -279,7 +274,7 @@ export const composeColumnStringList = ({
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
-      customSchemaOptionList: option?.schema?.zod?.implementation ?? [],
+      schemaZodImplementationList: option?.schema?.zod?.implementation ?? [],
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
@@ -421,22 +416,4 @@ export const replaceOldSchemaOption = ({
     return base;
   }
   return schemaOption;
-};
-
-/* 
- [TYPE, SchemaName, Import(optional), Comment(optional)]
-*/
-type ColumnToImportStatementParams = {
-  column: Column;
-  customSchemaOptionList: SchemaZodImplementationList;
-};
-
-export const columnToImportStatement = ({
-  column,
-  customSchemaOptionList,
-}: ColumnToImportStatementParams): string | undefined => {
-  const { type } = column;
-
-  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  return result[2];
 };

@@ -1,9 +1,6 @@
-import { pipe } from "fp-ts/lib/function";
-import { isNil, uniq } from "ramda";
 import { MysqlToZodOption } from "../../../options/options";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
-  columnToImportStatement,
   combineSchemaNameAndSchemaString,
   composeColumnStringList,
   composeSchemaName,
@@ -26,18 +23,6 @@ export const createSchema = (
       composeColumnStringList({ column: x, option: options }).join("\n")
     )
     .join("");
-
-  const customSchemaImportDeclarationList = pipe(
-    columns
-      .flatMap((x) =>
-        columnToImportStatement({
-          column: x,
-          customSchemaOptionList: options.schema?.zod?.implementation ?? [],
-        })
-      )
-      .flatMap((x) => (isNil(x) ? [] : x)),
-    uniq
-  );
 
   const schemaOption = replaceOldSchemaOption({
     isCamel,
@@ -70,6 +55,6 @@ export const createSchema = (
       typeString,
       tableComment,
     }).join("\n"),
-    importDeclarationList: customSchemaImportDeclarationList,
+    importDeclarationList: [],
   };
 };

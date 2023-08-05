@@ -8,15 +8,6 @@ import { nullTypeUnionSchema } from "./common";
 import { SchemaOptionSchema } from "./schema";
 import { typeOptionSchema } from "./type";
 
-export const schemaZodImplementationSchema = z.tuple([z.string(), z.string()]);
-
-export const schemaZodImplementationListSchema = z.array(
-  schemaZodImplementationSchema
-);
-export type SchemaZodImplementationList = z.infer<
-  typeof schemaZodImplementationListSchema
->;
-
 export const mysqlToZodOptionSchema = z.object({
   isAddType: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
   isCamel: z.boolean().optional(), // I hope to have it DEPRECATED in the near future.
