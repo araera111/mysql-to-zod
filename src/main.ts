@@ -1,8 +1,9 @@
 import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
-import { isNil } from "ramda";
+import { isNil, uniq } from "ramda";
 import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
+import { composeGlobalSchema } from "./process/composeGlobalSchema/composeGlobalSchema";
 import { getTables } from "./process/getTables";
 import { init } from "./process/init";
 import { output } from "./process/output";
@@ -20,13 +21,20 @@ const main = async () => {
 
   const schemaRawText = await buildSchemaText({
     tables,
-    config: initEither.right,
+    option: initEither.right,
+  });
+  if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
+
+  const globalSchema = composeGlobalSchema({
+    typeList: uniq(schemaRawText.right.columns.map((x) => x.type)),
+    option: initEither.right,
   });
 
   await output({
-    schemaRawText,
+    schemaRawText: schemaRawText.right.text,
     outFilePath,
     fileName,
+    globalSchema,
   });
 
   return 0;

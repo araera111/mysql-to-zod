@@ -58,5 +58,5 @@ export const createSchemaFile = (
     options,
     tableComment
   );
-  return right({ schema, importDeclarationList });
+  return right({ schema, importDeclarationList, columns });
 };

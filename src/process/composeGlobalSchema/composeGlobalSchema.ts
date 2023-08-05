@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import { MysqlToZodOption } from "../../options/options";
 import { convertToZodType } from "../buildSchemaText/utils/buildSchemaTextUtil";
 
@@ -8,11 +9,21 @@ type ComposeGlobalSchemaRowParams = {
 export const composeGlobalSchemaRow = ({
   type,
   option,
-}: ComposeGlobalSchemaRowParams): string =>
-  `mysql${type}: ${convertToZodType({
+}: ComposeGlobalSchemaRowParams): string => {
+  const existReference = option.schema?.zod?.references?.find(
+    (x) => x[0] === type
+  );
+  return `${
+    existReference ? existReference[1] : `mysql${type}`
+  }: ${convertToZodType({
     type,
-    schemaZodImplementationList: option.schema?.zod?.implementation ?? [],
+    option: produce(option, (draft) => {
+      if (draft.schema) {
+        draft.schema.inline = true;
+      }
+    }),
   })},\n`;
+};
 
 type ComposeGlobalSchemaParams = {
   typeList: string[];
@@ -21,7 +32,8 @@ type ComposeGlobalSchemaParams = {
 export const composeGlobalSchema = ({
   typeList,
   option,
-}: ComposeGlobalSchemaParams): string => {
+}: ComposeGlobalSchemaParams): string | undefined => {
+  if (option.schema?.inline === true) return undefined;
   const rows = typeList
     .map((type) => composeGlobalSchemaRow({ type, option }))
     .join("");

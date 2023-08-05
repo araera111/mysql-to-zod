@@ -12,7 +12,7 @@ import {
 } from "../../../options/comments";
 import { CaseUnion, NullTypeUnion } from "../../../options/common";
 import { MysqlToZodOption } from "../../../options/options";
-import { SchemaOption, SchemaZodImplementation } from "../../../options/schema";
+import { SchemaOption } from "../../../options/schema";
 import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
@@ -197,26 +197,46 @@ export const composeTableSchemaTextList = ({
 
 type ToImplementationParams = {
   type: string;
-  schemaZodImplementationList: SchemaZodImplementation[];
+  option: MysqlToZodOption;
 };
 export const toImplementation = ({
   type,
-  schemaZodImplementationList,
+  option,
 }: ToImplementationParams): string | undefined => {
-  const f = schemaZodImplementationList.find((x) => x[0] === type);
-  if (isNil(f)) return undefined;
-  return f[1];
+  const inline = option?.schema?.inline ?? true;
+
+  /* globalSchemaの場合 */
+  if (!inline) {
+    const reference = option?.schema?.zod?.references?.find(
+      (x) => x[0] === type
+    );
+    if (!isNil(reference)) return `globalSchema.${reference[1]}`;
+
+    /* !inline && not includes reference */
+    return `globalSchema.mysql${type}`;
+  }
+
+  /* まずは通常モード、toZodで取得してくる部分を考える */
+  const reference = option?.schema?.zod?.implementation?.find(
+    (x) => x[0] === type
+  );
+  if (!isNil(reference)) return reference[1];
+
+  return undefined;
 };
 
 type ConvertToZodTypeParams = {
   type: string;
-  schemaZodImplementationList: SchemaZodImplementation[];
+  option: MysqlToZodOption;
 };
 export const convertToZodType = ({
   type,
-  schemaZodImplementationList,
+  option,
 }: ConvertToZodTypeParams): string => {
-  const impl = toImplementation({ type, schemaZodImplementationList });
+  const impl = toImplementation({
+    type,
+    option,
+  });
   if (!isNil(impl)) return impl;
   return match(type)
     .with("TINYINT", () => "z.number()")
@@ -273,7 +293,7 @@ export const composeColumnStringList = ({
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
-      schemaZodImplementationList: option?.schema?.zod?.implementation ?? [],
+      option,
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 

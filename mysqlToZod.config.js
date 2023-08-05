@@ -17,9 +17,10 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    inline: true,
+    inline: false,
     zod: {
       implementation: [["DATETIME", "z.string()"]],
+      references: [["DATETIME", "ourDateTime"]],
     },
   },
 };

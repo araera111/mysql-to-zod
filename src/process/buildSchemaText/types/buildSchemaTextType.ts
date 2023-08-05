@@ -20,6 +20,7 @@ export type Column = z.infer<typeof columnsSchema>;
 export const schemaResultSchema = z.object({
   schema: z.string(),
   importDeclarationList: z.array(z.string()),
+  columns: columnsSchema.array(),
 });
 
 export type SchemaResult = z.infer<typeof schemaResultSchema>;
