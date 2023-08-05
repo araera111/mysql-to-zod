@@ -31,6 +31,7 @@ export const SchemaOptionSchema = z.object({
   suffix: z.string().default("Schema"),
   replacements: z.string().array().array().default([]),
   nullType: nullTypeUnionSchema,
+  inline: z.boolean().default(true),
   zod: z
     .object({
       implementation: schemaZodImplementationSchema.array().optional(),
