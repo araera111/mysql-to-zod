@@ -3,23 +3,31 @@ import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { EOL } from "node:os";
 import { uniq } from "ramda";
-import { MysqlToZodOption } from "../../options";
-import { SchemaResult } from "./types/buildSchemaTextType";
+import { MysqlToZodOption } from "../../options/options";
+import { Column, SchemaResult } from "./types/buildSchemaTextType";
 import { createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";
 
 type BuildSchemaTextParams = {
   tables: string[];
-  config: MysqlToZodOption;
+  option: MysqlToZodOption;
+};
+
+type BuildSchemaTextResult = {
+  text: string;
+  columns: Column[];
 };
 
 export const buildSchemaText = async ({
   tables,
-  config,
-}: BuildSchemaTextParams): Promise<string> => {
+  option,
+}: BuildSchemaTextParams): Promise<Either<string, BuildSchemaTextResult>> => {
   // add import statement
-  const importStatement = `import { z } from "zod";
-import { isLeft } from 'fp-ts/lib/These';`;
+  const importStatement = `import { z } from "zod";${
+    !option.schema?.inline
+      ? "import { globalSchema } from './globalSchema';"
+      : ""
+  }`;
 
   const loop = async (
     restTables: string[],
@@ -33,9 +41,9 @@ import { isLeft } from 'fp-ts/lib/These';`;
 
     const tableDefinition = await getTableDefinition(
       headTable,
-      config.dbConnection
+      option.dbConnection
     );
-    const schemaTextEither = createSchemaFile(tableDefinition, config);
+    const schemaTextEither = createSchemaFile(tableDefinition, option);
     if (isLeft(schemaTextEither)) return schemaTextEither;
 
     const newResult = `${result.schema}
@@ -47,14 +55,19 @@ ${EOL}`;
         ...result.importDeclarationList,
         ...schemaTextEither.right.importDeclarationList,
       ],
+      columns: [...result.columns, ...schemaTextEither.right.columns],
     });
   };
   const schemaTexts = await loop(tables, {
     schema: "",
     importDeclarationList: [],
+    columns: [],
   });
-  if (isLeft(schemaTexts)) return schemaTexts.left;
-  return `${importStatement}${uniq(
-    schemaTexts.right.importDeclarationList
-  ).join("\n")}\n${schemaTexts.right.schema}`;
+  if (isLeft(schemaTexts)) return schemaTexts;
+  return right({
+    text: `${importStatement}${uniq(
+      schemaTexts.right.importDeclarationList
+    ).join("\n")}\n${schemaTexts.right.schema}`,
+    columns: schemaTexts.right.columns,
+  });
 };

@@ -1,29 +1,27 @@
 const options = {
   outFilePath: "mysqlToZod",
   fileName: "schema.ts",
-  tableNames: [],
-  nullType: "nullish",
   comments: {
     table: {
       active: true,
+      format: "// [table:!name] : !text",
     },
     column: {
       active: true,
+      format: "// !name : !text",
     },
   },
-  customSchema: [
-    ["DATETIME", "z.stringg()"],
-    [
-      "TIMESTAMP",
-      "timestampSchema",
-      'import { timestampSchema } from "./globalSchema.ts"',
-    ],
-    [
-      "",
-      "creationDateSchema",
-      'import { creationDateSchema } from "./globalSchema.ts"',
-      "CreationDa",
-    ],
-  ],
+  schema: {
+    format: "camel",
+    prefix: "",
+    suffix: "Schema",
+    replacements: [],
+    nullType: "nullish",
+    inline: false,
+    zod: {
+      implementation: [["DATETIME", "z.string()"]],
+      references: [["DATETIME", "ourDateTime"]],
+    },
+  },
 };
 module.exports = options;

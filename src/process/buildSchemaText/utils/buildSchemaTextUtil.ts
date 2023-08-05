@@ -5,17 +5,15 @@ import { isEmpty, isNil } from "ramda";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
-  CaseUnion,
-  CustomSchemaOptionList,
-  MysqlToZodOption,
-  NullTypeUnion,
   OptionTableComments,
-  SchemaOption,
-  TypeOption,
   defaultColumnCommentFormat,
   defaultTableCommentFormat,
   optionTableCommentsSchema,
-} from "../../../options";
+} from "../../../options/comments";
+import { CaseUnion, NullTypeUnion } from "../../../options/common";
+import { MysqlToZodOption } from "../../../options/options";
+import { SchemaOption } from "../../../options/schema";
+import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
 export const isMaybeRegExp = (str: string): boolean =>
@@ -86,44 +84,6 @@ export const isMaybeRegExp = (str: string): boolean =>
   };
   */
 
-type MatchCommentParams = {
-  comment: string;
-  matcher: string;
-};
-export const matchComment = ({
-  comment,
-  matcher,
-}: MatchCommentParams): boolean => {
-  if (isMaybeRegExp(matcher)) {
-    const regex = new RegExp(matcher.slice(1, -1));
-    return comment.match(regex) !== null;
-  }
-  return comment.includes(matcher);
-};
-
-type MatchCustomSchemaOptionProps = {
-  type: string;
-  comment: string | undefined;
-  customSchemaOptionList: CustomSchemaOptionList;
-};
-
-export const matchCustomSchemaOption = ({
-  type,
-  customSchemaOptionList,
-  comment,
-}: MatchCustomSchemaOptionProps): string | undefined => {
-  if (!isNil(comment)) {
-    const result =
-      customSchemaOptionList.find((x) =>
-        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
-      ) ?? [];
-    return result[1];
-  }
-
-  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  if (isNil(result)) return undefined;
-  return result[1];
-};
 type GetNullTypeParams = {
   option: MysqlToZodOption;
 };
@@ -235,22 +195,49 @@ export const composeTableSchemaTextList = ({
   return strList;
 };
 
-type ConvertToZodTypeProps = {
+type ToImplementationParams = {
   type: string;
-  comment: string | undefined;
-  customSchemaOptionList: CustomSchemaOptionList;
+  option: MysqlToZodOption;
+};
+export const toImplementation = ({
+  type,
+  option,
+}: ToImplementationParams): string | undefined => {
+  const inline = option?.schema?.inline ?? true;
+
+  /* globalSchemaの場合 */
+  if (!inline) {
+    const reference = option?.schema?.zod?.references?.find(
+      (x) => x[0] === type
+    );
+    if (!isNil(reference)) return `globalSchema.${reference[1]}`;
+
+    /* !inline && not includes reference */
+    return `globalSchema.mysql${type}`;
+  }
+
+  /* まずは通常モード、toZodで取得してくる部分を考える */
+  const reference = option?.schema?.zod?.implementation?.find(
+    (x) => x[0] === type
+  );
+  if (!isNil(reference)) return reference[1];
+
+  return undefined;
+};
+
+type ConvertToZodTypeParams = {
+  type: string;
+  option: MysqlToZodOption;
 };
 export const convertToZodType = ({
   type,
-  comment,
-  customSchemaOptionList,
-}: ConvertToZodTypeProps): string => {
-  const customSchemaName = matchCustomSchemaOption({
+  option,
+}: ConvertToZodTypeParams): string => {
+  const impl = toImplementation({
     type,
-    comment,
-    customSchemaOptionList,
+    option,
   });
-  if (!isNil(customSchemaName)) return customSchemaName;
+  if (!isNil(impl)) return impl;
   return match(type)
     .with("TINYINT", () => "z.number()")
     .with("SMALLINT", () => "z.number()")
@@ -306,8 +293,7 @@ export const composeColumnStringList = ({
       : undefined,
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
-      customSchemaOptionList: option?.customSchema ?? [],
-      comment,
+      option,
     })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
@@ -444,35 +430,10 @@ export const replaceOldSchemaOption = ({
       prefix: "",
       suffix: "Schema",
       replacements: [],
+      inline: true,
     };
     if (!isCamel) return { ...base, format: "original" };
     return base;
   }
   return schemaOption;
-};
-
-/* 
- [TYPE, SchemaName, Import(optional), Comment(optional)]
-*/
-type ColumnToImportStatementParams = {
-  column: Column;
-  customSchemaOptionList: CustomSchemaOptionList;
-};
-
-export const columnToImportStatement = ({
-  column,
-  customSchemaOptionList,
-}: ColumnToImportStatementParams): string | undefined => {
-  const { type, comment } = column;
-
-  if (!isNil(comment)) {
-    const foundOption =
-      customSchemaOptionList.find((x) =>
-        x[3] === undefined ? false : matchComment({ comment, matcher: x[3] })
-      ) ?? [];
-    return foundOption[2];
-  }
-
-  const result = customSchemaOptionList.find((x) => x[0] === type) ?? [];
-  return result[2];
 };
