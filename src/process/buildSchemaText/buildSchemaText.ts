@@ -1,8 +1,8 @@
 import { Either, isLeft, right } from "fp-ts/lib/Either";
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
+import { produce } from "immer";
 import { EOL } from "node:os";
-import { uniq } from "ramda";
 import { MysqlToZodOption } from "../../options/options";
 import { Column, SchemaResult } from "./types/buildSchemaTextType";
 import { createSchemaFile } from "./utils/createSchemaFile";
@@ -22,12 +22,12 @@ export const buildSchemaText = async ({
   tables,
   option,
 }: BuildSchemaTextParams): Promise<Either<string, BuildSchemaTextResult>> => {
-  // add import statement
-  const importStatement = `import { z } from "zod";${
-    !option.schema?.inline
-      ? "import { globalSchema } from './globalSchema';"
-      : ""
-  }`;
+  const importZodDeclaration = `import { z } from "zod";`;
+
+  const importDeclaration = produce([importZodDeclaration], (draft) => {
+    if (!option.schema?.inline)
+      draft.push("import { globalSchema } from './globalSchema';");
+  });
 
   const loop = async (
     restTables: string[],
@@ -46,28 +46,23 @@ export const buildSchemaText = async ({
     const schemaTextEither = createSchemaFile(tableDefinition, option);
     if (isLeft(schemaTextEither)) return schemaTextEither;
 
-    const newResult = `${result.schema}
-${schemaTextEither.right.schema}
-${EOL}`;
+    const newResult = [result.schema, schemaTextEither.right.schema, EOL].join(
+      "\n"
+    );
+
     return loop(tailTables, {
       schema: newResult,
-      importDeclarationList: [
-        ...result.importDeclarationList,
-        ...schemaTextEither.right.importDeclarationList,
-      ],
       columns: [...result.columns, ...schemaTextEither.right.columns],
     });
   };
   const schemaTexts = await loop(tables, {
     schema: "",
-    importDeclarationList: [],
     columns: [],
   });
   if (isLeft(schemaTexts)) return schemaTexts;
+
   return right({
-    text: `${importStatement}${uniq(
-      schemaTexts.right.importDeclarationList
-    ).join("\n")}\n${schemaTexts.right.schema}`,
+    text: `${importDeclaration}\n${schemaTexts.right.schema}`,
     columns: schemaTexts.right.columns,
   });
 };
