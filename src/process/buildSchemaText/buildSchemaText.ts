@@ -27,7 +27,7 @@ export const buildSchemaText = async ({
   const importDeclaration = produce([importZodDeclaration], (draft) => {
     if (!option.schema?.inline)
       draft.push("import { globalSchema } from './globalSchema';");
-  });
+  }).join("\n");
 
   const loop = async (
     restTables: string[],
