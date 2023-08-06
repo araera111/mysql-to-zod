@@ -15,9 +15,7 @@ export const convertToColumn = (ast: any) => {
     dataType SET only Array node-sql-parser 4.8.0
     temp fix
   */
-  const type = Array.isArray(ast?.definition?.dataType)
-    ? (ast?.definition?.dataType[0] as string).toUpperCase()
-    : ast?.definition?.dataType;
+  const type = ast?.definition?.dataType;
 
   const nullable = ast?.nullable?.type !== "not null";
   const comment = ast?.comment?.value?.value;
