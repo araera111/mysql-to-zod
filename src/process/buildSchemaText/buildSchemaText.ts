@@ -22,9 +22,7 @@ export const buildSchemaText = async ({
   tables,
   option,
 }: BuildSchemaTextParams): Promise<Either<string, BuildSchemaTextResult>> => {
-  const importZodDeclaration = `import { z } from "zod";`;
-
-  const importDeclaration = produce([importZodDeclaration], (draft) => {
+  const importDeclaration = produce(['import { z } from "zod";'], (draft) => {
     if (!option.schema?.inline)
       draft.push("import { globalSchema } from './globalSchema';");
   }).join("\n");

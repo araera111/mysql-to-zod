@@ -216,7 +216,6 @@ export const toImplementation = ({
     return `globalSchema.mysql${type}`;
   }
 
-  /* まずは通常モード、toZodで取得してくる部分を考える */
   const reference = option?.schema?.zod?.implementation?.find(
     (x) => x[0] === type
   );
