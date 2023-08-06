@@ -3,7 +3,7 @@ import { caseUnionSchema, nullTypeUnionSchema } from "./common";
 
 /* 
   ex
-  schema.zod.references: { // new object?
+  schema.zod.references: {
   [ 'DATE' , 'mysqlDate' ],
   [ 'DATETIME', 'mysqlDateTime'],
   [ 'BOOL' , 'mysqlBoolean' ],
