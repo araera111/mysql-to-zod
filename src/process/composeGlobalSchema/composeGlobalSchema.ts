@@ -37,8 +37,12 @@ export const composeGlobalSchema = ({
   const rows = typeList
     .map((type) => composeGlobalSchemaRow({ type, option }))
     .join("");
-  const result = `import { z } from "zod";
-export const globalSchema = {
-${rows}};`;
+
+  const result = [
+    'import { z } from "zod";',
+    "export const globalSchema = {",
+    `${rows}};`,
+  ].join("");
+
   return result;
 };

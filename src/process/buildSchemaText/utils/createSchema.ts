@@ -55,7 +55,6 @@ export const createSchema = (
       typeString,
       tableComment,
     }).join("\n"),
-    importDeclarationList: [],
     columns,
   };
 };

@@ -50,11 +50,6 @@ export const createSchemaFile = (
     optionCommentsTable: options?.comments?.table,
     tableName,
   });
-  const { schema, importDeclarationList } = createSchema(
-    tableName,
-    columns,
-    options,
-    tableComment
-  );
-  return right({ schema, importDeclarationList, columns });
+  const { schema } = createSchema(tableName, columns, options, tableComment);
+  return right({ schema, columns });
 };
