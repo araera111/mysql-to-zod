@@ -7,3 +7,4 @@ upload.mjs
 old
 mysqlToZod
 vite.config.ts
+mysqlToZod.config.js
