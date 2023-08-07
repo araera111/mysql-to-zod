@@ -42,7 +42,7 @@ export const composeGlobalSchema = ({
     'import { z } from "zod";',
     "export const globalSchema = {",
     `${rows}};`,
-  ].join("");
+  ].join("\n");
 
   return result;
 };
