@@ -1,3 +1,4 @@
+/** @type {import("./src/options/options").MysqlToZodOption} */
 const options = {
   outFilePath: "mysqlToZod",
   fileName: "schema.ts",
