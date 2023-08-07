@@ -9,9 +9,12 @@ export const getTables = async (
 ): Promise<string[]> => {
   // tableNamesが与えられている場合は、そのまま返す
   if (!isEmpty(tableNames)) return tableNames;
+
   const connection = await mysql.createConnection(dbConnection);
   const [tables] = await connection.query("show tables");
+
   if (!Array.isArray(tables)) return [];
+
   const result = tables.map((x: any) => Object.values(x)).flat();
   await connection.destroy();
   return z.string().array().parse(result);

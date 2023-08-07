@@ -12,7 +12,7 @@ describe("composeGlobalSchema", () => {
       if (draft.schema) {
         draft.schema.inline = false;
       }
-    }
+    },
   );
   it("case1 DATE -> z.date();", () => {
     const typeList = ["DATE"];

@@ -11,10 +11,6 @@ export const convertToColumn = (ast: any) => {
   if (isNil(ast.column)) return undefined;
   const { column } = ast.column;
 
-  /*
-    dataType SET only Array node-sql-parser 4.8.0
-    temp fix
-  */
   const type = ast?.definition?.dataType;
 
   const nullable = ast?.nullable?.type !== "not null";
@@ -27,7 +23,7 @@ export const isCreate = (ast: AST): ast is Create =>
   "create_definitions" in ast;
 export const createSchemaFile = (
   tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
-  options: MysqlToZodOption
+  options: MysqlToZodOption,
 ): Either<string, SchemaResult> => {
   const parser = new Parser();
   const [tableName, tableDefinitionString] = tableDefinition;
@@ -42,7 +38,7 @@ export const createSchemaFile = (
     .parse(
       ast.create_definitions
         ?.map((x: any) => convertToColumn(x))
-        .flatMap((x: any) => (isNil(x) ? [] : x))
+        .flatMap((x: any) => (isNil(x) ? [] : x)),
     );
 
   const tableComment = getTableComment({

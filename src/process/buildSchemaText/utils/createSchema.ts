@@ -14,13 +14,13 @@ export const createSchema = (
   tableName: string,
   columns: Column[],
   options: MysqlToZodOption,
-  tableComment: string | undefined
+  tableComment: string | undefined,
 ): SchemaResult => {
   const { isAddType, isCamel, isTypeUpperCamel } = options;
 
   const schemaString = columns
     .map((x) =>
-      composeColumnStringList({ column: x, option: options }).join("\n")
+      composeColumnStringList({ column: x, option: options }).join("\n"),
     )
     .join("");
 

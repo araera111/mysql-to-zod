@@ -156,7 +156,7 @@ export const getTableComment = ({
   optionCommentsTable,
 }: GetTableCommentParams): string | undefined => {
   const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
-    optionCommentsTable ?? {}
+    optionCommentsTable ?? {},
   );
 
   if (parsedOptionCommentsTable.active === false) return undefined;
@@ -165,7 +165,7 @@ export const getTableComment = ({
   if (isNil(tableOptions)) return undefined;
 
   const comment = commentKeywordSchema.parse(
-    tableOptions.find((x: any) => x.keyword === "comment")
+    tableOptions.find((x: any) => x.keyword === "comment"),
   );
 
   if (isNil(comment)) return undefined;
@@ -190,7 +190,7 @@ export const composeTableSchemaTextList = ({
 }: ComposeTableSchemaTextParams): string[] => {
   const tableCommentString = isNil(tableComment) ? "" : `\n${tableComment}`;
   const strList = [tableCommentString, schemaText, typeString].filter(
-    (x) => x !== ""
+    (x) => x !== "",
   );
   return strList;
 };
@@ -208,7 +208,7 @@ export const toImplementation = ({
   /* globalSchemaの場合 */
   if (!inline) {
     const reference = option?.schema?.zod?.references?.find(
-      (x) => x[0] === type
+      (x) => x[0] === type,
     );
     if (!isNil(reference)) return `globalSchema.${reference[1]}`;
 
@@ -217,7 +217,7 @@ export const toImplementation = ({
   }
 
   const reference = option?.schema?.zod?.implementation?.find(
-    (x) => x[0] === type
+    (x) => x[0] === type,
   );
   if (!isNil(reference)) return reference[1];
 

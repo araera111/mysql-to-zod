@@ -29,7 +29,7 @@ export const buildSchemaText = async ({
 
   const loop = async (
     restTables: string[],
-    result: SchemaResult
+    result: SchemaResult,
   ): Promise<Either<string, SchemaResult>> => {
     const nonEmptyTables = fromArray(restTables);
     if (isNone(nonEmptyTables)) return right(result);
@@ -39,13 +39,13 @@ export const buildSchemaText = async ({
 
     const tableDefinition = await getTableDefinition(
       headTable,
-      option.dbConnection
+      option.dbConnection,
     );
     const schemaTextEither = createSchemaFile(tableDefinition, option);
     if (isLeft(schemaTextEither)) return schemaTextEither;
 
     const newResult = [result.schema, schemaTextEither.right.schema, EOL].join(
-      "\n"
+      "\n",
     );
 
     return loop(tailTables, {

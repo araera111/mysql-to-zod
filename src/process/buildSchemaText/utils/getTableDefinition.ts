@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const getTableDefinition = async (
   tableName: string,
-  dbConnection: string
+  dbConnection: string,
 ) => {
   const connection = await mysql.createConnection(dbConnection);
   const [table] = await connection.query("show create table ??", tableName);

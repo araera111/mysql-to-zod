@@ -30,7 +30,7 @@ describe("convertComment", () => {
     const isTable = true;
     const result = "// [table:airport] : International Commercial Airports";
     expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
-      result
+      result,
     );
   });
   it("case2 replace !name !text", () => {
@@ -40,7 +40,7 @@ describe("convertComment", () => {
     const isTable = true;
     const result = "// airport : International Commercial Airports";
     expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
-      result
+      result,
     );
   });
   it("case3 comment out", () => {
@@ -50,7 +50,7 @@ describe("convertComment", () => {
     const isTable = true;
     const result = "/* airport : International Commercial Airports */";
     expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
-      result
+      result,
     );
   });
   it("case4 multiple line comment out", () => {
@@ -66,7 +66,7 @@ describe("convertComment", () => {
   comment : International Commercial Airports
 */`;
     expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
-      result
+      result,
     );
   });
 
@@ -263,7 +263,11 @@ describe("getTableComment", () => {
     };
     const result = "// [table:airport] : International Commercial Airports";
     expect(
-      getTableComment({ ast, optionCommentsTable, tableName: basicTableName })
+      getTableComment({
+        ast,
+        optionCommentsTable,
+        tableName: basicTableName,
+      }),
     ).toBe(result);
   });
 
@@ -275,7 +279,11 @@ describe("getTableComment", () => {
     };
     const result = undefined;
     expect(
-      getTableComment({ ast, optionCommentsTable, tableName: basicTableName })
+      getTableComment({
+        ast,
+        optionCommentsTable,
+        tableName: basicTableName,
+      }),
     ).toBe(result);
   });
 
@@ -288,7 +296,11 @@ describe("getTableComment", () => {
     const result =
       "// [tableName:airport] : comment:International Commercial Airports";
     expect(
-      getTableComment({ ast, optionCommentsTable, tableName: basicTableName })
+      getTableComment({
+        ast,
+        optionCommentsTable,
+        tableName: basicTableName,
+      }),
     ).toBe(result);
   });
 });
@@ -336,7 +348,7 @@ describe("replaceTableName", () => {
     const replacement: string[] = ["_bar_", "_blah_"];
     const result = "foo_blah_baz";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 
@@ -345,7 +357,7 @@ describe("replaceTableName", () => {
     const replacement: string[] = ["_bar_", "_blah_"];
     const result = "foo_bar";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 
@@ -354,7 +366,7 @@ describe("replaceTableName", () => {
     const replacement: string[] = ["/^x(.*)/", "$1_xref"];
     const result = "customers_xref";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 
@@ -363,7 +375,7 @@ describe("replaceTableName", () => {
     const replacement = ["/^wp_/", ""];
     const result = "users";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 
@@ -372,7 +384,7 @@ describe("replaceTableName", () => {
     const replacement = ["log", "_log"];
     const result = "audit_log";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 
@@ -381,7 +393,7 @@ describe("replaceTableName", () => {
     const replacement = ["/^(.*)_(.*)_(.*)$/", "$3_$2_$1"];
     const result = "baz_bar_foo";
     expect(replaceTableName({ tableName, replacements: replacement })).toBe(
-      result
+      result,
     );
   });
 });
@@ -400,7 +412,7 @@ describe("composeSchemaNameString", () => {
     const tableName = "todo";
     const result = "todoSchema";
     expect(
-      composeSchemaName({ schemaOption: option, tableName })
+      composeSchemaName({ schemaOption: option, tableName }),
     ).toStrictEqual(result);
   });
 
@@ -409,7 +421,7 @@ describe("composeSchemaNameString", () => {
     const tableName = "todo";
     const result = "todo";
     expect(
-      composeSchemaName({ schemaOption: option, tableName })
+      composeSchemaName({ schemaOption: option, tableName }),
     ).toStrictEqual(result);
   });
 });
@@ -420,7 +432,7 @@ describe("combineSchemaNameAndSchemaString", () => {
     const schemaString = "id: z.number().nullable(),";
     const result = `export const todoSchema = z.object({id: z.number().nullable(),});`;
     expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
-      result
+      result,
     );
   });
 });
@@ -472,7 +484,7 @@ describe("convertToZodType", () => {
       if (draft.schema) {
         draft.schema.inline = true;
       }
-    }
+    },
   );
 
   it("TINYINT", () => {
@@ -482,7 +494,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("SMALLINT", () => {
@@ -492,7 +504,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("MEDIUMINT", () => {
@@ -502,7 +514,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
 
@@ -513,7 +525,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("BIGINT", () => {
@@ -523,7 +535,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("FLOAT", () => {
@@ -533,7 +545,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("DOUBLE", () => {
@@ -543,7 +555,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("YEAR", () => {
@@ -553,7 +565,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("BIT", () => {
@@ -563,7 +575,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("DATE", () => {
@@ -573,7 +585,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("DATETIME", () => {
@@ -583,7 +595,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("TIMESTAMP", () => {
@@ -593,7 +605,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("CHAR", () => {
@@ -603,7 +615,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("VARCHAR", () => {
@@ -613,7 +625,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("DECIMAL", () => {
@@ -623,7 +635,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("NUMERIC", () => {
@@ -633,7 +645,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("TINYTEXT", () => {
@@ -643,7 +655,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("TEXT", () => {
@@ -653,7 +665,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("MEDIUMTEXT", () => {
@@ -663,7 +675,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("LONGTEXT", () => {
@@ -673,7 +685,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("ENUM", () => {
@@ -683,7 +695,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("SET", () => {
@@ -693,7 +705,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("TIME", () => {
@@ -703,7 +715,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("BINARY", () => {
@@ -713,7 +725,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("VARBINARY", () => {
@@ -723,7 +735,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("TINYBLOB", () => {
@@ -733,7 +745,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("BLOB", () => {
@@ -743,7 +755,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("MEDIUMBLOB", () => {
@@ -753,7 +765,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("LONGBLOB", () => {
@@ -763,7 +775,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option: basicOption,
-      })
+      }),
     ).toBe(result);
   });
   it("case not custom inline = true", () => {
@@ -778,7 +790,7 @@ describe("convertToZodType", () => {
       convertToZodType({
         type,
         option,
-      })
+      }),
     ).toBe(result);
   });
 });
@@ -801,7 +813,7 @@ describe("toImplementation", () => {
       toImplementation({
         type,
         option,
-      })
+      }),
     ).toBe(result);
   });
 
@@ -821,7 +833,7 @@ describe("toImplementation", () => {
       toImplementation({
         type,
         option,
-      })
+      }),
     ).toBe(result);
   });
 
@@ -846,7 +858,7 @@ describe("toImplementation", () => {
       toImplementation({
         type,
         option,
-      })
+      }),
     ).toBe(result);
   });
 
@@ -871,7 +883,7 @@ describe("toImplementation", () => {
       toImplementation({
         type,
         option,
-      })
+      }),
     ).toBe(result);
   });
 });
