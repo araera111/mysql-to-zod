@@ -11,10 +11,6 @@ export const convertToColumn = (ast: any) => {
   if (isNil(ast.column)) return undefined;
   const { column } = ast.column;
 
-  /*
-    dataType SET only Array node-sql-parser 4.8.0
-    temp fix
-  */
   const type = ast?.definition?.dataType;
 
   const nullable = ast?.nullable?.type !== "not null";
