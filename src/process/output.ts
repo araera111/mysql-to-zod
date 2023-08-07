@@ -37,7 +37,7 @@ export const output = async ({
   const globalSchemaSavePath = join(
     process.cwd(),
     outFilePath,
-    "globalSchema.ts"
+    "globalSchema.ts",
   );
   await writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
   // eslint-disable-next-line no-console

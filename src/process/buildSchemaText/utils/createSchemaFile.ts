@@ -23,7 +23,7 @@ export const isCreate = (ast: AST): ast is Create =>
   "create_definitions" in ast;
 export const createSchemaFile = (
   tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
-  options: MysqlToZodOption
+  options: MysqlToZodOption,
 ): Either<string, SchemaResult> => {
   const parser = new Parser();
   const [tableName, tableDefinitionString] = tableDefinition;
@@ -38,7 +38,7 @@ export const createSchemaFile = (
     .parse(
       ast.create_definitions
         ?.map((x: any) => convertToColumn(x))
-        .flatMap((x: any) => (isNil(x) ? [] : x))
+        .flatMap((x: any) => (isNil(x) ? [] : x)),
     );
 
   const tableComment = getTableComment({

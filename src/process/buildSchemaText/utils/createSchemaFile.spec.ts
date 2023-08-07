@@ -58,7 +58,7 @@ describe("composeTypeString", () => {
     const schemaName = "todoSchema";
     const result = "";
     expect(
-      composeTypeString({ typeOption, tableName, schemaName })
+      composeTypeString({ typeOption, tableName, schemaName }),
     ).toStrictEqual(result);
   });
 
@@ -74,7 +74,7 @@ describe("composeTypeString", () => {
     const schemaName = "todoSchema";
     const result = "export type Todo = z.infer<typeof todoSchema>;";
     expect(
-      composeTypeString({ typeOption, tableName, schemaName })
+      composeTypeString({ typeOption, tableName, schemaName }),
     ).toStrictEqual(result);
   });
 });

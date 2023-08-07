@@ -170,34 +170,34 @@ const options = {
   comments: {
     table: {
       active: true, // if false, table comment is not add;
-      format: '// [table:!name] : !text',
+      format: "// [table:!name] : !text",
     },
     column: {
       active: true, // if false, column comment is not add;
-      format: '// !name : !text'
+      format: "// !name : !text",
     },
   },
 };
 module.exports = options;
 ```
 
-```!name``` is converted to tableName. ```!text``` is converted to comment.
-if format is Empty, table comment format is ```'// [table:!name] : !text'```, column comment format is ```'// !name : !text'```.
+`!name` is converted to tableName. `!text` is converted to comment.
+if format is Empty, table comment format is `'// [table:!name] : !text'`, column comment format is `'// !name : !text'`.
 
 ### schema
 
 schemaOption can determine the format of schemaName and null.
 schemaName is converted from tableName.
-example: tableName ```todo_list```, schemaName ```TodoList```
-```export const ThisIsSchemaName = z.object({});```
+example: tableName `todo_list`, schemaName `TodoList`
+`export const ThisIsSchemaName = z.object({});`
 
 For schemaName, format is executed after replacements is processed. Next, prefix and suffix are added.
 
-example: tableName ```todo_list```, format ```camel```, prefix ```My```, suffix ```Schema```, replacements ```[["todo", "bodo"]]```
+example: tableName `todo_list`, format `camel`, prefix `My`, suffix `Schema`, replacements `[["todo", "bodo"]]`
 
-```todo_list``` -> replacement -> ```bodo_list``` -> format -> ```bodoList``` -> prefix -> ```MyBodoList``` -> suffix -> ```MyBodoListSchema```
+`todo_list` -> replacement -> `bodo_list` -> format -> `bodoList` -> prefix -> `MyBodoList` -> suffix -> `MyBodoListSchema`
 
-result: ```export const MyBodoListSchema = z.object({});```
+result: `export const MyBodoListSchema = z.object({});`
 
 replacement[0] is before replacement[1] is after.
 replacement[0] is RegExp or string. replacement[1] is string.
@@ -218,13 +218,12 @@ module.exports = options;
 
 #### format
 
-format value can be ```camel``` | ```pascal``` | ```snake``` | ```original```
-
+format value can be `camel` | `pascal` | `snake` | `original`
 
 #### prefix
 
-tableName ```todo_list```
-prefix ```My```
+tableName `todo_list`
+prefix `My`
 
 ```ts
 export const MyTodoList = z.object({});
@@ -232,8 +231,8 @@ export const MyTodoList = z.object({});
 
 #### suffix
 
-tableName ```todo_list```
-suffix ```Schema```
+tableName `todo_list`
+suffix `Schema`
 
 ```ts
 export const todo_listSchema = z.object({});
@@ -242,24 +241,25 @@ export const todo_listSchema = z.object({});
 #### replacements
 
 example1：string
-tableName: ```foo_bar_baz```
-replacement[0] → ```_bar_```
-replacement[1] → ```_blah_```
-result → ```foo_blah_baz```
+tableName: `foo_bar_baz`
+replacement[0] → `_bar_`
+replacement[1] → `_blah_`
+result → `foo_blah_baz`
 
 exmaple2: regexp
-tableName: ```wp_users```
-replacement[0] → ```/^wp_/```
-replacement[1] → ```""```
-result → ```users```
+tableName: `wp_users`
+replacement[0] → `/^wp_/`
+replacement[1] → `""`
+result → `users`
 
 replacement is looped and all are applied.
 
 #### nullType
-You can choose between ```nullable``` and ```nullish```.
+
+You can choose between `nullable` and `nullish`.
 For example, String Type and null.
-```nullable``` is ```z.string().nullable()```
-```nullish``` is ```z.string().nullish()```
+`nullable` is `z.string().nullable()`
+`nullish` is `z.string().nullish()`
 
 ```ts
 const options = {
@@ -272,10 +272,12 @@ module.exports = options;
 ```
 
 ### type
+
 The type option is almost the same as the schema option, as shown below.
 But null type cannot be selected.
 
 default typeOption
+
 ```ts
   type: {
     declared: "type",
@@ -288,4 +290,5 @@ default typeOption
 ```
 
 ## License
+
 MIT

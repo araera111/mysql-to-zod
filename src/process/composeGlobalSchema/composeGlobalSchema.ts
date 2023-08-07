@@ -11,7 +11,7 @@ export const composeGlobalSchemaRow = ({
   option,
 }: ComposeGlobalSchemaRowParams): string => {
   const existReference = option.schema?.zod?.references?.find(
-    (x) => x[0] === type
+    (x) => x[0] === type,
   );
   return `${
     existReference ? existReference[1] : `mysql${type}`
