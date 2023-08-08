@@ -28,10 +28,10 @@ export const createSchemaFile = (
   const parser = new Parser();
   const [tableName, tableDefinitionString] = tableDefinition;
   if (isNil(tableName) || isNil(tableDefinitionString))
-    return left("createSchemaFileError");
+    return left("createSchemaFileError. tableName or tableDefinitionString is nil");
   const ast = parser.astify(tableDefinitionString);
   if (Array.isArray(ast) || !isCreate(ast))
-    return left("createSchemaFileError");
+    return left("createSchemaFileError ast parser error");
 
   const columns = columnsSchema
     .array()

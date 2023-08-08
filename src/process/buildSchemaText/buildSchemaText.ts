@@ -2,9 +2,9 @@ import { Either, isLeft, right } from "fp-ts/lib/Either";
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { produce } from "immer";
-import { EOL } from "node:os";
 import { MysqlToZodOption } from "../../options/options";
 import { Column, SchemaResult } from "./types/buildSchemaTextType";
+import { strListToStrLf } from "./utils/buildSchemaTextUtil";
 import { createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";
 
@@ -44,9 +44,10 @@ export const buildSchemaText = async ({
     const schemaTextEither = createSchemaFile(tableDefinition, option);
     if (isLeft(schemaTextEither)) return schemaTextEither;
 
-    const newResult = [result.schema, schemaTextEither.right.schema, EOL].join(
-      "\n",
-    );
+    const newResult = strListToStrLf([
+      result.schema,
+      schemaTextEither.right.schema,
+    ]);
 
     return loop(tailTables, {
       schema: newResult,
@@ -60,7 +61,7 @@ export const buildSchemaText = async ({
   if (isLeft(schemaTexts)) return schemaTexts;
 
   return right({
-    text: `${importDeclaration}\n${schemaTexts.right.schema}`,
+    text: strListToStrLf([importDeclaration, schemaTexts.right.schema]),
     columns: schemaTexts.right.columns,
   });
 };
