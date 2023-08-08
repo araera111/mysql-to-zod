@@ -436,3 +436,5 @@ export const replaceOldSchemaOption = ({
   }
   return schemaOption;
 };
+
+export const strListToStrLf = (strList: string[]): string => strList.join("\n");
