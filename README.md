@@ -81,15 +81,17 @@ touch mysqlToZod.config.js
 
 ```js:mysqlToZod.config.js
 const options = {
-  isAddType: true, //isAdd export type A = z.infer<schema>
-  isCamel: true, //is table name camel?
-  isTypeUpperCamel: true, //is table name upperCamel?
-  outFilePath: "mysqlToZod", //dirpath
-  fileName: "schema.ts", //fileName
+  /*
+    output
+    If you set the following
+    The output schemas will be in "./mysqlToZod/schema.ts"
+  */
+  output: {
+    outDir: "./mysqlToZod",
+    fileName: "schema.ts",    
+  }
   dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
   tableNames: [], //if empty, all tables.
-  nullType: "nullable" // "nullable" | "nullish" default is "nullable"
-  zeroToValidDate: true // if contains new Date(0000-00-00 00:00:00), convert to new Date (1000-01-01 00:00:00)
 };
 module.exports = options;
 ```
