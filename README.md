@@ -89,7 +89,7 @@ const options = {
   output: {
     outDir: "./mysqlToZod",
     fileName: "schema.ts",    
-  }
+  },
   dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
   tableNames: [], //if empty, all tables.
 };
