@@ -374,3 +374,4 @@ export const composeTypeString = ({
   })}${suffix} = z.infer<typeof ${schemaName}>;`;
   return `${str}`;
 };
+export const strListToStrLf = (strList: string[]): string => strList.join("\n");
