@@ -2,6 +2,7 @@ import { mkdirp, writeFileSync } from "fs-extra";
 import { join } from "path";
 import prettier from "prettier";
 import { isNil } from "ramda";
+import { OptionOutput } from "../options/output";
 
 const formatByPrettier = async (str: string): Promise<string> =>
   prettier.format(str, {
@@ -11,20 +12,19 @@ const formatByPrettier = async (str: string): Promise<string> =>
 
 type OutputParams = {
   schemaRawText: string;
-  outFilePath: string;
-  fileName: string;
   globalSchema: string | undefined;
+  output: OptionOutput;
 };
 
-export const output = async ({
+export const outputToFile = async ({
   schemaRawText,
-  outFilePath,
-  fileName,
+  output,
   globalSchema,
 }: OutputParams) => {
   const formatted = await formatByPrettier(schemaRawText);
-  await mkdirp(outFilePath);
-  const savePath = join(process.cwd(), outFilePath, fileName);
+  const { fileName, outDir } = output;
+  await mkdirp(outDir);
+  const savePath = join(process.cwd(), outDir, fileName);
   await writeFileSync(savePath, formatted);
   // eslint-disable-next-line no-console
   console.log("schema file created!");
@@ -34,11 +34,7 @@ export const output = async ({
   /* globalSchema */
   if (isNil(globalSchema)) return;
   const globalSchemaFormatted = await formatByPrettier(globalSchema);
-  const globalSchemaSavePath = join(
-    process.cwd(),
-    outFilePath,
-    "globalSchema.ts",
-  );
+  const globalSchemaSavePath = join(process.cwd(), outDir, "globalSchema.ts");
   await writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
   // eslint-disable-next-line no-console
   console.log("\nglobalSchema file created!");

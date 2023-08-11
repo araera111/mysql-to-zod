@@ -25,7 +25,7 @@ export type SchemaZodImplementation = z.infer<
   typeof schemaZodImplementationSchema
 >;
 
-export const SchemaOptionSchema = z.object({
+export const schemaOptionSchema = z.object({
   format: caseUnionSchema.default("camel"),
   prefix: z.string().default(""),
   suffix: z.string().default("Schema"),
@@ -39,4 +39,4 @@ export const SchemaOptionSchema = z.object({
     })
     .optional(),
 });
-export type SchemaOption = z.infer<typeof SchemaOptionSchema>;
+export type SchemaOption = z.infer<typeof schemaOptionSchema>;

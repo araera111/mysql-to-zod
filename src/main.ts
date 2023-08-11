@@ -6,7 +6,7 @@ import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
 import { composeGlobalSchema } from "./process/composeGlobalSchema/composeGlobalSchema";
 import { getTables } from "./process/getTables";
 import { init } from "./process/init";
-import { output } from "./process/output";
+import { outputToFile } from "./process/output";
 
 const program = new Command();
 
@@ -14,7 +14,7 @@ const main = async () => {
   const initEither = await init(program);
   if (isLeft(initEither)) throw new Error(initEither.left);
 
-  const { outFilePath, fileName, dbConnection, tableNames } = initEither.right;
+  const { dbConnection, tableNames } = initEither.right;
   if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
   const tables = await getTables(tableNames, dbConnection);
@@ -30,10 +30,9 @@ const main = async () => {
     option: initEither.right,
   });
 
-  await output({
+  await outputToFile({
     schemaRawText: schemaRawText.right.text,
-    outFilePath,
-    fileName,
+    output: initEither.right.output,
     globalSchema,
   });
 
