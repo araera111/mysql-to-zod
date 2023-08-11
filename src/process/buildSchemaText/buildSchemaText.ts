@@ -26,6 +26,7 @@ export const buildSchemaText = async ({
     if (!option.schema?.inline)
       draft.push("import { globalSchema } from './globalSchema';");
   }).join("\n");
+  console.log(option);
 
   const loop = async (
     restTables: string[],

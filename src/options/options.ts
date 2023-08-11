@@ -11,10 +11,10 @@ import { typeOptionSchema } from "./type";
 export const mysqlToZodOptionSchema = z.object({
   output: optionOutputSchema,
   dbConnection: z.any().optional(),
-  tableNames: z.string().array().optional().default([]),
-  comments: optionCommentsSchema.optional(),
-  type: typeOptionSchema.optional(),
-  schema: schemaOptionSchema.optional(),
+  tableNames: z.string().array().default([]),
+  comments: optionCommentsSchema,
+  type: typeOptionSchema,
+  schema: schemaOptionSchema,
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;

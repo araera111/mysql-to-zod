@@ -6,7 +6,7 @@ import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
 import { composeGlobalSchema } from "./process/composeGlobalSchema/composeGlobalSchema";
 import { getTables } from "./process/getTables";
 import { init } from "./process/init";
-import { outputToFile } from "./process/output";
+import { outputToFile } from "./process/outputToFile";
 
 const program = new Command();
 

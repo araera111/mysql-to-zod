@@ -1,7 +1,5 @@
 /** @type {import("./src/options/options").MysqlToZodOption} */
 const options = {
-  outFilePath: "mysqlToZod",
-  fileName: "schema.ts",
   comments: {
     table: {
       active: true,
@@ -18,7 +16,7 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    inline: false,
+    inline: true,
     zod: {
       implementation: [["DATETIME", "z.string()"]],
       references: [["DATETIME", "ourDateTime"]],

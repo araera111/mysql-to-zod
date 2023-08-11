@@ -18,8 +18,19 @@ export const optionTableCommentsSchema = z.object({
 });
 export type OptionTableComments = z.infer<typeof optionTableCommentsSchema>;
 
-export const optionCommentsSchema = z.object({
-  table: optionTableCommentsSchema.optional(),
-  column: optionColumnCommentsSchema.optional(),
-});
+export const optionCommentsSchema = z
+  .object({
+    table: optionTableCommentsSchema.optional(),
+    column: optionColumnCommentsSchema.optional(),
+  })
+  .default({
+    table: {
+      active: true,
+      format: defaultTableCommentFormat,
+    },
+    column: {
+      active: true,
+      format: defaultColumnCommentFormat,
+    },
+  });
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
