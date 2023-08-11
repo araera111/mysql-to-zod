@@ -5,7 +5,6 @@ export const optionOutputSchema = z
     outDir: z.string().optional().default("./mysqlToZod"),
     fileName: z.string().optional().default("schema.ts"),
   })
-  .optional()
   .default({
     outDir: "./mysqlToZod",
     fileName: "schema.ts",
