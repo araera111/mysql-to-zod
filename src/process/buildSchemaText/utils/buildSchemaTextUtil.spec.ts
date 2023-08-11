@@ -19,6 +19,7 @@ import {
   convertToZodType,
   getTableComment,
   replaceTableName,
+  strListToStrLf,
   toImplementation,
 } from "./buildSchemaTextUtil";
 
@@ -884,5 +885,13 @@ describe("toImplementation", () => {
         option,
       }),
     ).toBe(result);
+  });
+});
+
+describe("strListToStr", () => {
+  it("case1", () => {
+    const strList = ["a", "b", "c"];
+    const result = "a\nb\nc";
+    expect(strListToStrLf(strList)).toBe(result);
   });
 });
