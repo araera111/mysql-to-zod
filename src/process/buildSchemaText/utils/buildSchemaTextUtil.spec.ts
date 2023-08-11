@@ -333,7 +333,6 @@ describe("composeColumnStringList", () => {
     };
     const option: MysqlToZodOption = {
       ...basicMySQLToZodOption,
-      nullType: "nullish",
     };
     const result: string[] = [
       "// title : BlogTitle2",

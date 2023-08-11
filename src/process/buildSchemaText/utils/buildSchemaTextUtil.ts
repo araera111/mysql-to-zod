@@ -10,7 +10,7 @@ import {
   defaultTableCommentFormat,
   optionTableCommentsSchema,
 } from "../../../options/comments";
-import { CaseUnion, NullTypeUnion } from "../../../options/common";
+import { CaseUnion } from "../../../options/common";
 import { MysqlToZodOption } from "../../../options/options";
 import { SchemaOption } from "../../../options/schema";
 import { TypeOption } from "../../../options/type";
@@ -84,17 +84,6 @@ export const isMaybeRegExp = (str: string): boolean =>
   };
   */
 
-type GetNullTypeParams = {
-  option: MysqlToZodOption;
-};
-export const getValidNullType = ({
-  option,
-}: GetNullTypeParams): NullTypeUnion => {
-  const schemaNullType = option?.schema?.nullType;
-  const oldNullType = option?.nullType;
-  if (isNil(schemaNullType)) return oldNullType || "nullable";
-  return schemaNullType;
-};
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
 export const addSingleQuotation = (str: string) => {
   if (str.match(/^[0-9]/)) {
@@ -293,7 +282,7 @@ export const composeColumnStringList = ({
     `${addSingleQuotation(column.column)}: ${convertToZodType({
       type,
       option,
-    })}${nullable ? `.${getValidNullType({ option })}()` : ""},\n`,
+    })}${nullable ? `.${option.schema?.nullType ?? "nullable"}()` : ""},\n`,
   ].flatMap((x) => (isNil(x) ? [] : [x]));
 
   return result;
@@ -385,56 +374,3 @@ export const composeTypeString = ({
   })}${suffix} = z.infer<typeof ${schemaName}>;`;
   return `${str}`;
 };
-
-type ReplaceOldTypeOptionParams = {
-  isAddType: boolean | undefined;
-  isCamel: boolean | undefined;
-  isTypeUpperCamel: boolean | undefined;
-  typeOption: TypeOption | undefined;
-};
-export const replaceOldTypeOption = ({
-  isAddType,
-  isCamel,
-  isTypeUpperCamel,
-  typeOption,
-}: ReplaceOldTypeOptionParams): TypeOption => {
-  if (isNil(typeOption)) {
-    const base: TypeOption = {
-      format: "pascal",
-      declared: "type",
-      prefix: "",
-      suffix: "",
-      replacements: [],
-    };
-    if (isAddType === false) return { ...base, declared: "none" };
-    if (isTypeUpperCamel === true) return { ...base, format: "pascal" };
-    if (isCamel === true) return { ...base, format: "camel" };
-    return base;
-  }
-  return typeOption;
-};
-
-type ReplaceOldSchemaOptionParams = {
-  isCamel: boolean | undefined;
-  schemaOption: SchemaOption | undefined;
-};
-export const replaceOldSchemaOption = ({
-  isCamel,
-  schemaOption,
-}: ReplaceOldSchemaOptionParams): SchemaOption => {
-  if (isNil(schemaOption)) {
-    const base: SchemaOption = {
-      nullType: "nullable",
-      format: "camel",
-      prefix: "",
-      suffix: "Schema",
-      replacements: [],
-      inline: true,
-    };
-    if (!isCamel) return { ...base, format: "original" };
-    return base;
-  }
-  return schemaOption;
-};
-
-export const strListToStrLf = (strList: string[]): string => strList.join("\n");
