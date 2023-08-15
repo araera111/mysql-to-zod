@@ -28,7 +28,7 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    inline: true,
+    inline: false,
     zod: {
       implementation: [],
       references: [],
