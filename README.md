@@ -2,26 +2,24 @@
 
 > Convert MySQL schemas into Zod schemas
 
+![default](https://github.com/araera111/mysql-to-zod/assets/63596736/650265b4-414c-49f3-b88c-cf437921960c)
+
+
 ## Notice
 
 If you have any questions about usage or suggestions for improvement, please visit disucussions.
 <https://github.com/araera111/mysql-to-zod/discussions>
 
-## Usage
+## Overview
 
-### no-option(default)
+Connect to MySQL using mysql2 and retrieve the CREATE TABLE statement.
+It is then parsed by node-sql-parser and output as zodSchema.
+
+## Usage
 
 ```bash
 npx mysql-to-zod mysql://user:pass@localhost:3306/dbname
 ```
-
-## default gif
-
-![default](https://github.com/araera111/mysql-to-zod/assets/63596736/650265b4-414c-49f3-b88c-cf437921960c)
-
-## option gif
-
-![option](https://github.com/araera111/mysql-to-zod/assets/63596736/b00af2ab-1a3c-4516-8e90-67a6e29f4a9b)
 
 ## Demo
 
@@ -50,8 +48,6 @@ npx mysql-to-zod mysql://user@pass:3306/dbname
 
 ## example
 
-![image](https://github.com/araera111/mysql-to-zod/assets/63596736/c5495868-bbb7-4f15-910a-2719bc8b7ea4)
-
 ```typescript
 import { z } from "zod";
 
@@ -65,9 +61,6 @@ export const TodoSchema = z.object({
 export type Todo = z.infer<typeof TodoSchema>;
 ```
 
-## example
-
-![image](https://github.com/araera111/mysql-to-zod/assets/63596736/1cf874c7-bee9-49fd-8519-533b5c2744cf)
 
 ## options
 
