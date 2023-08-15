@@ -29,5 +29,5 @@ await esbuild.build({
   packages: "external",
   bundle: true,
   minify: true,
-  inject: ["prettier-plugin-organize-imports"],
+  inject: ["./node_modules/prettier-plugin-organize-imports"],
 });
