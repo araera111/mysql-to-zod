@@ -1,9 +1,11 @@
 import { mkdirp, writeFileSync } from "fs-extra";
 import { join } from "path";
 import prettier from "prettier";
+import * as p from "prettier-plugin-organize-imports";
 import { isNil } from "ramda";
 import { OptionOutput } from "../options/output";
 
+const _ = p;
 const formatByPrettier = async (str: string): Promise<string> =>
   prettier.format(str, {
     parser: "babel-ts",
