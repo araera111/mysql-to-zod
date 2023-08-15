@@ -18,5 +18,5 @@
     "noUncheckedIndexedAccess": true,
     "types": ["vitest/globals"]
   },
-  "include": ["./src", "./mySqlToZod.config.js"]
+  "include": ["./src", "mysqlToZod.config.js"]
 }

@@ -1,5 +1,17 @@
 /** @type {import("./src/options/options").MysqlToZodOption} */
 const options = {
+  output: {
+    outDir: "./mysqlToZod",
+    fileName: "schema.ts",
+  },
+  dbConnection: {
+    host: "127.0.0.1",
+    port: 3306,
+    user: "root",
+    password: "root",
+    database: "demo0051",
+  },
+  tableNames: [],
   comments: {
     table: {
       active: true,
@@ -11,7 +23,7 @@ const options = {
     },
   },
   type: {
-    declared: "interface",
+    declared: "type",
     format: "pascal",
     prefix: "",
     suffix: "",
@@ -25,8 +37,8 @@ const options = {
     nullType: "nullish",
     inline: false,
     zod: {
-      implementation: [["DATETIME", "z.string()"]],
-      references: [["DATETIME", "ourDateTime"]],
+      implementation: [],
+      references: [],
     },
   },
 };
