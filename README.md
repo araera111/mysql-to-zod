@@ -90,7 +90,7 @@ const options = {
     port: 3306,
     user: "root",
     password: "root",
-    database: "demo0051",
+    database: "test",
   },
   /* if empty, all tables */
   tableNames: [],

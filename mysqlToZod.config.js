@@ -4,13 +4,6 @@ const options = {
     outDir: "./mysqlToZod",
     fileName: "schema.ts",
   },
-  dbConnection: {
-    host: "127.0.0.1",
-    port: 3306,
-    user: "root",
-    password: "root",
-    database: "demo0051",
-  },
   tableNames: [],
   comments: {
     table: {
@@ -35,7 +28,7 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    inline: false,
+    inline: true,
     zod: {
       implementation: [],
       references: [],
