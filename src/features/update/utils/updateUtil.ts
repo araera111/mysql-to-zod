@@ -37,6 +37,7 @@ export const getTableTextFromSchemaText = async (
 
   const secondFun = async (te: string) => {
     console.log({ te });
+    /* WIP,TODO: splitのときに消えてしまうものがあるよ */
     const t = te.split("\n");
 
     const loop = (
