@@ -7,6 +7,7 @@ import {
 import { outputSchema } from "./output";
 import { schemaOptionSchema } from "./schema";
 import { typeOptionSchema } from "./type";
+import { updateOptionSchema } from "./update";
 
 export const mysqlToZodOptionSchema = z.object({
   output: outputSchema.optional(),
@@ -15,6 +16,7 @@ export const mysqlToZodOptionSchema = z.object({
   comments: optionCommentsSchema.optional(),
   type: typeOptionSchema.optional(),
   schema: schemaOptionSchema.optional(),
+  update: updateOptionSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;

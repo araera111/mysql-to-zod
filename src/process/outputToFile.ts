@@ -4,7 +4,7 @@ import prettier from "prettier";
 import { isNil } from "ramda";
 import { OptionOutput } from "../options/output";
 
-const formatByPrettier = async (str: string): Promise<string> =>
+export const formatByPrettier = async (str: string): Promise<string> =>
   prettier.format(str, {
     parser: "babel-ts",
     //    plugins: ["prettier-plugin-organize-imports"],

@@ -3,6 +3,9 @@ import { format } from "date-fns";
 import * as esbuild from "esbuild";
 import fs from "fs-extra";
 
+const packageJson = await fs.readFileSync("./package.json");
+const { version } = JSON.parse(packageJson);
+
 // date-fnsでDATE型をYYYY-MM-DD HH:mm:ssに変換する関数
 const toYYYYMMDDHHmmss = (date) => format(date, "yyyy_MM_dd_HH_mm_ss");
 
@@ -30,4 +33,7 @@ await esbuild.build({
   bundle: true,
   minify: true,
   inject: ["./node_modules/prettier-plugin-organize-imports"],
+  define: {
+    "process.env.VERSION": `"${version}"`,
+  },
 });

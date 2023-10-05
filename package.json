@@ -69,6 +69,7 @@
     "prettier": "^3.0.0",
     "ramda": "^0.29.0",
     "ts-case-convert": "^2.0.2",
+    "ts-morph": "^20.0.0",
     "ts-node": "^10.9.1",
     "ts-pattern": "^5.0.4",
     "zod": "^3.21.4"
