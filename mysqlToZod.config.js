@@ -4,7 +4,6 @@ const options = {
     outDir: "./mysqlToZod",
     fileName: "schema.ts",
   },
-  tableNames: [],
   comments: {
     table: {
       active: true,

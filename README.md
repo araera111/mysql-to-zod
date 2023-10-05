@@ -70,7 +70,26 @@ rootdir
 touch mysqlToZod.config.js
 ```
 
-## basic config
+![image](https://github.com/araera111/mysql-to-zod/assets/63596736/d3cdc363-1d1f-422f-9ee6-c2ad2c7136d0)
+
+```js:mysqlToZod.config.js
+const options = {
+  /*
+    output
+    If you set the following
+    The output schemas will be in "./mysqlToZod/schema.ts"
+  */
+  output: {
+    outDir: "./mysqlToZod",
+    fileName: "schema.ts",    
+  },
+  dbConnection: "mysql://root:root@localhost:3306/mydb", //argv0 is priority 1. thisConfig is priority 2.
+  tableNames: [], //if empty, all tables.
+};
+module.exports = options;
+```
+
+If dbConnection contains "@" or other special characters, pass it as Config for Knex.
 
 ```js:mysqlToZod.config.js
 /** @type {import("./src/options/options").MysqlToZodOption} */

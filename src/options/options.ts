@@ -4,17 +4,17 @@ import {
   defaultTableCommentFormat,
   optionCommentsSchema,
 } from "./comments";
-import { optionOutputSchema } from "./output";
+import { outputSchema } from "./output";
 import { schemaOptionSchema } from "./schema";
 import { typeOptionSchema } from "./type";
 
 export const mysqlToZodOptionSchema = z.object({
-  output: optionOutputSchema,
+  output: outputSchema.optional(),
   dbConnection: z.any().optional(),
-  tableNames: z.string().array().default([]),
-  comments: optionCommentsSchema,
-  type: typeOptionSchema,
-  schema: schemaOptionSchema,
+  tableNames: z.string().array().optional().default([]),
+  comments: optionCommentsSchema.optional(),
+  type: typeOptionSchema.optional(),
+  schema: schemaOptionSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
