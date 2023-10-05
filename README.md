@@ -42,7 +42,7 @@ CREATE TABLE todo (
 run:
 
 ```bash
-npx mysql-to-zod mysql://user@pass:3306/dbname
+npx mysql-to-zod@latest mysql://user@pass:3306/dbname
 ```
 
 ## output
