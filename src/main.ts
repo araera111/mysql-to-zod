@@ -2,11 +2,13 @@ import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil, uniq } from "ramda";
-import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
-import { composeGlobalSchema } from "./process/composeGlobalSchema/composeGlobalSchema";
-import { getTables } from "./process/getTables";
-import { init } from "./process/init";
-import { outputToFile } from "./process/outputToFile";
+import {
+  buildSchemaText,
+  composeGlobalSchema,
+  getTables,
+  init,
+  outputToFile,
+} from "./process";
 
 const program = new Command();
 
