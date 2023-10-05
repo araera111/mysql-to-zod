@@ -43,6 +43,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     nullType: "nullable",
     inline: true,
     zod: { implementation: [] },
+    isUpdate: false,
   },
   type: {
     declared: "type",

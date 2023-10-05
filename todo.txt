@@ -1,29 +1,3 @@
-feat/#36
-
-TODO:isAddType, etc. -> convert typeOption, schemaOption
-TODO:ReplaceType,Schema,TableName
-
-TODO:composeSchemaStringList
-
-検討
-オプションについて考える。
-デフォルトは
-■デフォルト
-・Typeあり
-・schemaはcamelCase
-・TypeはUpperCamelCase(PascalCase)
-・export [type] = 
-
-■オプション
-type: {
-  declared: "none" | "type" | "interface"
-  format:   "camel" | "pascal" | "snake" | "none" | "replace",
-  replacements: string []
-}
-
-schema: {
-  format: "camel" | "pascal" | "snake" | "replace",
-  replacements: string []
-}
-
-TODO:
+1. デフォルトで書き出す
+2. 書き出す前に、現在のzodの型との整合性をチェックする
+3. 同じ場合はそのまま、さらに追加されていた場合は追加することもできる。（これはオプション）
