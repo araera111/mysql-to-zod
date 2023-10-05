@@ -9,7 +9,10 @@ import { SchemaInformation, SchemaProperty } from "../types/updateType";
 export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
   pipe(text.split(":"), ([name, schema]) => {
     if (isNil(name) || isNil(schema)) return O.none;
-    return O.some({ name, schema: schema.trim().replace(",", "") });
+    return O.some({
+      name: name.trim(),
+      schema: schema.trim().replace(",", ""),
+    });
   });
 
 export const getTableName = (text: string): O.Option<string> =>
@@ -29,14 +32,16 @@ export const getTableNameListFromSchemaText = (text: string): string[] => {
     .map((x) => x.value);
   return t;
 };
-
+const splitWithString = (text: string, separator: string): string[] => {
+  const regex = new RegExp(`(?<=\\b${separator}\\b)`);
+  return text.split(regex);
+};
 export const getTableTextFromSchemaText = async (
   text: string,
 ): Promise<string[]> => {
-  const tt = text.split("export ");
+  const tt = text.split("export ").map((x) => `export ${x}`);
 
   const secondFun = async (te: string) => {
-    console.log({ te });
     /* WIP,TODO: splitのときに消えてしまうものがあるよ */
     const t = te.split("\n");
 
@@ -75,7 +80,6 @@ export const getTableTextFromSchemaText = async (
   };
 
   const result = await Promise.all(tt.map((x) => secondFun(x)));
-  console.log({ result });
   return result.flatMap((x) => (isEmpty(x) ? [] : x));
 };
 
@@ -93,4 +97,15 @@ export const getSchemaInformation = (
     tableName: tableName.value,
     properties: schemaProperties,
   });
+};
+
+export const schemaInformationToText = (
+  schemaInformation: SchemaInformation,
+): string[] => {
+  const result = [
+    `export const ${schemaInformation.tableName} = z.object({\n`,
+    ...schemaInformation.properties.map((x) => `${x.name}: ${x.schema},\n`),
+    "});\n",
+  ];
+  return result;
 };

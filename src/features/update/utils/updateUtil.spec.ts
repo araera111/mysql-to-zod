@@ -1,9 +1,11 @@
 import * as O from "fp-ts/Option";
-import { SchemaProperty } from "../types/updateType";
+import { updateSchemaText } from "../../../process/buildSchemaText/utils/createSchema";
+import { SchemaInformation, SchemaProperty } from "../types/updateType";
 import {
   getSchemaProperty,
   getTableName,
   getTableTextFromSchemaText,
+  schemaInformationToText,
 } from "./updateUtil";
 
 describe("getSchemaProperty", () => {
@@ -73,7 +75,46 @@ export type ConfigCancel = z.infer<typeof configCancelSchema>;`;
 });`,
     ];
     const ex = await getTableTextFromSchemaText(text);
-    console.log({ ex, result });
+    expect(ex).toStrictEqual(result);
+  });
+});
+
+describe("schemaInformationToText", () => {
+  it("case1", () => {
+    const schemaInformation: SchemaInformation = {
+      tableName: "aaaSchema",
+      properties: [{ name: "DB_ID", schema: "z.number()" }],
+    };
+    const result = [
+      "export const aaaSchema = z.object({\n",
+      "DB_ID: z.number(),\n",
+      "});\n",
+    ];
+
+    expect(schemaInformationToText(schemaInformation)).toStrictEqual(result);
+  });
+});
+
+describe("updateSchemaText", () => {
+  it("case1", async () => {
+    const schemaName = "aaaSchema";
+    const schemaInformation: SchemaInformation = {
+      tableName: "aaaSchema",
+      properties: [{ name: "DB_ID", schema: "z.number().optional()" }],
+    };
+    const schemaText = `export const aaaSchema = z.object({
+  DB_ID: z.number(),
+});`;
+
+    const result = `export const aaaSchema = z.object({
+  DB_ID: z.number().optional(),
+});`;
+    const ex = await updateSchemaText({
+      schemaInformation,
+      schemaName,
+      schemaText,
+    });
+
     expect(ex).toBe(result);
   });
 });

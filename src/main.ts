@@ -2,7 +2,6 @@ import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil, uniq } from "ramda";
-import { update } from "./features/update/update";
 import {
   buildSchemaText,
   composeGlobalSchema,
@@ -13,37 +12,33 @@ import {
 
 const program = new Command();
 
-const main = async () => {
-  const argvs = program.parse(process.argv);
-  const argv0 = argvs.args[0];
-  if (argv0 === "update") {
-    update(program);
-    return 0;
-  }
-
-  const initEither = await init(program);
+const main = async (command: Command) => {
+  const initEither = await init(command);
   if (isLeft(initEither)) throw new Error(initEither.left);
 
-  const { dbConnection, tableNames } = initEither.right;
+  const { option } = initEither.right;
+  const { dbConnection, tableNames } = option;
   if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
   const tables = await getTables(tableNames, dbConnection);
 
   const schemaRawText = await buildSchemaText({
     tables,
-    option: initEither.right,
+    option,
   });
   if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
 
   const globalSchema = composeGlobalSchema({
     typeList: uniq(schemaRawText.right.columns.map((x) => x.type)),
-    option: initEither.right,
+    option,
   });
 
+  const options = command.opts();
   await outputToFile({
     schemaRawText: schemaRawText.right.text,
-    output: initEither.right.output,
+    output: option.output,
     globalSchema,
+    isUpdate: options.update,
   });
 
   return 0;
@@ -52,13 +47,11 @@ const main = async () => {
 const VERSION = process.env.VERSION || "0.0.0";
 
 program
+  .option("-u, --update", "update schema file")
   .name("mysql-to-zod")
   /* NODE_ENV VERSION */
   .version(VERSION || "0.0.0")
-  .description(
-    "mysql-to-zod is a tool to generate zod schema from mysql table",
-  );
+  .description("mysql-to-zod is a tool to generate zod schema from mysql table")
+  .parse(process.argv);
 
-program.command("update");
-
-main();
+main(program);
