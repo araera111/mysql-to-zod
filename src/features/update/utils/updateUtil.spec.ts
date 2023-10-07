@@ -1,5 +1,5 @@
 import * as O from "fp-ts/Option";
-import { updateSchemaText } from "../../../process/buildSchemaText/utils/createSchema";
+import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { SchemaInformation, SchemaProperty } from "../types/updateType";
 import {
   getSchemaProperty,
@@ -95,7 +95,7 @@ describe("schemaInformationToText", () => {
   });
 });
 
-describe("updateSchemaText", () => {
+describe("updateSchemaText 完成したschemaTextと以前のschemaInformationを合体する関数", () => {
   it("case1", async () => {
     const schemaName = "aaaSchema";
     const schemaInformation: SchemaInformation = {
@@ -109,7 +109,7 @@ describe("updateSchemaText", () => {
     const result = `export const aaaSchema = z.object({
   DB_ID: z.number().optional(),
 });`;
-    const ex = await updateSchemaText({
+    const ex = await mergeSchemaTextWithOldInformation({
       schemaInformation,
       schemaName,
       schemaText,
