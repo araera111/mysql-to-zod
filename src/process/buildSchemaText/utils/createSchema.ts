@@ -9,7 +9,7 @@ import {
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { typeOptionSchema } from "../../../options/type";
-import { formatByPrettier } from "../../outputToFile";
+import { formatByPrettier } from "../../formatByPrettier";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
   combineSchemaNameAndSchemaString,
@@ -25,18 +25,23 @@ type UpdateSchemaTextProps = {
   schemaInformation: SchemaInformation;
 };
 
-export const mergeSchemaTextWithOldInformation = async ({
+export const mergeSchemaTextWithOldInformation = ({
   schemaName,
   schemaInformation,
   schemaText,
 }: UpdateSchemaTextProps) => {
   /* 完成したテキストからschemaInformationをつくる */
-  const t = getSchemaInformation(schemaText);
-  if (O.isNone(t)) return schemaText;
 
-  const nextSchemaInformation = pipe(schemaText, getSchemaInformation);
+  const nextSchemaInformation = pipe(
+    schemaText.replaceAll("\n", ""),
+    formatByPrettier,
+    getSchemaInformation,
+  );
 
-  /* 完成したテキストとnameが一致していないときは、そのまま返す */
+  /*
+    完成したテキストとnameが一致していないときは、そのまま返す
+    この前ですでにfindを使って取得しているはずだが、一応。
+  */
   if (
     O.isNone(nextSchemaInformation) ||
     nextSchemaInformation.value.tableName !== schemaName
@@ -60,8 +65,8 @@ export const mergeSchemaTextWithOldInformation = async ({
   };
   const rawNextSchemaText = schemaInformationToText(
     replacedSchemaInformation,
-  ).join("\n");
-  const formattedSchemaText = await formatByPrettier(rawNextSchemaText);
+  ).join("");
+  const formattedSchemaText = formatByPrettier(rawNextSchemaText);
   return formattedSchemaText.trim();
 };
 
@@ -70,6 +75,8 @@ export const createSchema = (
   columns: Column[],
   options: MysqlToZodOption,
   tableComment: string | undefined,
+  /* mergeしないときはundefinedにする */
+  schemaInformationList: SchemaInformation[] | undefined,
 ): SchemaResult => {
   const schemaString = columns
     .map((x) =>
@@ -86,8 +93,19 @@ export const createSchema = (
     schemaString,
   });
 
-  /* schemaTextをmapで交換する */
-  console.log({ schemaText, schemaName });
+  /* schemaTextを古いschemaInformationとmergeする */
+
+  const thisSchemaInformation = schemaInformationList?.find(
+    (x) => x.tableName === schemaName,
+  );
+
+  const merged = isNil(thisSchemaInformation)
+    ? schemaText
+    : mergeSchemaTextWithOldInformation({
+        schemaName,
+        schemaText,
+        schemaInformation: thisSchemaInformation,
+      });
 
   const typeOption = typeOptionSchema.parse(options.type);
 
@@ -99,7 +117,7 @@ export const createSchema = (
 
   return {
     schema: composeTableSchemaTextList({
-      schemaText,
+      schemaText: merged,
       typeString,
       tableComment,
     }).join("\n"),

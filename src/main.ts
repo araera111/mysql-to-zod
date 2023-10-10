@@ -3,6 +3,10 @@ import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil, uniq } from "ramda";
 import {
+  getOutputFilePath,
+  parseZodSchemaFile,
+} from "./features/update/utils/updateUtil";
+import {
   buildSchemaText,
   composeGlobalSchema,
   getTables,
@@ -22,9 +26,14 @@ const main = async (command: Command) => {
 
   const tables = await getTables(tableNames, dbConnection);
 
+  const schemaInformationList = parseZodSchemaFile({
+    filePath: getOutputFilePath(option),
+  });
+
   const schemaRawText = await buildSchemaText({
     tables,
     option,
+    schemaInformationList,
   });
   if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
 
@@ -33,12 +42,10 @@ const main = async (command: Command) => {
     option,
   });
 
-  const options = command.opts();
   await outputToFile({
     schemaRawText: schemaRawText.right.text,
     output: option.output,
     globalSchema,
-    isUpdate: options.update,
   });
 
   return 0;

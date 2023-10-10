@@ -55,6 +55,7 @@
     "zx": "^7.2.3"
   },
   "dependencies": {
+    "@prettier/sync": "^0.3.0",
     "camelcase": "^7.0.1",
     "commander": "^11.0.0",
     "cosmiconfig": "^8.2.0",

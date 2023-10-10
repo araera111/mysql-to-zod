@@ -1,10 +1,11 @@
 import * as O from "fp-ts/Option";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
+import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation, SchemaProperty } from "../types/updateType";
 import {
+  getSchemaInformation,
   getSchemaProperty,
   getTableName,
-  getTableTextFromSchemaText,
   schemaInformationToText,
 } from "./updateUtil";
 
@@ -51,34 +52,6 @@ describe("getTableName", () => {
   });
 });
 
-describe("getTableTextFromSchemaText", () => {
-  it("case 1", async () => {
-    const text = `export type Config = z.infer<typeof configSchema>;
-export const configCancelSchema = z.object({
-  DB_ID: z.number(),
-  GROUP_ID: z.number(),
-  sort_key: z.number(),
-  disp_cancel: z.number(),
-  cancel_text: z.string(),
-});
-
-
-export type ConfigCancel = z.infer<typeof configCancelSchema>;`;
-
-    const result = [
-      `export const configCancelSchema = z.object({
-  DB_ID: z.number(),
-  GROUP_ID: z.number(),
-  sort_key: z.number(),
-  disp_cancel: z.number(),
-  cancel_text: z.string(),
-});`,
-    ];
-    const ex = await getTableTextFromSchemaText(text);
-    expect(ex).toStrictEqual(result);
-  });
-});
-
 describe("schemaInformationToText", () => {
   it("case1", () => {
     const schemaInformation: SchemaInformation = {
@@ -95,8 +68,8 @@ describe("schemaInformationToText", () => {
   });
 });
 
-describe("updateSchemaText 完成したschemaTextと以前のschemaInformationを合体する関数", () => {
-  it("case1", async () => {
+describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のschemaInformationを合体する関数", () => {
+  it("case1", () => {
     const schemaName = "aaaSchema";
     const schemaInformation: SchemaInformation = {
       tableName: "aaaSchema",
@@ -106,15 +79,55 @@ describe("updateSchemaText 完成したschemaTextと以前のschemaInformation�
   DB_ID: z.number(),
 });`;
 
-    const result = `export const aaaSchema = z.object({
-  DB_ID: z.number().optional(),
-});`;
-    const ex = await mergeSchemaTextWithOldInformation({
+    const result =
+      formatByPrettier(`export const aaaSchema = z.object({ DB_ID: z.number().optional(),
+});`);
+    const ex = mergeSchemaTextWithOldInformation({
       schemaInformation,
       schemaName,
       schemaText,
     });
 
     expect(ex).toBe(result);
+  });
+});
+
+describe("getSchemaInformation", () => {
+  it("case1", () => {
+    const text = `export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });`;
+    const result: O.Option<SchemaInformation> = O.some({
+      tableName: "telBlacklistSchema",
+      properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
+    });
+    expect(getSchemaInformation(text)).toStrictEqual(result);
+  });
+  it("case2", () => {
+    const text = `export const configCancelSchema = z.object({
+  DB_ID: z.number(),
+  GROUP_ID: z.number(),
+  sort_key: z.number(),
+  disp_cancel: z.number(),
+  cancel_text: z.string(),
+});`;
+    const result: O.Option<SchemaInformation> = O.some({
+      tableName: "configCancelSchema",
+      properties: [
+        { name: "DB_ID", schema: "z.number()" },
+        { name: "GROUP_ID", schema: "z.number()" },
+        { name: "sort_key", schema: "z.number()" },
+        { name: "disp_cancel", schema: "z.number()" },
+        { name: "cancel_text", schema: "z.string()" },
+      ],
+    });
+    expect(getSchemaInformation(text)).toStrictEqual(result);
+  });
+  it("case3", () => {
+    const text =
+      "export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
+    const result: O.Option<SchemaInformation> = O.some({
+      tableName: "telBlacklistSchema",
+      properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
+    });
+    expect(getSchemaInformation(text)).toStrictEqual(result);
   });
 });

@@ -24,3 +24,6 @@ read開始
 その後、実際にgenerateしてみて
 足りないものを追加してあげる。というか
 すでにあるものを後から上書きする感じか……。
+
+option
+・mode override, merge
