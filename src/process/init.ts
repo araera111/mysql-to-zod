@@ -34,9 +34,10 @@ export const configLoad = async (): Promise<
 */
 export const init = async (
   program: Command,
-): Promise<Either<string, MysqlToZodOption>> => {
+): Promise<
+  Either<string, { option: MysqlToZodOption; parsedProgram: Command }>
+> => {
   const config = await configLoad();
-  program.parse(process.argv);
   const dbConnection = program.args[0];
 
   if (isLeft(config) && isNil(dbConnection))
@@ -50,11 +51,13 @@ export const init = async (
     return left("init error. dbConnection is required");
 
   const validConfig = isRight(config) ? config.right : basicMySQLToZodOption;
-  return right(
-    assoc(
+
+  return right({
+    option: assoc(
       "dbConnection",
       dbConnection ?? validConfig.dbConnection,
       validConfig,
     ),
-  );
+    parsedProgram: program,
+  });
 };

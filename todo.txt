@@ -1,29 +1,29 @@
-feat/#36
+1. デフォルトで書き出す
+2. 書き出す前に、現在のzodの型との整合性をチェックする
+3. 同じ場合はそのまま、さらに追加されていた場合は追加することもできる。（これはオプション）
 
-TODO:isAddType, etc. -> convert typeOption, schemaOption
-TODO:ReplaceType,Schema,TableName
+update mode
+すでに手動で変更したスキーマを変更されてはたまらん。
+よって、
 
-TODO:composeSchemaStringList
+mysql-to-zod generate 
+mysql-to-zod update
 
-検討
-オプションについて考える。
-デフォルトは
-■デフォルト
-・Typeあり
-・schemaはcamelCase
-・TypeはUpperCamelCase(PascalCase)
-・export [type] = 
+1行ずつ読んで、export constが   入っている行がはじまったら
+read開始
+そのあと「;」が見つかったらリード終了。
 
-■オプション
-type: {
-  declared: "none" | "type" | "interface"
-  format:   "camel" | "pascal" | "snake" | "none" | "replace",
-  replacements: string []
+そして最終的には
+
+{
+  tableName: "configCancel",
+  properties: ["DB_ID", "GROUP_ID", "sort_key", "disp_cancel", "cancel_text"]
 }
+というオブジェクトの配列が取得できるようにする。
 
-schema: {
-  format: "camel" | "pascal" | "snake" | "replace",
-  replacements: string []
-}
+その後、実際にgenerateしてみて
+足りないものを追加してあげる。というか
+すでにあるものを後から上書きする感じか……。
 
-TODO:
+option
+・mode override, merge

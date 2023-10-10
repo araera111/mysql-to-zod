@@ -4,7 +4,6 @@ const options = {
     outDir: "./mysqlToZod",
     fileName: "schema.ts",
   },
-  tableNames: [],
   comments: {
     table: {
       active: true,
@@ -28,11 +27,14 @@ const options = {
     suffix: "Schema",
     replacements: [],
     nullType: "nullish",
-    inline: false,
+    inline: true,
     zod: {
       implementation: [],
       references: [],
     },
+  },
+  sync: {
+    active: true,
   },
 };
 module.exports = options;

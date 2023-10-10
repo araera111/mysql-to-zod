@@ -1,19 +1,15 @@
-import { mkdirp, writeFileSync } from "fs-extra";
+import * as O from "fp-ts/Option";
+import { pipe } from "fp-ts/lib/function";
+import { mkdirpSync, writeFileSync } from "fs-extra";
 import { join } from "path";
-import prettier from "prettier";
 import { isNil } from "ramda";
 import { OptionOutput } from "../options/output";
-
-const formatByPrettier = async (str: string): Promise<string> =>
-  prettier.format(str, {
-    parser: "babel-ts",
-    //    plugins: ["prettier-plugin-organize-imports"],
-  });
+import { formatByPrettier } from "./formatByPrettier";
 
 type OutputParams = {
   schemaRawText: string;
   globalSchema: string | undefined;
-  output: OptionOutput;
+  output: OptionOutput | undefined;
 };
 
 export const outputToFile = async ({
@@ -21,11 +17,19 @@ export const outputToFile = async ({
   output,
   globalSchema,
 }: OutputParams) => {
-  const formatted = await formatByPrettier(schemaRawText);
-  const { fileName, outDir } = output;
-  await mkdirp(outDir);
+  const formatted = formatByPrettier(schemaRawText);
+
+  const { fileName, outDir } = pipe(
+    output,
+    O.fromNullable,
+    O.getOrElse(() => ({
+      fileName: "schema.ts",
+      outDir: "./mysqlToZod",
+    })),
+  );
+  mkdirpSync(outDir);
   const savePath = join(process.cwd(), outDir, fileName);
-  await writeFileSync(savePath, formatted);
+  writeFileSync(savePath, formatted);
   // eslint-disable-next-line no-console
   console.log("schema file created!");
   // eslint-disable-next-line no-console
@@ -33,9 +37,9 @@ export const outputToFile = async ({
 
   /* globalSchema */
   if (isNil(globalSchema)) return;
-  const globalSchemaFormatted = await formatByPrettier(globalSchema);
+  const globalSchemaFormatted = formatByPrettier(globalSchema);
   const globalSchemaSavePath = join(process.cwd(), outDir, "globalSchema.ts");
-  await writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
+  writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
   // eslint-disable-next-line no-console
   console.log("\nglobalSchema file created!");
   // eslint-disable-next-line no-console

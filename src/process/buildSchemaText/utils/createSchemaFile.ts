@@ -2,6 +2,7 @@ import { Either, left, right } from "fp-ts/Either";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
+import { SchemaInformation } from "../../../features/sync/types/syncType";
 import { MysqlToZodOption } from "../../../options/options";
 import { SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
@@ -21,9 +22,11 @@ export const convertToColumn = (ast: any) => {
 // astのCREATEかどうかを判定する関数
 export const isCreate = (ast: AST): ast is Create =>
   "create_definitions" in ast;
+
 export const createSchemaFile = (
   tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
   options: MysqlToZodOption,
+  schemaInformationList: SchemaInformation[] | undefined,
 ): Either<string, SchemaResult> => {
   const parser = new Parser();
   const [tableName, tableDefinitionString] = tableDefinition;
@@ -48,6 +51,12 @@ export const createSchemaFile = (
     optionCommentsTable: options?.comments?.table,
     tableName,
   });
-  const { schema } = createSchema(tableName, columns, options, tableComment);
+  const { schema } = createSchema(
+    tableName,
+    columns,
+    options,
+    tableComment,
+    schemaInformationList,
+  );
   return right({ schema, columns });
 };

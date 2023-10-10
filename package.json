@@ -55,6 +55,7 @@
     "zx": "^7.2.3"
   },
   "dependencies": {
+    "@prettier/sync": "^0.3.0",
     "camelcase": "^7.0.1",
     "commander": "^11.0.0",
     "cosmiconfig": "^8.2.0",
@@ -69,6 +70,7 @@
     "prettier": "^3.0.0",
     "ramda": "^0.29.0",
     "ts-case-convert": "^2.0.2",
+    "ts-morph": "^20.0.0",
     "ts-node": "^10.9.1",
     "ts-pattern": "^5.0.4",
     "zod": "^3.21.4"

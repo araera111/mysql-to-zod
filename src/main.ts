@@ -2,41 +2,63 @@ import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
 
 import { isNil, uniq } from "ramda";
-import { buildSchemaText } from "./process/buildSchemaText/buildSchemaText";
-import { composeGlobalSchema } from "./process/composeGlobalSchema/composeGlobalSchema";
-import { getTables } from "./process/getTables";
-import { init } from "./process/init";
-import { outputToFile } from "./process/outputToFile";
+import {
+  getOutputFilePath,
+  parseZodSchemaFile,
+} from "./features/sync/utils/syncUtil";
+import {
+  buildSchemaText,
+  composeGlobalSchema,
+  getTables,
+  init,
+  outputToFile,
+} from "./process";
 
 const program = new Command();
 
-const main = async () => {
-  const initEither = await init(program);
+const main = async (command: Command) => {
+  const initEither = await init(command);
   if (isLeft(initEither)) throw new Error(initEither.left);
 
-  const { dbConnection, tableNames } = initEither.right;
+  const { option } = initEither.right;
+  const { dbConnection, tableNames } = option;
   if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
   const tables = await getTables(tableNames, dbConnection);
 
+  const schemaInformationList = parseZodSchemaFile({
+    filePath: getOutputFilePath(option),
+  });
+
   const schemaRawText = await buildSchemaText({
     tables,
-    option: initEither.right,
+    option,
+    schemaInformationList,
   });
   if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
 
   const globalSchema = composeGlobalSchema({
     typeList: uniq(schemaRawText.right.columns.map((x) => x.type)),
-    option: initEither.right,
+    option,
   });
 
   await outputToFile({
     schemaRawText: schemaRawText.right.text,
-    output: initEither.right.output,
+    output: option.output,
     globalSchema,
   });
 
   return 0;
 };
 
-main();
+const VERSION = process.env.VERSION || "0.0.0";
+
+program
+  .option("-u, --update", "update schema file")
+  .name("mysql-to-zod")
+  /* NODE_ENV VERSION */
+  .version(VERSION || "0.0.0")
+  .description("mysql-to-zod is a tool to generate zod schema from mysql table")
+  .parse(process.argv);
+
+main(program);
