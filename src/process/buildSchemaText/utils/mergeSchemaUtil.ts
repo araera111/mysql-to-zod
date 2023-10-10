@@ -64,19 +64,19 @@ const getSchemaProperties = (schema: string): ParsedZodSchemaProperty[] => {
     .flatMap(([left, right]) => {
       if (isNil(left) || isNil(right)) return [];
       /*
-when 1line
-ex: export const todoSchema = z.object({DB_ID: z.number()})
-split by "({" and right side(DB_ID) is valid
-*/
+        when 1line
+        ex: export const todoSchema = z.object({DB_ID: z.number()})
+        split by "({" and right side(DB_ID) is valid
+      */
       const validLeft = left.includes("export const")
         ? left?.split("({")[1]
         : left;
 
       /*
-when 1line
-ex: export const todoSchema = z.object({DB_ID: z.number()})
-split by "})" and left side (z.number()) is valid
-*/
+        when 1line
+        ex: export const todoSchema = z.object({DB_ID: z.number()})
+        split by "})" and left side (z.number()) is valid
+      */
       const validRight = right.includes("})") ? right?.split("})")[0] : right;
       if (isNil(validLeft) || isNil(validRight)) return [];
 
