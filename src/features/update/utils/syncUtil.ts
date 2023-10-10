@@ -6,7 +6,7 @@ import { join } from "path";
 import { includes, isNil } from "ramda";
 import { MysqlToZodOption } from "../../../options";
 import { formatByPrettier } from "../../../process/formatByPrettier";
-import { SchemaInformation, SchemaProperty } from "../types/updateType";
+import { SchemaInformation, SchemaProperty } from "../types/syncType";
 
 export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
   pipe(text.split(":"), ([name, schema]) => {

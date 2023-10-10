@@ -1,11 +1,10 @@
-import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import { isNil } from "ramda";
-import { SchemaInformation } from "../../../features/update/types/updateType";
+import { SchemaInformation } from "../../../features/update/types/syncType";
 import {
-  getSchemaInformation,
+  parseZodSchema,
   schemaInformationToText,
-} from "../../../features/update/utils/updateUtil";
+} from "../../../features/update/utils/syncUtil";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { typeOptionSchema } from "../../../options/type";
@@ -35,32 +34,26 @@ export const mergeSchemaTextWithOldInformation = ({
   const nextSchemaInformation = pipe(
     schemaText.replaceAll("\n", ""),
     formatByPrettier,
-    getSchemaInformation,
+    parseZodSchema,
   );
 
   /*
     完成したテキストとnameが一致していないときは、そのまま返す
     この前ですでにfindを使って取得しているはずだが、一応。
   */
-  if (
-    O.isNone(nextSchemaInformation) ||
-    nextSchemaInformation.value.tableName !== schemaName
-  )
-    return schemaText;
+  if (nextSchemaInformation.tableName !== schemaName) return schemaText;
 
   /* 一致しているときは、propertiesからfindして、あったら入れ替える */
-  const nextProperties = nextSchemaInformation.value.properties.map(
-    (property) => {
-      const replaceElement = schemaInformation.properties.find(
-        (y) => y.name === property.name,
-      );
-      if (isNil(replaceElement)) return property;
-      return replaceElement;
-    },
-  );
+  const nextProperties = nextSchemaInformation.properties.map((property) => {
+    const replaceElement = schemaInformation.properties.find(
+      (y) => y.name === property.name,
+    );
+    if (isNil(replaceElement)) return property;
+    return replaceElement;
+  });
 
   const replacedSchemaInformation = {
-    ...nextSchemaInformation.value,
+    ...nextSchemaInformation,
     properties: nextProperties,
   };
   const rawNextSchemaText = schemaInformationToText(

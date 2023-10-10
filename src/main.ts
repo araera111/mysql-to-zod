@@ -5,7 +5,7 @@ import { isNil, uniq } from "ramda";
 import {
   getOutputFilePath,
   parseZodSchemaFile,
-} from "./features/update/utils/updateUtil";
+} from "./features/update/utils/syncUtil";
 import {
   buildSchemaText,
   composeGlobalSchema,

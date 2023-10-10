@@ -2,7 +2,7 @@ import { Either, left, right } from "fp-ts/Either";
 import { AST, Create, Parser } from "node-sql-parser";
 import { isNil } from "ramda";
 import { objectToCamel } from "ts-case-convert";
-import { SchemaInformation } from "../../../features/update/types/updateType";
+import { SchemaInformation } from "../../../features/update/types/syncType";
 import { MysqlToZodOption } from "../../../options/options";
 import { SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";

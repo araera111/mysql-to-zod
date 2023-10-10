@@ -2,7 +2,7 @@ import { Either, isLeft, right } from "fp-ts/lib/Either";
 import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
 import { isNone } from "fp-ts/lib/Option";
 import { produce } from "immer";
-import { SchemaInformation } from "../../features/update/types/updateType";
+import { SchemaInformation } from "../../features/update/types/syncType";
 import { MysqlToZodOption } from "../../options/options";
 import { Column, SchemaResult } from "./types/buildSchemaTextType";
 import { strListToStrLf } from "./utils/buildSchemaTextUtil";
