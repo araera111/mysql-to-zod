@@ -55,7 +55,5 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
   },
   sync: {
     active: true,
-    keySyncType: "delete",
-    tableSyncType: "delete",
   },
 };

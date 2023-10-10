@@ -32,7 +32,9 @@ const options = {
       implementation: [],
       references: [],
     },
-    isUpdate: true,
+  },
+  sync: {
+    active: true,
   },
 };
 module.exports = options;
