@@ -1,10 +1,10 @@
 import { pipe } from "fp-ts/function";
 import { isNil } from "ramda";
-import { SchemaInformation } from "../../../features/update/types/syncType";
+import { SchemaInformation } from "../../../features/sync/types/syncType";
 import {
   parseZodSchema,
   schemaInformationToText,
-} from "../../../features/update/utils/syncUtil";
+} from "../../../features/sync/utils/syncUtil";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { typeOptionSchema } from "../../../options/type";
