@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: cd
-        run: cd ./docs
+        run: ls
       - name: Checkout
         uses: actions/checkout@v3
       - name: Detect package manager
