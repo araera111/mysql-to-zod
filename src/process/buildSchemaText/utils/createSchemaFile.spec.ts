@@ -91,7 +91,7 @@ describe("composeTypeString", () => {
     };
     const tableName = "todo";
     const schemaName = "todoSchema";
-    const result = "export type Todo = z.infer<typeof todoSchema>;";
+    const result = "export type aaatask_namebbb = z.infer<typeof todoSchema>;";
     expect(
       composeTypeString({ typeOption, tableName, schemaName }),
     ).toStrictEqual(result);
