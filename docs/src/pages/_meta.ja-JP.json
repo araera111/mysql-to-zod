@@ -1,3 +1,11 @@
 {
-  "index": "導入"
+  "index": "introduction",
+  "config": "config",
+  "dbConnection": "dbConnection",
+  "tableNames": "tableNames",
+  "output": "output",
+  "comments": "comments",
+  "type": "type",
+  "schema": "schema",
+  "sync": "sync"
 }
