@@ -29,12 +29,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: cd
-        run: ls
       - name: Checkout
         uses: actions/checkout@v3
       - name: Detect package manager
         id: detect-package-manager
+        working-directory: ${{ github.workspace }}/docs
         run: |
           if [ -f "${{ github.workspace }}/yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_OUTPUT
