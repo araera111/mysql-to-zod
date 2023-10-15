@@ -1,0 +1,6 @@
+{
+  "myKey": "en translation",
+  "nested": {
+    "key": "nested en translation"
+  }
+}
