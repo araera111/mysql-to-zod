@@ -9,5 +9,4 @@ module.exports = withNextra({
   images: {
     unoptimized: true,
   },
-  assetPrefix: "/mysql-to-zod",
 });
