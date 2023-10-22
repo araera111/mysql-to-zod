@@ -1,14 +1,14 @@
-# dbConnection - DB接続設定
+# dbConnection
 
-## 設定項目
+## Configuration Item
 
-- dbConnection - mysqlに接続するための設定を行います。
+- dbConnection - Configures settings for connecting to mysql.
 
-設定方法は2つあります。URL syntax と Object syntax です。
+There are two ways to configure: URL syntax and Object syntax.
 
 ### URL syntax
 
-URL syntax は、mysql://user:pass@host:port/database という形式で設定します。
+URL syntax is set in the format `mysql://user:pass@host:port/database`
 
 ```js
 module.exports = {
@@ -16,12 +16,12 @@ module.exports = {
 };
 ```
 
-また、`npx mysql-to-zod@latest mysql://user:pass@host:port/database`と指定した場合、コンフィグファイルに記述された設定よりも優先されます。
+Also, if you specify `npx mysql-to-zod@latest mysql://user:pass@host:port/database`, it takes precedence over the setting described in the config file.
 
 ### Object syntax
 
-Object syntax は、以下のように設定します。
-当ライブラリはmysql2を使用しているため、mysql2の設定をそのまま記述します。
+The object syntax is set as follows.
+Since this library uses mysql2, the mysql2 settings are described as they are.
 
 ```js
 /** @type {import("./src/options/options").MysqlToZodOption} */
@@ -36,6 +36,6 @@ const options = {
 module.exports = options;
 ```
 
-これがさきほどのURL syntaxと同じ設定になります。
+This is the same setting as the URL syntax described earlier.
 
-仮にパスワードに@が含まれている場合は、URL syntaxではエスケープが必要ですが、Object syntaxではエスケープが不要です。
+If the password contains @, the URL syntax requires escaping, but the object syntax does not.
