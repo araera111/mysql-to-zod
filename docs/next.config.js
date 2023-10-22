@@ -1,3 +1,4 @@
+const path = require("path");
 /** @type {import('next').NextConfig} */
 const withNextra = require("nextra")({
   theme: "nextra-theme-docs",
