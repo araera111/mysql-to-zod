@@ -11,5 +11,6 @@ module.exports = withNextra({
   i18n: {
     locales: ["en", "ja"],
     defaultLocale: "en",
+    localePath: path.resolve("./public/locales"),
   },
 });
