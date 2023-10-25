@@ -1,7 +1,7 @@
-import react from "@astrojs/react";
-import { defineConfig } from "astro/config";
-
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
+import pandacss from "@pandacss/astro";
+import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,5 +10,5 @@ export default defineConfig({
       theme: "solarized-dark",
     },
   },
-  integrations: [react(), mdx()],
+  integrations: [react(), mdx(), pandacss()],
 });

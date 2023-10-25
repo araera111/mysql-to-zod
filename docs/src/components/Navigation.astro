@@ -1,0 +1,15 @@
+---
+import { stack } from "../../styled-system/patterns";
+const pages = await Astro.glob("../pages/ja/**/*.mdx");
+console.log({ pages });
+---
+
+<div class={stack({ bgColor: "blue.100" })}>
+  {
+    pages.map((page) => (
+      <div>
+        <a href={page.url}>{page.url}</a>
+      </div>
+    ))
+  }
+</div>

@@ -1,10 +1,12 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Navigation from "../components/Navigation.astro";
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Welcome to Astro.">
-		<a href="two">two</a>
-		<a href="/ja/">ja</a>
+<Layout lang="ja" title="Welcome to Astro.">
+  <div>
+    <Navigation />
+  </div>
+  <a href="two">two</a>
+  <a href="/ja/">ja</a>
 </Layout>
-
