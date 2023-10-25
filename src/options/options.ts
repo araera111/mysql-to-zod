@@ -22,15 +22,10 @@ export const mysqlToZodOptionSchema = z.object({
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
 
 export const basicMySQLToZodOption: MysqlToZodOption = {
-<<<<<<< HEAD
   output: {
     outDir: "./mysqlToZod",
     fileName: "schema.ts",
   },
-=======
-  outFilePath: "./mysqlToZod",
-  fileName: "schema.ts",
->>>>>>> 5c2292c (feat:)
   tableNames: [],
   comments: {
     table: {
