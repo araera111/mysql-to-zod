@@ -15,6 +15,7 @@ const { frontmatter } = Astro.props;
         max-width: 980px;
         margin: 0 auto;
         padding: 45px;
+        width: 100%;
       }
 
       @media (max-width: 767px) {
@@ -26,7 +27,7 @@ const { frontmatter } = Astro.props;
   </head>
   <body>
     <div class={css({ display: "flex" })} }>
-      <div><Navigation /></div>
+      <div class={css({ w: "140px" })}><Navigation /></div>
       <div class="markdown-body">
         <slot />
       </div>
