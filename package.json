@@ -51,6 +51,7 @@
     "tsx": "^3.12.7",
     "typescript": "^5.1.6",
     "vitest": "^0.33.0",
+    "zod": "^3.22.4",
     "zx": "^7.2.3"
   },
   "dependencies": {
@@ -71,8 +72,7 @@
     "ts-case-convert": "^2.0.2",
     "ts-morph": "^20.0.0",
     "ts-node": "^10.9.1",
-    "ts-pattern": "^5.0.4",
-    "zod": "^3.22.4"
+    "ts-pattern": "^5.0.4"
   },
   "volta": {
     "node": "18.17.0",
