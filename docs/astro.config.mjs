@@ -5,6 +5,8 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://araera111.github.io/",
+  base: "/mysql-to-zod",
   markdown: {
     shikiConfig: {
       theme: "solarized-dark",
