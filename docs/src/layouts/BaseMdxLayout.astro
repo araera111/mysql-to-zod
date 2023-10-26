@@ -1,6 +1,7 @@
 ---
 import "github-markdown-css/github-markdown.css";
 import { css } from "../../styled-system/css";
+import Navigation from "../components/Navigation.astro";
 const { frontmatter } = Astro.props;
 ---
 
@@ -24,8 +25,11 @@ const { frontmatter } = Astro.props;
     </style>
   </head>
   <body>
-    <div class="markdown-body">
-      <slot />
+    <div class={css({ display: "flex" })} }>
+      <div><Navigation /></div>
+      <div class="markdown-body">
+        <slot />
+      </div>
     </div>
   </body>
 </html>
