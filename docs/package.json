@@ -8,7 +8,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
   },
   "dependencies": {
     "@astrojs/cloudflare": "^7.6.2",
