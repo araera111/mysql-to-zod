@@ -1,0 +1,161 @@
+---
+layout: ../../layouts/BaseMdxLayout.astro
+title: "Schema"
+author: "araera111"
+---
+
+# schema - zodSchema名の設定
+
+## 設定項目
+
+schemaの設定項目は、以下のようなオブジェクトを取ります。
+
+```js
+const options = {
+  schema: {
+    format: "camel",
+    prefix: "",
+    suffix: "Schema",
+    replacements: [],
+    nullType: "nullish",
+    inline: true,
+    zod: {
+      implementation: [],
+      references: [],
+    },
+  },
+};
+module.exports = options;
+```
+
+デフォルトの設定では以下のようにzodSchemaが出力されます。
+
+```sql
+CREATE TABLE `my_todo_list` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task` varchar(255) NOT NULL,
+  `description` text,
+  `due_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
+
+```ts
+export const myTodoListSchema = z.object({
+  id: z.number(),
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+```
+
+### format
+
+schema名のフォーマットを指定します。
+
+- camel - キャメルケース（デフォルト）
+- pascal - パスカルケース
+- snake - スネークケース
+- original - 元のテーブル名をそのまま使用
+
+### prefix
+
+schema名の先頭に付与する文字列を指定します。（デフォルトは空文字）
+
+### suffix
+
+schema名の末尾に付与する文字列を指定します。（デフォルトは`Schema`）
+
+### replacements
+
+schema名の置換を行います。
+`string[][]`形式で、置換前と置換後の文字列を指定します。（複数指定可）（デフォルトは空配列）
+
+### nullType
+
+MySQLで`NOT NULL`ではないカラムに対して、どのような型を使用するかを指定します。
+
+- nullish - `null | undefined`を許容する型を使用（デフォルト）
+- nullable - `null`を許容する型を使用
+
+### inline
+
+schemaをインラインで定義するかどうかを指定します。（デフォルトは`true`）
+inlineをfalseにすると、schemaを別ファイルに出力します。
+
+以下、別ファイルに出力する例。
+
+```ts
+import { z } from "zod";
+import { globalSchema } from "./globalSchema";
+
+export const myTodoListSchema = z.object({
+  id: globalSchema.mysqlINT,
+  task: globalSchema.mysqlVARCHAR,
+  description: globalSchema.mysqlTEXT.nullish(),
+  due_date: globalSchema.mysqlDATE.nullish(),
+  created_at: globalSchema.mysqlTIMESTAMP.nullish(),
+  updated_at: globalSchema.mysqlTIMESTAMP.nullish(),
+});
+```
+
+```ts
+import { z } from "zod";
+export const globalSchema = {
+  mysqlINT: z.number(),
+  mysqlVARCHAR: z.string(),
+  mysqlTINYINT: z.number(),
+  mysqlTIMESTAMP: z.date(),
+  mysqlTEXT: z.string(),
+  mysqlDATE: z.date(),
+};
+```
+
+別ファイルに出力することで、たとえばDATE型をstring型に変換したり、独自のzodSchemaを指定することが可能になります。refineなどを行いたい場合には便利かもしれません。
+
+### zod
+
+schemaの実装を指定します。inlineがtrueの場合のみ有効です。
+
+- implementation - schemaの実装を指定します。`string[][]`形式で、実装するzodSchemaを指定します。（デフォルトは空配列）
+  [MySQLTYPE, zodSchema]の形式で指定します。
+
+implementationに[["DATE", "z.string()"]]を指定した場合、z.date()となるところがz.string()となります。
+
+```ts
+export const myTodoListSchema = z.object({
+  id: z.number(),
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.string().nullish(), // z.date()がz.string()に変換される
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+```
+
+- references - schemaの参照を指定します。`string[][]`形式で、参照するzodSchemaを指定します。（デフォルトは空配列）inlineがfalseの場合のみ有効です。
+
+referencesに[["DATE", "mysqlDate"]]と指定すると、下記のような出力となります。
+
+```ts
+export const myTodoListSchema = z.object({
+  id: globalSchema.mysqlINT,
+  task: globalSchema.mysqlVARCHAR,
+  description: globalSchema.mysqlTEXT.nullish(),
+  due_date: globalSchema.mySqlDateSchema.nullish(), // globalSchema.mySqlDateSchemaに変換される
+  created_at: globalSchema.mysqlTIMESTAMP.nullish(),
+  updated_at: globalSchema.mysqlTIMESTAMP.nullish(),
+});
+```
+
+## テーブル名の変換
+
+Schema名の変換については、Typeと同じです。Typeの変換手順を参照してください。
+
+## まとめ
+
+独自実装した型を使用したい場合に、referenceやimplementationを使用することで、変換を行うことができます。

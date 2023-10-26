@@ -1,0 +1,24 @@
+---
+import { stack } from "../../styled-system/patterns";
+import { pages } from "../pages/ja/pages.ja";
+---
+
+<div
+  class={stack({
+    bgColor: "white",
+    py: "8",
+    px: "14",
+    fontSize: "xs",
+    gap: 4,
+    color: "gray.600",
+    pos: "fixed",
+  })}
+>
+  {
+    pages.map((page) => (
+      <div>
+        <a href={page.url}>{page.title}</a>
+      </div>
+    ))
+  }
+</div>

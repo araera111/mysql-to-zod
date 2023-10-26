@@ -1,0 +1,89 @@
+---
+layout: ../../layouts/BaseMdxLayout.astro
+title: "Sync"
+author: "araera111"
+---
+
+# sync - schemaとMySQLの同期
+
+## 設定項目
+
+syncの設定項目は、以下のようなオブジェクトを取ります。
+
+```js
+const options = {
+  sync: {
+    active: true;
+  }
+};
+module.exports = options;
+```
+
+- active: trueの場合、syncを実行します。falseの場合、syncを実行しません。（デフォルトはtrue）
+
+## syncとは
+
+syncのactiveがtrueの場合、syncを実行します。  
+syncとは、schemaとMySQLの同期を行う機能です。
+
+下記SQLより、すでに生成されたschema.tsが存在していたとします。
+
+```sql
+	CREATE TABLE `my_todo_list` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `status` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `task` varchar(255) NOT NULL,
+  `description` text,
+  `due_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
+
+それをもとに生成したものが下記スキーマです。
+ただし、statusは`undone`と`in_progress`と`done`のみを許容するように手動で変更したとします。
+
+```ts
+export const myTodoListSchema = z.object({
+  id: z.number(),
+  status: z.union([
+    z.literal("undone"),
+    z.literal("in_progress"),
+    z.literal("done"),
+  ]), // 手動で変更
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+```
+
+このあとにテーブルにカラムを追加し、新しくスキーマを生成したいとします。  
+このとき、syncのactiveがfalseの場合は、完全に新しいスキーマを生成します。  
+よって`status`は`z.string()`に戻ってしまいます。
+
+syncが有効になっている場合は、すでに存在するスキーマはそのまま残ります。  
+仮に新しく追加されたカラムがあった場合、下記のように既存のスキーマに追加されます。
+
+```ts
+export const myTodoListSchema = z.object({
+  id: z.number(),
+  status: z.union([
+    z.literal("undone"),
+    z.literal("in_progress"),
+    z.literal("done"),
+  ]),
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+  new_column: z.string().nullish(), // 追加されたカラム
+});
+```
+
+syncを有効にしておくことで、常にスキーマを最新に保つことができます。  
+注意点として、schema.tsファイルに何か記述があった場合、schemaを再生成したときに削除されます。
+自作のスキーマ、補助関数などは別ファイルに記述しておくことをおすすめします。

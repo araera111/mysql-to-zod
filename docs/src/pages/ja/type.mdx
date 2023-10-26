@@ -1,0 +1,98 @@
+---
+layout: ../../layouts/BaseMdxLayout.astro
+title: "Type"
+author: "araera111"
+---
+
+# type - type名の設定
+
+## 設定項目
+
+typeの設定項目は、以下のようなオブジェクトを取ります。
+
+```js
+/** @type {import("./src/options/options").MysqlToZodOption} */
+const options = {
+  type: {
+    declared: "type",
+    format: "pascal",
+    prefix: "",
+    suffix: "",
+    replacements: [],
+  },
+};
+module.exports = options;
+```
+
+### declared
+
+- none - 型宣言を行わない
+- type - typeで型宣言を行う（デフォルト）
+
+zodSchemaだけで良い場合はnoneを使用します。
+
+### format
+
+type名のフォーマットを指定します。
+
+- camel - キャメルケース
+- pascal - パスカルケース（デフォルト）
+- snake - スネークケース
+- original - 元のテーブル名をそのまま使用
+
+### prefix
+
+型名の前に付与する文字列です。（デフォルトは空文字）
+
+### suffix
+
+型名の後に付与する文字列です。（デフォルトは空文字）
+
+### replacements
+
+type名の置換を行います。
+`string[][]`形式で、置換前と置換後の文字列を指定します。（複数指定可）（デフォルトは空配列）
+
+### 変換の順序
+
+tableNameは、下記手順で変換されます。
+
+1. replacementsがある場合、置換を行います。
+2. formatに従い、フォーマットを行います。
+3. prefixとsuffixを付与します。
+
+## 設定例
+
+```js
+const typeOption: TypeOption = {
+      declared: "type",
+      format: "snake",
+      prefix: "aaa",
+      suffix: "bbb",
+      replacements: [
+        ["to", "task"],
+        ["do", "Name"],
+      ],
+    };
+```
+
+```sql
+CREATE TABLE `todo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+上記の設定を使用した場合、下記のような変換が行われます。
+
+```ts
+export type aaatask_namebbb = z.infer<typeof todoSchema>;
+```
+
+1. replacementsにより、`to`が`task`に変換されます。
+2. replacementsにより、`do`が`Name`に変換されます。
+3. formatにより、`taskName`が`task_name`に変換されます。
+4. prefixとsuffixにより、`aaatask_namebbb`が生成されます。
