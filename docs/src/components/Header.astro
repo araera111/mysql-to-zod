@@ -9,8 +9,8 @@ import { css } from "../../styled-system/css";
     borderColor: "gray.300",
     position: "sticky",
     top: 0,
-    bgColor: "white",
-    height: "60px",
+    bgColor: "transparent",
+    height: "80px",
     display: "flex",
   })}
 >
@@ -24,4 +24,12 @@ import { css } from "../../styled-system/css";
   >
     mysql-to-zod
   </div>
+  <div id="search" class={css({ ml: "auto" })}></div>
+  <link href="/_pagefind/pagefind-ui.css" rel="stylesheet" />
+  <script src="/_pagefind/pagefind-ui.js" type="text/javascript"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", (event) => {
+      new PagefindUI({ element: "#search" });
+    });
+  </script>
 </div>
