@@ -1,0 +1,46 @@
+---
+title: "DBConnection"
+author: "araera111"
+---
+
+# dbConnection - DB接続設定
+
+## 設定項目
+
+- dbConnection - mysqlに接続するための設定を行います。
+
+設定方法は2つあります。URL syntax と Object syntax です。
+
+### URL syntax
+
+URL syntax は、`mysql://user:pass@host:port/database`という形式で設定します。
+
+```js
+module.exports = {
+  dbConnection: "mysql://user:pass@host:port/database",
+};
+```
+
+また、`npx mysql-to-zod@latest mysql://user:pass@host:port/database`と指定した場合、コンフィグファイルに記述された設定よりも優先されます。
+
+### Object syntax
+
+Object syntax は、以下のように設定します。
+当ライブラリはmysql2を使用しているため、mysql2の設定をそのまま記述します。
+
+```js
+/** @type {import("./src/options/options").MysqlToZodOption} */
+const options = {
+  dbConnection: {
+    host: "localhost",
+    user: "user",
+    password: "pass",
+    database: "database",
+  },
+};
+module.exports = options;
+```
+
+これがさきほどのURL syntaxと同じ設定になります。
+
+仮にパスワードに@が含まれている場合は、URL syntaxではエスケープが必要ですが、Object syntaxではエスケープが不要です。

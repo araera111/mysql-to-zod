@@ -1,36 +1,52 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash
-hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
-  actions:
-    - text: Example Guide
-      link: /guides/example/
-      icon: right-arrow
-      variant: primary
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
+title: "Introduction"
+author: "araera111"
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+# mysql-to-zodとは何か？
 
-## Next steps
+mysql-to-zodは、MySQLのテーブル定義から、Zodの型定義を生成するツールです。
 
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
-</CardGrid>
+## 使い方
+
+```bash
+npx mysql-to-zod mysql://root:password@localhost:3306/dbname
+```
+
+上記コマンドを実行すると、`./mysqlToZod/schema.ts`にzodの型定義が生成されます。
+
+## 例
+
+DB：my_todoに以下のようなテーブル定義があったとします。
+
+```sql
+CREATE TABLE todo (
+  id INT NOT NULL AUTO_INCREMENT,
+  task VARCHAR(255) NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+```
+
+上記のテーブル定義から、以下のようなzodの型定義が生成されます。
+
+```typescript
+import { z } from "zod";
+
+export const todoSchema = z.object({
+  id: z.number(),
+  task: z.string(),
+  completed: z.number(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+export type Todo = z.infer<typeof todoSchema>;
+```
+
+以上が基本的な使用方法となります。  
+多くのケースでは上記だけで良いですが、カスタマイズすることができるオプションもあります。  
+例： 変数名を`todoSchema`ではなく`TODO_SCHEMA`にしたい、など。
+
+詳しいオプションについては、次ページよりご覧ください。
