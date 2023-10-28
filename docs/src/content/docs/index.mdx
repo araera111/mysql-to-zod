@@ -3,19 +3,19 @@ title: "Introduction"
 author: "araera111"
 ---
 
-# mysql-to-zodとは何か？
+## mysql-to-zodとは何か？
 
 mysql-to-zodは、MySQLのテーブル定義から、Zodの型定義を生成するツールです。
 
-## 使い方
+### 使い方
 
 ```bash
-npx mysql-to-zod mysql://root:password@localhost:3306/dbname
+npx mysql-to-zod mysql://user:password@localhost:3306/dbname
 ```
 
 上記コマンドを実行すると、`./mysqlToZod/schema.ts`にzodの型定義が生成されます。
 
-## 例
+### 例
 
 DB：my_todoに以下のようなテーブル定義があったとします。
 
@@ -50,3 +50,7 @@ export type Todo = z.infer<typeof todoSchema>;
 例： 変数名を`todoSchema`ではなく`TODO_SCHEMA`にしたい、など。
 
 詳しいオプションについては、次ページよりご覧ください。
+
+## お知らせ
+
+使用方法に関する質問や改善点などありましたら、[Disucussions](https://github.com/araera111/mysql-to-zod/discussions)にてお願いします。
