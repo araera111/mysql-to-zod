@@ -1,0 +1,21 @@
+---
+title: "TableNames"
+author: "araera111"
+---
+
+## Specify table name
+
+## Setting items
+
+The tableNames configuration item is an array of type `string[]`.
+
+```js
+const options = {
+  tableNames: ["table1", "table2", "table3"],
+};
+module.exports = options;
+```
+
+If a table name is specified here, only the specified table name is output as zodSchema.  
+If not specified or an empty array, all table names are output as zodSchema.  
+The default setting is all tables.
