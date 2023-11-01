@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const syncOptionSchema = z
   .object({
-    active: z.boolean().optional().default(true),
+    active: z.boolean().optional().default(false),
   })
   .optional()
   .default({
-    active: true,
+    active: false,
   });

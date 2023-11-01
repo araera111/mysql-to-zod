@@ -21,14 +21,16 @@ const main = async (command: Command) => {
   if (isLeft(initEither)) throw new Error(initEither.left);
 
   const { option } = initEither.right;
-  const { dbConnection, tableNames } = option;
+  const { dbConnection, tableNames, sync } = option;
   if (isNil(dbConnection)) throw new Error("dbConnection is required");
 
   const tables = await getTables(tableNames, dbConnection);
 
-  const schemaInformationList = parseZodSchemaFile({
-    filePath: getOutputFilePath(option),
-  });
+  const schemaInformationList = sync?.active
+    ? parseZodSchemaFile({
+        filePath: getOutputFilePath(option),
+      })
+    : undefined;
 
   const schemaRawText = await buildSchemaText({
     tables,
