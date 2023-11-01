@@ -134,7 +134,7 @@ devDependencies:
     specifier: ^0.33.0
     version: 0.33.0
   zod:
-    specifier: '>=3.22.4'
+    specifier: ^3.22.4
     version: 3.22.4
   zx:
     specifier: ^7.2.3

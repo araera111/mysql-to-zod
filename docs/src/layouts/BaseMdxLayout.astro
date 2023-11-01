@@ -1,9 +1,5 @@
 ---
 import "github-markdown-css/github-markdown.css";
-import { css } from "../../styled-system/css";
-import Navigation from "../components/Navigation.astro";
-import { grid, gridItem } from "../../styled-system/patterns";
-import Header from "../components/Header.astro";
 const { frontmatter } = Astro.props;
 ---
 
@@ -29,20 +25,8 @@ const { frontmatter } = Astro.props;
     </style>
   </head>
   <body>
-    <Header />
-    <div class={grid({ columns: 10, gap: 2 })}>
-      <div class={gridItem({ colSpan: 2 })}><Navigation /></div>
-      <div
-        class={gridItem({
-          colSpan: 8,
-          borderLeftWidth: "1px",
-          borderLeftColor: "gray.300",
-        })}
-      >
         <div class="markdown-body">
           <slot />
         </div>
-      </div>
-    </div>
   </body>
 </html>
