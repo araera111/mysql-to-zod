@@ -3,11 +3,9 @@ title: "Sync"
 author: "araera111"
 ---
 
-# sync - schemaとMySQLの同期
+## sync Setting
 
-## 設定項目
-
-syncの設定項目は、以下のようなオブジェクトを取ります。
+## Configuration file
 
 ```js
 const options = {
@@ -18,14 +16,16 @@ const options = {
 module.exports = options;
 ```
 
-- active: trueの場合、syncを実行します。falseの場合、syncを実行しません。（デフォルトはtrue）
+### sync
 
-## syncとは
+- active: If true, sync is performed; if false, sync is not performed. (default is false)
 
-syncのactiveがtrueの場合、syncを実行します。  
-syncとは、schemaとMySQLの同期を行う機能です。
+## about sync
 
-下記SQLより、すでに生成されたschema.tsが存在していたとします。
+If sync's active is true, sync is performed.  
+sync is a function to synchronize schema and MySQL.
+
+From the SQL below, assume that the generated schema.ts already exists.
 
 ```sql
 	CREATE TABLE `my_todo_list` (
@@ -40,8 +40,8 @@ syncとは、schemaとMySQLの同期を行う機能です。
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 ```
 
-それをもとに生成したものが下記スキーマです。
-ただし、statusは`undone`と`in_progress`と`done`のみを許容するように手動で変更したとします。
+The following schema was generated based on it.
+However, assume that the status is manually changed to allow only `undone`, `in_progress` and `done`.
 
 ```ts
 export const myTodoListSchema = z.object({
@@ -50,7 +50,7 @@ export const myTodoListSchema = z.object({
     z.literal("undone"),
     z.literal("in_progress"),
     z.literal("done"),
-  ]), // 手動で変更
+  ]), // changed manually
   task: z.string(),
   description: z.string().nullish(),
   due_date: z.date().nullish(),
@@ -59,12 +59,12 @@ export const myTodoListSchema = z.object({
 });
 ```
 
-このあとにテーブルにカラムを追加し、新しくスキーマを生成したいとします。  
-このとき、syncのactiveがfalseの場合は、完全に新しいスキーマを生成します。  
-よって`status`は`z.string()`に戻ってしまいます。
+After this you want to add columns to the table and generate a new schema.  
+At this time, if sync's active is false, it will generate a completely new schema.  
+Therefore, the `status` will revert to `z.string()`.
 
-syncが有効になっている場合は、すでに存在するスキーマはそのまま残ります。  
-仮に新しく追加されたカラムがあった場合、下記のように既存のスキーマに追加されます。
+If sync is enabled, the already existing schema will remain in place.  
+If there are newly added columns, they will be added to the existing schema as follows
 
 ```ts
 export const myTodoListSchema = z.object({
@@ -79,10 +79,10 @@ export const myTodoListSchema = z.object({
   due_date: z.date().nullish(),
   created_at: z.date().nullish(),
   updated_at: z.date().nullish(),
-  new_column: z.string().nullish(), // 追加されたカラム
+  new_column: z.string().nullish(), // added column
 });
 ```
 
-syncを有効にしておくことで、常にスキーマを最新に保つことができます。  
-注意点として、schema.tsファイルに何か記述があった場合、schemaを再生成したときに削除されます。
-自作のスキーマ、補助関数などは別ファイルに記述しておくことをおすすめします。
+By enabling sync, you can always keep the schema up-to-date.  
+As a precaution, any description in the schema.ts file will be deleted when the schema is regenerated.
+We recommend that you write your own schema, auxiliary functions, etc. in a separate file.

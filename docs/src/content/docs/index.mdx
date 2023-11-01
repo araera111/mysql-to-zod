@@ -3,21 +3,21 @@ title: "Introduction"
 author: "araera111"
 ---
 
-## mysql-to-zodとは何か？
+## What is mysql-to-zod?
 
-mysql-to-zodは、MySQLのテーブル定義から、Zodの型定義を生成するツールです。
+mysql-to-zod is a tool that generates Zod type definitions from MySQL table definitions.
 
-### 使い方
+### Usage
 
 ```bash
 npx mysql-to-zod mysql://user:password@localhost:3306/dbname
 ```
 
-上記コマンドを実行すると、`./mysqlToZod/schema.ts`にzodの型定義が生成されます。
+The above command will generate a type definition of zod in `. /mysqlToZod/schema.ts` will generate a type definition for zod.
 
-### 例
+### Example
 
-DB：my_todoに以下のようなテーブル定義があったとします。
+Suppose DB: my_todo has the following table definitions.
 
 ```sql
 CREATE TABLE todo (
@@ -30,7 +30,7 @@ CREATE TABLE todo (
 );
 ```
 
-上記のテーブル定義から、以下のようなzodの型定義が生成されます。
+From the above table definition, the following zod schema is generated.
 
 ```typescript
 import { z } from "zod";
@@ -45,12 +45,13 @@ export const todoSchema = z.object({
 export type Todo = z.infer<typeof todoSchema>;
 ```
 
-以上が基本的な使用方法となります。  
-多くのケースでは上記だけで良いですが、カスタマイズすることができるオプションもあります。  
-例： 変数名を`todoSchema`ではなく`TODO_SCHEMA`にしたい、など。
+These are the basic instructions for use.
+In many cases the above is all that is needed, but there are options that can be customized.
+For example, if you want the variable name to be `TODO_SCHEMA` instead of `todoSchema`.
 
-詳しいオプションについては、次ページよりご覧ください。
+For more detailed options, please see the next page.
 
-## お知らせ
+## Notice
 
-使用方法に関する質問や改善点などありましたら、[Disucussions](https://github.com/araera111/mysql-to-zod/discussions)にてお願いします。
+If you have any questions about usage or suggestions for improvement, please visit disucussions.
+[Disucussions](https://github.com/araera111/mysql-to-zod/discussions)

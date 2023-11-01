@@ -3,11 +3,11 @@ title: "TableNames"
 author: "araera111"
 ---
 
-## テーブル名のリスト
+## Specify table name
 
-## 設定項目
+## Setting items
 
-tableNamesの設定項目は、`string[]`型の配列です。
+The tableNames configuration item is an array of type `string[]`.
 
 ```js
 const options = {
@@ -16,6 +16,6 @@ const options = {
 module.exports = options;
 ```
 
-ここでテーブル名を指定すると、指定したテーブル名のみをzodSchemaとして出力します。  
-指定しない、または空の配列の場合は、全てのテーブル名をzodSchemaとして出力します。  
-デフォルトの設定は全テーブルです。
+If a table name is specified here, only the specified table name is output as zodSchema.  
+If not specified or an empty array, all table names are output as zodSchema.  
+The default setting is all tables.

@@ -3,16 +3,14 @@ title: "Output"
 author: "araera111"
 ---
 
-## 出力設定
+## Output setting
 
-## 設定項目
+## Setting Item
 
-outputの設定項目は下記2つです。
+- outDir : output directory
+- fileName : output file name
 
-- outDir : 出力先ディレクトリを設定できます。
-- fileName : 出力ファイル名を設定できます。
-
-## 設定ファイル
+## Configuration file
 
 ```js
 const options = {
@@ -24,7 +22,7 @@ const options = {
 module.exports = options;
 ```
 
-設定が存在しない場合は、デフォルトの設定が適用されます。
+If the setting does not exist, the default setting is applied.
 
 - outDir `./mysqlToZod`
 - fileName: `schema.ts`

@@ -3,14 +3,14 @@ title: "Config"
 author: "araera111"
 ---
 
-## Configuration file location
+## 設定ファイルの置き場
 
-Place the configuration file in the directory where you want to run it.
-If you want to run it in `/home/user/develop/project001`, place `/home/user/develop/project001/mysqlToZod.config.js`.
+設定ファイルは、実行するディレクトリに置きます。  
+`/home/user/develop/project001`で実行する場合、`/home/user/develop/project001/mysqlToZod.config.js`を設置します。
 
-## How to write a configuration file
+## 設定ファイルの書き方
 
-The configuration file should be written as follows
+設定ファイルは以下のように記述します。
 
 ```js
 const options = {
@@ -54,7 +54,7 @@ const options = {
 module.exports = options;
 ```
 
-## Can work without configuration file
+## 設定ファイルはなくても良い
 
-If no configuration file exists, the default settings are applied.  
-Please refer to the next and following sections for each setting.
+設定ファイルが存在しない場合、デフォルトの設定が適用されます。  
+各設定については次項以降を参照してください。

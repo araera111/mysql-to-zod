@@ -10,11 +10,12 @@ export default defineConfig({
       favicon: "./src/assets/logo.png",
       locales: {
         root: {
+          label: "English",
+          lang: "en",
+        },
+        ja: {
           label: "日本語",
           lang: "ja",
-        },
-        en: {
-          label: "English",
         },
       },
       social: {
