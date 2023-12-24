@@ -1,8 +1,8 @@
 export type SchemaProperty = {
-  name: string;
-  schema: string;
+	name: string;
+	schema: string;
 };
 export type SchemaInformation = {
-  tableName: string;
-  properties: SchemaProperty[];
+	tableName: string;
+	properties: SchemaProperty[];
 };

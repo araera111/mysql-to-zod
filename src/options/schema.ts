@@ -22,36 +22,36 @@ export type SchemaZodReferences = z.infer<typeof schemaZodReferencesSchema>;
 */
 export const schemaZodImplementationSchema = z.tuple([z.string(), z.string()]);
 export type SchemaZodImplementation = z.infer<
-  typeof schemaZodImplementationSchema
+	typeof schemaZodImplementationSchema
 >;
 
 export const schemaOptionSchema = z
-  .object({
-    format: caseUnionSchema.default("camel"),
-    prefix: z.string().default(""),
-    suffix: z.string().default("Schema"),
-    replacements: z.string().array().array().default([]),
-    nullType: nullTypeUnionSchema,
-    inline: z.boolean().default(true),
-    zod: z
-      .object({
-        implementation: schemaZodImplementationSchema.array().optional(),
-        references: schemaZodReferencesSchema.array().optional(),
-      })
-      .optional(),
-    insert: z.boolean().default(true),
-  })
-  .default({
-    format: "camel",
-    prefix: "",
-    suffix: "Schema",
-    replacements: [],
-    nullType: "nullable",
-    inline: true,
-    zod: {
-      implementation: [],
-      references: [],
-    },
-    insert: true,
-  });
+	.object({
+		format: caseUnionSchema.default("camel"),
+		prefix: z.string().default(""),
+		suffix: z.string().default("Schema"),
+		replacements: z.string().array().array().default([]),
+		nullType: nullTypeUnionSchema,
+		inline: z.boolean().default(true),
+		zod: z
+			.object({
+				implementation: schemaZodImplementationSchema.array().optional(),
+				references: schemaZodReferencesSchema.array().optional(),
+			})
+			.optional(),
+		insert: z.boolean().default(true),
+	})
+	.default({
+		format: "camel",
+		prefix: "",
+		suffix: "Schema",
+		replacements: [],
+		nullType: "nullable",
+		inline: true,
+		zod: {
+			implementation: [],
+			references: [],
+		},
+		insert: true,
+	});
 export type SchemaOption = z.infer<typeof schemaOptionSchema>;

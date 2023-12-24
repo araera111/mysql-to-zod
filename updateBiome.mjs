@@ -32,7 +32,7 @@ const result = {
 writeFileSync("./biome.json", JSON.stringify(result, null, 2));
 
 /* install */
-await $`pnpm update --save-exact @biomejs/biome@${tag_name}`;
+await $`pnpm add --save-exact @biomejs/biome@${tag_name}`;
 
 /* .vscode/settings.jsonの中身を取得 */
 const vscode = await fetch(

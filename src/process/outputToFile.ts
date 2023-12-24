@@ -7,41 +7,41 @@ import { OptionOutput } from "../options/output";
 import { formatByPrettier } from "./formatByPrettier";
 
 type OutputParams = {
-  schemaRawText: string;
-  globalSchema: string | undefined;
-  output: OptionOutput | undefined;
+	schemaRawText: string;
+	globalSchema: string | undefined;
+	output: OptionOutput | undefined;
 };
 
 export const outputToFile = async ({
-  schemaRawText,
-  output,
-  globalSchema,
+	schemaRawText,
+	output,
+	globalSchema,
 }: OutputParams) => {
-  const formatted = formatByPrettier(schemaRawText);
+	const formatted = formatByPrettier(schemaRawText);
 
-  const { fileName, outDir } = pipe(
-    output,
-    O.fromNullable,
-    O.getOrElse(() => ({
-      fileName: "schema.ts",
-      outDir: "./mysqlToZod",
-    })),
-  );
-  mkdirpSync(outDir);
-  const savePath = join(process.cwd(), outDir, fileName);
-  writeFileSync(savePath, formatted);
-  // eslint-disable-next-line no-console
-  console.log("schema file created!");
-  // eslint-disable-next-line no-console
-  console.log("path: ", savePath);
+	const { fileName, outDir } = pipe(
+		output,
+		O.fromNullable,
+		O.getOrElse(() => ({
+			fileName: "schema.ts",
+			outDir: "./mysqlToZod",
+		})),
+	);
+	mkdirpSync(outDir);
+	const savePath = join(process.cwd(), outDir, fileName);
+	writeFileSync(savePath, formatted);
+	// eslint-disable-next-line no-console
+	console.log("schema file created!");
+	// eslint-disable-next-line no-console
+	console.log("path: ", savePath);
 
-  /* globalSchema */
-  if (isNil(globalSchema)) return;
-  const globalSchemaFormatted = formatByPrettier(globalSchema);
-  const globalSchemaSavePath = join(process.cwd(), outDir, "globalSchema.ts");
-  writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
-  // eslint-disable-next-line no-console
-  console.log("\nglobalSchema file created!");
-  // eslint-disable-next-line no-console
-  console.log("path: ", globalSchemaSavePath);
+	/* globalSchema */
+	if (isNil(globalSchema)) return;
+	const globalSchemaFormatted = formatByPrettier(globalSchema);
+	const globalSchemaSavePath = join(process.cwd(), outDir, "globalSchema.ts");
+	writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
+	// eslint-disable-next-line no-console
+	console.log("\nglobalSchema file created!");
+	// eslint-disable-next-line no-console
+	console.log("path: ", globalSchemaSavePath);
 };
