@@ -58,7 +58,6 @@ const VERSION = process.env.VERSION || "0.0.0";
 program
   .option("-u, --update", "update schema file")
   .name("mysql-to-zod")
-  /* NODE_ENV VERSION */
   .version(VERSION || "0.0.0")
   .description("mysql-to-zod is a tool to generate zod schema from mysql table")
   .parse(process.argv);

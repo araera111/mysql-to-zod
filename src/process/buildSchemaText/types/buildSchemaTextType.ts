@@ -13,6 +13,7 @@ export const columnsSchema = z.object({
   type: z.string(),
   nullable: z.boolean(),
   comment: z.string().optional(),
+  auto_increment: z.boolean().optional(),
 });
 
 export type Column = z.infer<typeof columnsSchema>;

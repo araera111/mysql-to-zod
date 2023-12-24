@@ -16,7 +16,8 @@ export const convertToColumn = (ast: any) => {
 
   const nullable = ast?.nullable?.type !== "not null";
   const comment = ast?.comment?.value?.value;
-  return objectToCamel({ column, type, nullable, comment });
+  const auto_increment = ast?.auto_increment;
+  return objectToCamel({ column, type, nullable, comment, auto_increment });
 };
 
 // astのCREATEかどうかを判定する関数
@@ -45,6 +46,7 @@ export const createSchemaFile = (
         ?.map((x: any) => convertToColumn(x))
         .flatMap((x: any) => (isNil(x) ? [] : x)),
     );
+  console.log({ columns });
 
   const tableComment = getTableComment({
     ast,
@@ -58,5 +60,6 @@ export const createSchemaFile = (
     tableComment,
     schemaInformationList,
   );
+  console.log({ schema, columns });
   return right({ schema, columns });
 };
