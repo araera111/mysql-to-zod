@@ -45,6 +45,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     nullType: "nullable",
     inline: true,
     zod: { implementation: [] },
+    insert: true,
   },
   type: {
     declared: "type",
@@ -52,6 +53,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
     prefix: "",
     suffix: "",
     replacements: [],
+    insert: true,
   },
   sync: {
     active: false,

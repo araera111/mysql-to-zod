@@ -39,6 +39,7 @@ export const schemaOptionSchema = z
         references: schemaZodReferencesSchema.array().optional(),
       })
       .optional(),
+    insert: z.boolean().default(true),
   })
   .default({
     format: "camel",
@@ -51,5 +52,6 @@ export const schemaOptionSchema = z
       implementation: [],
       references: [],
     },
+    insert: true,
   });
 export type SchemaOption = z.infer<typeof schemaOptionSchema>;

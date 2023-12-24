@@ -8,6 +8,7 @@ export const typeOptionSchema = z
     prefix: z.string().default(""),
     suffix: z.string().default(""),
     replacements: z.string().array().array().default([]),
+    insert: z.boolean().default(true),
   })
   .default({
     declared: "type",
@@ -15,5 +16,6 @@ export const typeOptionSchema = z
     prefix: "",
     suffix: "",
     replacements: [],
+    insert: true,
   });
 export type TypeOption = z.infer<typeof typeOptionSchema>;
