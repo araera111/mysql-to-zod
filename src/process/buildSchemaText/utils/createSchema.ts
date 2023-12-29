@@ -108,12 +108,14 @@ export const createSchema = (
 		schemaName,
 	});
 
+	const schema = composeTableSchemaTextList({
+		schemaText: merged,
+		typeString,
+		tableComment,
+	});
+
 	return {
-		schema: composeTableSchemaTextList({
-			schemaText: merged,
-			typeString,
-			tableComment,
-		}).join("\n"),
+		schema: schema.join("\n"),
 		columns,
 	};
 };
