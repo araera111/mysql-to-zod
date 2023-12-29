@@ -147,3 +147,4 @@ mysqlToZod
 .yarn
 .vscode
 npm
+updateBiome.mjs
