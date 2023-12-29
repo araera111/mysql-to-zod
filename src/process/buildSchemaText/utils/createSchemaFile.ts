@@ -58,12 +58,13 @@ export const createSchemaFile = (
 		optionCommentsTable: options?.comments?.table,
 		tableName,
 	});
-	const { schema } = createSchema(
+	const { schema } = createSchema({
 		tableName,
 		columns,
 		options,
 		tableComment,
 		schemaInformationList,
-	);
+	});
+	console.log({ schema });
 	return right({ schema, columns });
 };

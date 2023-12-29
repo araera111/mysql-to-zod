@@ -259,6 +259,28 @@ export const convertToZodType = ({
 		.otherwise(() => "z.unknown()");
 };
 
+type ConvertCommentParams = {
+	comment: string | undefined;
+	active: boolean;
+	column: Column;
+	option: MysqlToZodOption;
+};
+const getCommentString = ({
+	comment,
+	active,
+	column,
+	option,
+}: ConvertCommentParams): string | undefined => {
+	if (isNil(comment) || !active) return undefined;
+	const { comments } = option;
+	return convertComment({
+		name: column.column,
+		comment,
+		format: comments?.column?.format ?? defaultColumnCommentFormat,
+		isTable: false,
+	});
+};
+
 type ComposeColumnStringListParams = {
 	column: Column;
 	option: MysqlToZodOption;
@@ -271,14 +293,12 @@ export const composeColumnStringList = ({
 	const { comments } = option;
 
 	const result: string[] = [
-		!isNil(comment) && comments?.column?.active
-			? convertComment({
-					name: column.column,
-					comment,
-					format: comments?.column?.format,
-					isTable: false,
-			  })
-			: undefined,
+		getCommentString({
+			comment,
+			active: comments?.column?.active ?? true,
+			column,
+			option,
+		}),
 		`${addSingleQuotation(column.column)}: ${convertToZodType({
 			type,
 			option,
