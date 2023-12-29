@@ -16,7 +16,8 @@
     "type": "tsc --noEmit",
     "lint": "pnpm biome check --apply ./src",
     "fmt": "pnpm biome format --write ./src",
-    "pub": "zx ./build.mjs && zx ./addShebang.mjs && npm publish"
+    "pub": "zx ./build.mjs && zx ./addShebang.mjs && npm publish",
+    "knip": "knip"
   },
   "keywords": [
     "typescript",
