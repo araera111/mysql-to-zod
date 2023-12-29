@@ -2,8 +2,8 @@ import { pipe } from "fp-ts/function";
 import { isNil } from "ramda";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
 import {
-  parseZodSchema,
-  schemaInformationToText,
+	parseZodSchema,
+	schemaInformationToText,
 } from "../../../features/sync/utils/syncUtil";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
@@ -11,109 +11,109 @@ import { typeOptionSchema } from "../../../options/type";
 import { formatByPrettier } from "../../formatByPrettier";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
-  combineSchemaNameAndSchemaString,
-  composeColumnStringList,
-  composeSchemaName,
-  composeTableSchemaTextList,
-  composeTypeString,
+	combineSchemaNameAndSchemaString,
+	composeColumnStringList,
+	composeSchemaName,
+	composeTableSchemaTextList,
+	composeTypeString,
 } from "./buildSchemaTextUtil";
 
 type UpdateSchemaTextProps = {
-  schemaName: string;
-  schemaText: string;
-  schemaInformation: SchemaInformation;
+	schemaName: string;
+	schemaText: string;
+	schemaInformation: SchemaInformation;
 };
 
 export const mergeSchemaTextWithOldInformation = ({
-  schemaName,
-  schemaInformation,
-  schemaText,
+	schemaName,
+	schemaInformation,
+	schemaText,
 }: UpdateSchemaTextProps) => {
-  /* 完成したテキストからschemaInformationをつくる */
+	/* 完成したテキストからschemaInformationをつくる */
 
-  const nextSchemaInformation = pipe(
-    schemaText.replaceAll("\n", ""),
-    formatByPrettier,
-    parseZodSchema,
-  );
+	const nextSchemaInformation = pipe(
+		schemaText.replaceAll("\n", ""),
+		formatByPrettier,
+		parseZodSchema,
+	);
 
-  /*
+	/*
     完成したテキストとnameが一致していないときは、そのまま返す
     この前ですでにfindを使って取得しているはずだが、一応。
   */
-  if (nextSchemaInformation.tableName !== schemaName) return schemaText;
+	if (nextSchemaInformation.tableName !== schemaName) return schemaText;
 
-  /* 一致しているときは、propertiesからfindして、あったら入れ替える */
-  const nextProperties = nextSchemaInformation.properties.map((property) => {
-    const replaceElement = schemaInformation.properties.find(
-      (y) => y.name === property.name,
-    );
-    if (isNil(replaceElement)) return property;
-    return replaceElement;
-  });
+	/* 一致しているときは、propertiesからfindして、あったら入れ替える */
+	const nextProperties = nextSchemaInformation.properties.map((property) => {
+		const replaceElement = schemaInformation.properties.find(
+			(y) => y.name === property.name,
+		);
+		if (isNil(replaceElement)) return property;
+		return replaceElement;
+	});
 
-  const replacedSchemaInformation = {
-    ...nextSchemaInformation,
-    properties: nextProperties,
-  };
-  const rawNextSchemaText = schemaInformationToText(
-    replacedSchemaInformation,
-  ).join("");
-  const formattedSchemaText = formatByPrettier(rawNextSchemaText);
-  return formattedSchemaText.trim();
+	const replacedSchemaInformation = {
+		...nextSchemaInformation,
+		properties: nextProperties,
+	};
+	const rawNextSchemaText = schemaInformationToText(
+		replacedSchemaInformation,
+	).join("");
+	const formattedSchemaText = formatByPrettier(rawNextSchemaText);
+	return formattedSchemaText.trim();
 };
 
 export const createSchema = (
-  tableName: string,
-  columns: Column[],
-  options: MysqlToZodOption,
-  tableComment: string | undefined,
-  /* mergeしないときはundefinedにする */
-  schemaInformationList: SchemaInformation[] | undefined,
+	tableName: string,
+	columns: Column[],
+	options: MysqlToZodOption,
+	tableComment: string | undefined,
+	/* mergeしないときはundefinedにする */
+	schemaInformationList: SchemaInformation[] | undefined,
 ): SchemaResult => {
-  const schemaString = columns
-    .map((x) =>
-      composeColumnStringList({ column: x, option: options }).join("\n"),
-    )
-    .join("");
+	const schemaString = columns
+		.map((x) =>
+			composeColumnStringList({ column: x, option: options }).join("\n"),
+		)
+		.join("");
 
-  const schemaOption = schemaOptionSchema.parse(options.schema);
+	const schemaOption = schemaOptionSchema.parse(options.schema);
 
-  const schemaName = composeSchemaName({ schemaOption, tableName });
+	const schemaName = composeSchemaName({ schemaOption, tableName });
 
-  const schemaText = combineSchemaNameAndSchemaString({
-    schemaName,
-    schemaString,
-  });
+	const schemaText = combineSchemaNameAndSchemaString({
+		schemaName,
+		schemaString,
+	});
 
-  /* schemaTextを古いschemaInformationとmergeする */
+	/* schemaTextを古いschemaInformationとmergeする */
 
-  const thisSchemaInformation = schemaInformationList?.find(
-    (x) => x.tableName === schemaName,
-  );
+	const thisSchemaInformation = schemaInformationList?.find(
+		(x) => x.tableName === schemaName,
+	);
 
-  const merged = isNil(thisSchemaInformation)
-    ? schemaText
-    : mergeSchemaTextWithOldInformation({
-        schemaName,
-        schemaText,
-        schemaInformation: thisSchemaInformation,
-      });
+	const merged = isNil(thisSchemaInformation)
+		? schemaText
+		: mergeSchemaTextWithOldInformation({
+				schemaName,
+				schemaText,
+				schemaInformation: thisSchemaInformation,
+		  });
 
-  const typeOption = typeOptionSchema.parse(options.type);
+	const typeOption = typeOptionSchema.parse(options.type);
 
-  const typeString = composeTypeString({
-    typeOption,
-    tableName,
-    schemaName,
-  });
+	const typeString = composeTypeString({
+		typeOption,
+		tableName,
+		schemaName,
+	});
 
-  return {
-    schema: composeTableSchemaTextList({
-      schemaText: merged,
-      typeString,
-      tableComment,
-    }).join("\n"),
-    columns,
-  };
+	return {
+		schema: composeTableSchemaTextList({
+			schemaText: merged,
+			typeString,
+			tableComment,
+		}).join("\n"),
+		columns,
+	};
 };
