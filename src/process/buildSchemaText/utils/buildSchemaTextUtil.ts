@@ -5,10 +5,10 @@ import { isEmpty, isNil } from "ramda";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
-  OptionTableComments,
-  defaultColumnCommentFormat,
-  defaultTableCommentFormat,
-  optionTableCommentsSchema,
+	OptionTableComments,
+	defaultColumnCommentFormat,
+	defaultTableCommentFormat,
+	optionTableCommentsSchema,
 } from "../../../options/comments";
 import { CaseUnion } from "../../../options/common";
 import { MysqlToZodOption } from "../../../options/options";
@@ -17,7 +17,7 @@ import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
 export const isMaybeRegExp = (str: string): boolean =>
-  str.startsWith("/") && str.endsWith("/");
+	str.startsWith("/") && str.endsWith("/");
 
 /* 
   knex result
@@ -86,292 +86,292 @@ export const isMaybeRegExp = (str: string): boolean =>
 
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
 export const addSingleQuotation = (str: string) => {
-  if (str.match(/^[0-9]/)) {
-    return `'${str}'`;
-  }
-  return str;
+	if (str.match(/^[0-9]/)) {
+		return `'${str}'`;
+	}
+	return str;
 };
 
 type ReplaceTableNameParams = {
-  tableName: string;
-  replacements: string[];
+	tableName: string;
+	replacements: string[];
 };
 
 export const replaceTableName = ({
-  tableName,
-  replacements,
+	tableName,
+	replacements,
 }: ReplaceTableNameParams): string => {
-  const [before, after] = replacements;
-  /* if replacement[0]or[1] undefined -> return original tableName */
-  if (isNil(before) || isNil(after)) return tableName;
+	const [before, after] = replacements;
+	/* if replacement[0]or[1] undefined -> return original tableName */
+	if (isNil(before) || isNil(after)) return tableName;
 
-  /* if notRegexp -> replace */
-  if (!isMaybeRegExp(before)) return tableName.replace(before, after);
+	/* if notRegexp -> replace */
+	if (!isMaybeRegExp(before)) return tableName.replace(before, after);
 
-  /* if regexp -> replace */
-  const regex = new RegExp(before.slice(1, -1));
-  return tableName.replace(regex, after);
+	/* if regexp -> replace */
+	const regex = new RegExp(before.slice(1, -1));
+	return tableName.replace(regex, after);
 };
 
 type ConvertComment = {
-  name: string;
-  comment: string;
-  format: string;
-  isTable: boolean;
+	name: string;
+	comment: string;
+	format: string;
+	isTable: boolean;
 };
 export const convertComment = ({
-  name,
-  comment,
-  format,
-  isTable,
+	name,
+	comment,
+	format,
+	isTable,
 }: ConvertComment) => {
-  if (format === "") {
-    const defaultFormat = isTable
-      ? defaultTableCommentFormat
-      : defaultColumnCommentFormat;
-    return defaultFormat.replace("!name", name).replace("!text", comment);
-  }
-  return format.replace("!name", name).replace("!text", comment);
+	if (format === "") {
+		const defaultFormat = isTable
+			? defaultTableCommentFormat
+			: defaultColumnCommentFormat;
+		return defaultFormat.replace("!name", name).replace("!text", comment);
+	}
+	return format.replace("!name", name).replace("!text", comment);
 };
 
 type GetTableCommentParams = {
-  tableName: string;
-  ast: Create;
-  optionCommentsTable: OptionTableComments | undefined;
+	tableName: string;
+	ast: Create;
+	optionCommentsTable: OptionTableComments | undefined;
 };
 export const getTableComment = ({
-  tableName,
-  ast,
-  optionCommentsTable,
+	tableName,
+	ast,
+	optionCommentsTable,
 }: GetTableCommentParams): string | undefined => {
-  const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
-    optionCommentsTable ?? {},
-  );
+	const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
+		optionCommentsTable ?? {},
+	);
 
-  if (parsedOptionCommentsTable.active === false) return undefined;
+	if (parsedOptionCommentsTable.active === false) return undefined;
 
-  const tableOptions = ast?.table_options;
-  if (isNil(tableOptions)) return undefined;
+	const tableOptions = ast?.table_options;
+	if (isNil(tableOptions)) return undefined;
 
-  const comment = commentKeywordSchema.parse(
-    tableOptions.find((x: any) => x.keyword === "comment"),
-  );
+	const comment = commentKeywordSchema.parse(
+		tableOptions.find((x: any) => x.keyword === "comment"),
+	);
 
-  if (isNil(comment)) return undefined;
+	if (isNil(comment)) return undefined;
 
-  return convertComment({
-    name: tableName,
-    comment: comment.value.slice(1, -1),
-    format: parsedOptionCommentsTable.format,
-    isTable: true,
-  });
+	return convertComment({
+		name: tableName,
+		comment: comment.value.slice(1, -1),
+		format: parsedOptionCommentsTable.format,
+		isTable: true,
+	});
 };
 
 type ComposeTableSchemaTextParams = {
-  schemaText: string;
-  typeString: string;
-  tableComment: string | undefined;
+	schemaText: string;
+	typeString: string;
+	tableComment: string | undefined;
 };
 export const composeTableSchemaTextList = ({
-  schemaText,
-  typeString,
-  tableComment,
+	schemaText,
+	typeString,
+	tableComment,
 }: ComposeTableSchemaTextParams): string[] => {
-  const tableCommentString = isNil(tableComment) ? "" : `\n${tableComment}`;
-  const strList = [tableCommentString, schemaText, typeString].filter(
-    (x) => x !== "",
-  );
-  return strList;
+	const tableCommentString = isNil(tableComment) ? "" : `\n${tableComment}`;
+	const strList = [tableCommentString, schemaText, typeString].filter(
+		(x) => x !== "",
+	);
+	return strList;
 };
 
 type ToImplementationParams = {
-  type: string;
-  option: MysqlToZodOption;
+	type: string;
+	option: MysqlToZodOption;
 };
 export const toImplementation = ({
-  type,
-  option,
+	type,
+	option,
 }: ToImplementationParams): string | undefined => {
-  const inline = option?.schema?.inline ?? true;
+	const inline = option?.schema?.inline ?? true;
 
-  /* globalSchemaの場合 */
-  if (!inline) {
-    const reference = option?.schema?.zod?.references?.find(
-      (x) => x[0] === type,
-    );
-    if (!isNil(reference)) return `globalSchema.${reference[1]}`;
+	/* globalSchemaの場合 */
+	if (!inline) {
+		const reference = option?.schema?.zod?.references?.find(
+			(x) => x[0] === type,
+		);
+		if (!isNil(reference)) return `globalSchema.${reference[1]}`;
 
-    /* !inline && not includes reference */
-    return `globalSchema.mysql${type}`;
-  }
+		/* !inline && not includes reference */
+		return `globalSchema.mysql${type}`;
+	}
 
-  const reference = option?.schema?.zod?.implementation?.find(
-    (x) => x[0] === type,
-  );
-  if (!isNil(reference)) return reference[1];
+	const reference = option?.schema?.zod?.implementation?.find(
+		(x) => x[0] === type,
+	);
+	if (!isNil(reference)) return reference[1];
 
-  return undefined;
+	return undefined;
 };
 
 type ConvertToZodTypeParams = {
-  type: string;
-  option: MysqlToZodOption;
+	type: string;
+	option: MysqlToZodOption;
 };
 export const convertToZodType = ({
-  type,
-  option,
+	type,
+	option,
 }: ConvertToZodTypeParams): string => {
-  const impl = toImplementation({
-    type,
-    option,
-  });
-  if (!isNil(impl)) return impl;
-  return match(type)
-    .with("TINYINT", () => "z.number()")
-    .with("SMALLINT", () => "z.number()")
-    .with("MEDIUMINT", () => "z.number()")
-    .with("INT", () => "z.number()")
-    .with("BIGINT", () => "z.number()")
-    .with("FLOAT", () => "z.number()")
-    .with("DOUBLE", () => "z.number()")
-    .with("YEAR", () => "z.number()")
-    .with("BIT", () => "z.boolean()")
-    .with("DATE", () => "z.date()")
-    .with("DATETIME", () => "z.date()")
-    .with("TIMESTAMP", () => "z.date()")
-    .with("CHAR", () => "z.string()")
-    .with("VARCHAR", () => "z.string()")
-    .with("DECIMAL", () => "z.string()")
-    .with("NUMERIC", () => "z.string()")
-    .with("TINYTEXT", () => "z.string()")
-    .with("TEXT", () => "z.string()")
-    .with("MEDIUMTEXT", () => "z.string()")
-    .with("LONGTEXT", () => "z.string()")
-    .with("ENUM", () => "z.string()")
-    .with("SET", () => "z.string()")
-    .with("TIME", () => "z.string()")
-    .with("BINARY", () => "z.unknown()")
-    .with("VARBINARY", () => "z.unknown()")
-    .with("TINYBLOB", () => "z.unknown()")
-    .with("BLOB", () => "z.unknown()")
-    .with("MEDIUMBLOB", () => "z.unknown()")
-    .with("LONGBLOB", () => "z.unknown()")
-    .otherwise(() => "z.unknown()");
+	const impl = toImplementation({
+		type,
+		option,
+	});
+	if (!isNil(impl)) return impl;
+	return match(type)
+		.with("TINYINT", () => "z.number()")
+		.with("SMALLINT", () => "z.number()")
+		.with("MEDIUMINT", () => "z.number()")
+		.with("INT", () => "z.number()")
+		.with("BIGINT", () => "z.number()")
+		.with("FLOAT", () => "z.number()")
+		.with("DOUBLE", () => "z.number()")
+		.with("YEAR", () => "z.number()")
+		.with("BIT", () => "z.boolean()")
+		.with("DATE", () => "z.date()")
+		.with("DATETIME", () => "z.date()")
+		.with("TIMESTAMP", () => "z.date()")
+		.with("CHAR", () => "z.string()")
+		.with("VARCHAR", () => "z.string()")
+		.with("DECIMAL", () => "z.string()")
+		.with("NUMERIC", () => "z.string()")
+		.with("TINYTEXT", () => "z.string()")
+		.with("TEXT", () => "z.string()")
+		.with("MEDIUMTEXT", () => "z.string()")
+		.with("LONGTEXT", () => "z.string()")
+		.with("ENUM", () => "z.string()")
+		.with("SET", () => "z.string()")
+		.with("TIME", () => "z.string()")
+		.with("BINARY", () => "z.unknown()")
+		.with("VARBINARY", () => "z.unknown()")
+		.with("TINYBLOB", () => "z.unknown()")
+		.with("BLOB", () => "z.unknown()")
+		.with("MEDIUMBLOB", () => "z.unknown()")
+		.with("LONGBLOB", () => "z.unknown()")
+		.otherwise(() => "z.unknown()");
 };
 
 type ComposeColumnStringListParams = {
-  column: Column;
-  option: MysqlToZodOption;
+	column: Column;
+	option: MysqlToZodOption;
 };
 export const composeColumnStringList = ({
-  column,
-  option,
+	column,
+	option,
 }: ComposeColumnStringListParams): string[] => {
-  const { comment, nullable, type } = column;
-  const { comments } = option;
+	const { comment, nullable, type } = column;
+	const { comments } = option;
 
-  const result: string[] = [
-    !isNil(comment) && comments?.column?.active
-      ? convertComment({
-          name: column.column,
-          comment,
-          format: comments?.column?.format,
-          isTable: false,
-        })
-      : undefined,
-    `${addSingleQuotation(column.column)}: ${convertToZodType({
-      type,
-      option,
-    })}${nullable ? `.${option.schema?.nullType ?? "nullable"}()` : ""},\n`,
-  ].flatMap((x) => (isNil(x) ? [] : [x]));
+	const result: string[] = [
+		!isNil(comment) && comments?.column?.active
+			? convertComment({
+					name: column.column,
+					comment,
+					format: comments?.column?.format,
+					isTable: false,
+			  })
+			: undefined,
+		`${addSingleQuotation(column.column)}: ${convertToZodType({
+			type,
+			option,
+		})}${nullable ? `.${option.schema?.nullType ?? "nullable"}()` : ""},\n`,
+	].flatMap((x) => (isNil(x) ? [] : [x]));
 
-  return result;
+	return result;
 };
 
 export const toPascalWrapper = (str: string) => toPascal(str);
 
 type ConvertTableNameParams = {
-  tableName: string;
-  format: CaseUnion;
-  replacements: string[][];
+	tableName: string;
+	format: CaseUnion;
+	replacements: string[][];
 };
 
 const loopReplace = (replacements: string[][], tableName: string): string => {
-  const nonEmptyReplacements = fromArray(replacements);
-  if (isNone(nonEmptyReplacements)) return tableName;
-  const headReplacements = head(nonEmptyReplacements.value);
-  const tailReplacements = tail(nonEmptyReplacements.value);
-  const string = replaceTableName({
-    tableName,
-    replacements: headReplacements,
-  });
-  return loopReplace(tailReplacements, string);
+	const nonEmptyReplacements = fromArray(replacements);
+	if (isNone(nonEmptyReplacements)) return tableName;
+	const headReplacements = head(nonEmptyReplacements.value);
+	const tailReplacements = tail(nonEmptyReplacements.value);
+	const string = replaceTableName({
+		tableName,
+		replacements: headReplacements,
+	});
+	return loopReplace(tailReplacements, string);
 };
 
 export const convertTableName = ({
-  tableName,
-  format,
-  replacements,
+	tableName,
+	format,
+	replacements,
 }: ConvertTableNameParams) => {
-  const replaced = isEmpty(replacements)
-    ? tableName
-    : loopReplace(replacements, tableName);
+	const replaced = isEmpty(replacements)
+		? tableName
+		: loopReplace(replacements, tableName);
 
-  return match(format)
-    .with("camel", () => toCamel(replaced))
-    .with("pascal", () => toPascal(replaced))
-    .with("snake", () => toSnake(replaced))
-    .with("original", () => replaced)
-    .exhaustive();
+	return match(format)
+		.with("camel", () => toCamel(replaced))
+		.with("pascal", () => toPascal(replaced))
+		.with("snake", () => toSnake(replaced))
+		.with("original", () => replaced)
+		.exhaustive();
 };
 
 type CombineSchemaNameAndSchemaStringParams = {
-  schemaName: string;
-  schemaString: string;
+	schemaName: string;
+	schemaString: string;
 };
 export const combineSchemaNameAndSchemaString = ({
-  schemaName,
-  schemaString,
+	schemaName,
+	schemaString,
 }: CombineSchemaNameAndSchemaStringParams) =>
-  `export const ${schemaName} = z.object({${schemaString}});`;
+	`export const ${schemaName} = z.object({${schemaString}});`;
 
 type composeSchemaNameParams = {
-  schemaOption: SchemaOption;
-  tableName: string;
+	schemaOption: SchemaOption;
+	tableName: string;
 };
 
 export const composeSchemaName = ({
-  schemaOption,
-  tableName,
+	schemaOption,
+	tableName,
 }: composeSchemaNameParams): string => {
-  const { prefix, suffix, format, replacements } = schemaOption;
-  return `${prefix}${convertTableName({
-    tableName,
-    format,
-    replacements,
-  })}${suffix}`;
+	const { prefix, suffix, format, replacements } = schemaOption;
+	return `${prefix}${convertTableName({
+		tableName,
+		format,
+		replacements,
+	})}${suffix}`;
 };
 
 type ComposeTypeStringParams = {
-  typeOption: TypeOption;
-  tableName: string;
-  schemaName: string;
+	typeOption: TypeOption;
+	tableName: string;
+	schemaName: string;
 };
 export const composeTypeString = ({
-  typeOption,
-  tableName,
-  schemaName,
+	typeOption,
+	tableName,
+	schemaName,
 }: ComposeTypeStringParams): string => {
-  const { prefix, suffix, declared, format, replacements } = typeOption;
+	const { prefix, suffix, declared, format, replacements } = typeOption;
 
-  if (declared === "none") return "";
+	if (declared === "none") return "";
 
-  /* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
-  const str = `export ${declared} ${prefix}${convertTableName({
-    tableName,
-    format,
-    replacements,
-  })}${suffix} = z.infer<typeof ${schemaName}>;`;
-  return `${str}`;
+	/* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
+	const str = `export ${declared} ${prefix}${convertTableName({
+		tableName,
+		format,
+		replacements,
+	})}${suffix} = z.infer<typeof ${schemaName}>;`;
+	return `${str}`;
 };
 export const strListToStrLf = (strList: string[]): string => strList.join("\n");

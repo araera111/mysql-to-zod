@@ -10,65 +10,65 @@ import { createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";
 
 type BuildSchemaTextParams = {
-  tables: string[];
-  option: MysqlToZodOption;
-  schemaInformationList: SchemaInformation[] | undefined;
+	tables: string[];
+	option: MysqlToZodOption;
+	schemaInformationList: SchemaInformation[] | undefined;
 };
 
 type BuildSchemaTextResult = {
-  text: string;
-  columns: Column[];
+	text: string;
+	columns: Column[];
 };
 
 export const buildSchemaText = async ({
-  tables,
-  option,
-  schemaInformationList,
+	tables,
+	option,
+	schemaInformationList,
 }: BuildSchemaTextParams): Promise<Either<string, BuildSchemaTextResult>> => {
-  const importDeclaration = produce(['import { z } from "zod";'], (draft) => {
-    if (!option.schema?.inline)
-      draft.push("import { globalSchema } from './globalSchema';");
-  }).join("\n");
+	const importDeclaration = produce(['import { z } from "zod";'], (draft) => {
+		if (!option.schema?.inline)
+			draft.push("import { globalSchema } from './globalSchema';");
+	}).join("\n");
 
-  const loop = async (
-    restTables: string[],
-    result: SchemaResult,
-  ): Promise<Either<string, SchemaResult>> => {
-    const nonEmptyTables = fromArray(restTables);
-    if (isNone(nonEmptyTables)) return right(result);
+	const loop = async (
+		restTables: string[],
+		result: SchemaResult,
+	): Promise<Either<string, SchemaResult>> => {
+		const nonEmptyTables = fromArray(restTables);
+		if (isNone(nonEmptyTables)) return right(result);
 
-    const headTable = head(nonEmptyTables.value);
-    const tailTables = tail(nonEmptyTables.value);
+		const headTable = head(nonEmptyTables.value);
+		const tailTables = tail(nonEmptyTables.value);
 
-    const tableDefinition = await getTableDefinition(
-      headTable,
-      option.dbConnection,
-    );
-    const schemaTextEither = createSchemaFile(
-      tableDefinition,
-      option,
-      schemaInformationList,
-    );
-    if (isLeft(schemaTextEither)) return schemaTextEither;
+		const tableDefinition = await getTableDefinition(
+			headTable,
+			option.dbConnection,
+		);
+		const schemaTextEither = createSchemaFile(
+			tableDefinition,
+			option,
+			schemaInformationList,
+		);
+		if (isLeft(schemaTextEither)) return schemaTextEither;
 
-    const newResult = strListToStrLf([
-      result.schema,
-      schemaTextEither.right.schema,
-    ]);
+		const newResult = strListToStrLf([
+			result.schema,
+			schemaTextEither.right.schema,
+		]);
 
-    return loop(tailTables, {
-      schema: newResult,
-      columns: [...result.columns, ...schemaTextEither.right.columns],
-    });
-  };
-  const schemaTexts = await loop(tables, {
-    schema: "",
-    columns: [],
-  });
-  if (isLeft(schemaTexts)) return schemaTexts;
+		return loop(tailTables, {
+			schema: newResult,
+			columns: [...result.columns, ...schemaTextEither.right.columns],
+		});
+	};
+	const schemaTexts = await loop(tables, {
+		schema: "",
+		columns: [],
+	});
+	if (isLeft(schemaTexts)) return schemaTexts;
 
-  return right({
-    text: strListToStrLf([importDeclaration, schemaTexts.right.schema]),
-    columns: schemaTexts.right.columns,
-  });
+	return right({
+		text: strListToStrLf([importDeclaration, schemaTexts.right.schema]),
+		columns: schemaTexts.right.columns,
+	});
 };

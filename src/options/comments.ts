@@ -4,8 +4,8 @@ import { z } from "zod";
 export const defaultColumnCommentFormat = "// !name : !text";
 
 export const optionColumnCommentsSchema = z.object({
-  active: z.boolean().default(true),
-  format: z.string().default(defaultColumnCommentFormat),
+	active: z.boolean().default(true),
+	format: z.string().default(defaultColumnCommentFormat),
 });
 export type OptionColumnComments = z.infer<typeof optionColumnCommentsSchema>;
 
@@ -13,24 +13,24 @@ export type OptionColumnComments = z.infer<typeof optionColumnCommentsSchema>;
 export const defaultTableCommentFormat = "// [table:!name] : !text";
 
 export const optionTableCommentsSchema = z.object({
-  active: z.boolean().default(true),
-  format: z.string().default(defaultTableCommentFormat),
+	active: z.boolean().default(true),
+	format: z.string().default(defaultTableCommentFormat),
 });
 export type OptionTableComments = z.infer<typeof optionTableCommentsSchema>;
 
 export const optionCommentsSchema = z
-  .object({
-    table: optionTableCommentsSchema.optional(),
-    column: optionColumnCommentsSchema.optional(),
-  })
-  .default({
-    table: {
-      active: true,
-      format: defaultTableCommentFormat,
-    },
-    column: {
-      active: true,
-      format: defaultColumnCommentFormat,
-    },
-  });
+	.object({
+		table: optionTableCommentsSchema.optional(),
+		column: optionColumnCommentsSchema.optional(),
+	})
+	.default({
+		table: {
+			active: true,
+			format: defaultTableCommentFormat,
+		},
+		column: {
+			active: true,
+			format: defaultColumnCommentFormat,
+		},
+	});
 export type OptionComments = z.infer<typeof optionCommentsSchema>;
