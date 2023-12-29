@@ -17,7 +17,6 @@ export const convertToColumn = (ast: any) => {
 	const nullable = ast?.nullable?.type !== "not null";
 	const comment = ast?.comment?.value?.value;
 	const auto_increment = isNil(ast.auto_increment) ? false : true;
-	console.log(auto_increment);
 	return objectToCamel({
 		column,
 		type,
