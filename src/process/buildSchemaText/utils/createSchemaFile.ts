@@ -12,12 +12,19 @@ import { createSchema } from "./createSchema";
 export const convertToColumn = (ast: any) => {
 	if (isNil(ast.column)) return undefined;
 	const { column } = ast.column;
-
 	const type = ast?.definition?.dataType;
 
 	const nullable = ast?.nullable?.type !== "not null";
 	const comment = ast?.comment?.value?.value;
-	return objectToCamel({ column, type, nullable, comment });
+	const auto_increment = isNil(ast.auto_increment) ? false : true;
+	console.log(auto_increment);
+	return objectToCamel({
+		column,
+		type,
+		nullable,
+		comment,
+		auto_increment,
+	});
 };
 
 // astのCREATEかどうかを判定する関数
