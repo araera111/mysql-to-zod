@@ -259,7 +259,7 @@ export const convertToZodType = ({
 		.otherwise(() => "z.unknown()");
 };
 
-type ConvertCommentParams = {
+type ConvertCommentProps = {
 	comment: string | undefined;
 	active: boolean;
 	column: Column;
@@ -270,7 +270,7 @@ const getCommentString = ({
 	active,
 	column,
 	option,
-}: ConvertCommentParams): string | undefined => {
+}: ConvertCommentProps): string | undefined => {
 	if (isNil(comment) || !active) return undefined;
 	const { comments } = option;
 	return convertComment({
@@ -281,14 +281,18 @@ const getCommentString = ({
 	});
 };
 
-type ComposeColumnStringListParams = {
+type AddNullTypeProps = {};
+const addNullType = () =>
+	nullable ? `.${option.schema?.nullType ?? "nullable"}()` : "";
+
+type ComposeColumnStringListProps = {
 	column: Column;
 	option: MysqlToZodOption;
 };
 export const composeColumnStringList = ({
 	column,
 	option,
-}: ComposeColumnStringListParams): string[] => {
+}: ComposeColumnStringListProps): string[] => {
 	const { comment, nullable, type } = column;
 	const { comments } = option;
 
