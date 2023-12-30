@@ -8,15 +8,22 @@ import { SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
 import { createSchema } from "./createSchema";
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const convertToColumn = (ast: any) => {
 	if (isNil(ast.column)) return undefined;
 	const { column } = ast.column;
-
 	const type = ast?.definition?.dataType;
 
 	const nullable = ast?.nullable?.type !== "not null";
 	const comment = ast?.comment?.value?.value;
-	return objectToCamel({ column, type, nullable, comment });
+	const auto_increment = isNil(ast.auto_increment) ? false : true;
+	return objectToCamel({
+		column,
+		type,
+		nullable,
+		comment,
+		auto_increment,
+	});
 };
 
 // astのCREATEかどうかを判定する関数
@@ -38,25 +45,26 @@ export const createSchemaFile = (
 	if (Array.isArray(ast) || !isCreate(ast))
 		return left("createSchemaFileError ast parser error");
 
-	const columns = columnsSchema
-		.array()
-		.parse(
-			ast.create_definitions
-				?.map((x: any) => convertToColumn(x))
-				.flatMap((x: any) => (isNil(x) ? [] : x)),
-		);
+	const columns = columnsSchema.array().parse(
+		ast.create_definitions
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			?.map((x: any) => convertToColumn(x))
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			.flatMap((x: any) => (isNil(x) ? [] : x)),
+	);
 
 	const tableComment = getTableComment({
 		ast,
 		optionCommentsTable: options?.comments?.table,
 		tableName,
 	});
-	const { schema } = createSchema(
+	const { schema } = createSchema({
 		tableName,
 		columns,
 		options,
 		tableComment,
 		schemaInformationList,
-	);
+		mode: "select",
+	});
 	return right({ schema, columns });
 };

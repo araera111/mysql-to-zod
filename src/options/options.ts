@@ -6,6 +6,7 @@ import {
 } from "./comments";
 import { outputSchema } from "./output";
 import { schemaOptionSchema } from "./schema";
+import { separateOptionSchema } from "./separate";
 import { syncOptionSchema } from "./sync";
 import { typeOptionSchema } from "./type";
 
@@ -17,6 +18,7 @@ export const mysqlToZodOptionSchema = z.object({
 	type: typeOptionSchema.optional(),
 	schema: schemaOptionSchema.optional(),
 	sync: syncOptionSchema.optional(),
+	separate: separateOptionSchema.optional(),
 });
 
 export type MysqlToZodOption = z.infer<typeof mysqlToZodOptionSchema>;
@@ -55,5 +57,12 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
 	},
 	sync: {
 		active: false,
+	},
+	separate: {
+		isSeparate: false,
+		insertPrefix: "insert",
+		insertSuffix: "",
+		selectPrefix: "",
+		selectSuffix: "",
 	},
 };

@@ -1,0 +1,80 @@
+---
+title: "Separate"
+author: "araera111"
+---
+
+## Separate Setting
+
+## Reason for separation
+mysqlからSELECTするときとINSERTするときに、異なるオブジェクトを使いたい場合があるでしょう。例えば、id カラムがあるとします。selectではnullableではなく、insertではnullableにしたいとします。このような場合に使用します。
+
+## Configuration file
+
+```js
+const options = {
+	separate: {
+		isSeparate: true,
+		insertPrefix: "insert",
+		insertSuffix: "",
+	},
+};
+module.exports = options;
+```
+
+### declared
+
+- isSeparate - SELECTとINSERTでスキーマを分離するかどうか (default: false)
+- insertPrefix - SELECTとINSERTを区別するためのprefix (default: "insert")
+- insertSuffix -  SELECTとINSERTを区別するためのsuffix (default: "")
+
+## example
+
+```sql
+CREATE TABLE `todo` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task` varchar(255) NOT NULL,
+  `completed` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+```
+
+```ts
+export const todoSchema = z.object({
+  id: z.number(),
+  task: z.string(),
+  completed: z.number(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+export type Todo = z.infer<typeof todoSchema>;
+export const insertTodoSchema = z.object({
+  id: z.number().nullish(), // <- nullable!
+  task: z.string(),
+  completed: z.number(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+export type InsertTodo = z.infer<typeof insertTodoSchema>;
+```
+
+
+使用法
+
+```ts
+const selectObj:Todo = {
+  id: 1,
+  task: "task",
+  completed: 0,
+  created_at: new Date(),
+  updated_at: new Date(),
+};
+
+const insertObj:InsertTodo = {
+  task: "task",
+  completed: 0,
+};
+```
+
+このオプションを使用すると、knexを使用してINSERTを行う際に、idなしでオブジェクトを作成することができます。

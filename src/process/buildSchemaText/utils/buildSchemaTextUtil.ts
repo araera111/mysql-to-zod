@@ -13,6 +13,7 @@ import {
 import { CaseUnion } from "../../../options/common";
 import { MysqlToZodOption } from "../../../options/options";
 import { SchemaOption } from "../../../options/schema";
+import { separateOption } from "../../../options/separate";
 import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
 
@@ -154,6 +155,7 @@ export const getTableComment = ({
 	if (isNil(tableOptions)) return undefined;
 
 	const comment = commentKeywordSchema.parse(
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		tableOptions.find((x: any) => x.keyword === "comment"),
 	);
 
@@ -259,30 +261,77 @@ export const convertToZodType = ({
 		.otherwise(() => "z.unknown()");
 };
 
-type ComposeColumnStringListParams = {
+type ConvertCommentProps = {
+	comment: string | undefined;
+	active: boolean;
 	column: Column;
 	option: MysqlToZodOption;
+};
+const getCommentString = ({
+	comment,
+	active,
+	column,
+	option,
+}: ConvertCommentProps): string | undefined => {
+	if (isNil(comment) || !active) return undefined;
+	const { comments } = option;
+	return convertComment({
+		name: column.column,
+		comment,
+		format: comments?.column?.format ?? defaultColumnCommentFormat,
+		isTable: false,
+	});
+};
+
+export type CreateSchemaModeUnion = "select" | "insert";
+
+type AddNullTypeProps = {
+	autoIncrement: boolean;
+	nullable: boolean;
+	mode: CreateSchemaModeUnion;
+	option: MysqlToZodOption;
+};
+const addNullType = ({
+	autoIncrement,
+	nullable,
+	mode,
+	option,
+}: AddNullTypeProps) => {
+	{
+		if (mode === "select") {
+			return nullable ? `.${option.schema?.nullType ?? "nullable"}()` : "";
+		}
+		/* In insert mode, auto_increment is also nullable. */
+		return nullable || autoIncrement
+			? `.${option.schema?.nullType ?? "nullable"}()`
+			: "";
+	}
+};
+
+type ComposeColumnStringListProps = {
+	column: Column;
+	option: MysqlToZodOption;
+	mode: CreateSchemaModeUnion;
 };
 export const composeColumnStringList = ({
 	column,
 	option,
-}: ComposeColumnStringListParams): string[] => {
-	const { comment, nullable, type } = column;
+	mode,
+}: ComposeColumnStringListProps): string[] => {
+	const { comment, nullable, type, autoIncrement } = column;
 	const { comments } = option;
 
 	const result: string[] = [
-		!isNil(comment) && comments?.column?.active
-			? convertComment({
-					name: column.column,
-					comment,
-					format: comments?.column?.format,
-					isTable: false,
-			  })
-			: undefined,
+		getCommentString({
+			comment,
+			active: comments?.column?.active ?? true,
+			column,
+			option,
+		}),
 		`${addSingleQuotation(column.column)}: ${convertToZodType({
 			type,
 			option,
-		})}${nullable ? `.${option.schema?.nullType ?? "nullable"}()` : ""},\n`,
+		})}${addNullType({ nullable, option, mode, autoIncrement })},\n`,
 	].flatMap((x) => (isNil(x) ? [] : [x]));
 
 	return result;
@@ -338,15 +387,31 @@ export const combineSchemaNameAndSchemaString = ({
 type composeSchemaNameParams = {
 	schemaOption: SchemaOption;
 	tableName: string;
+	mode: CreateSchemaModeUnion;
+	separateOption: separateOption;
 };
 
 export const composeSchemaName = ({
 	schemaOption,
 	tableName,
+	mode,
+	separateOption,
 }: composeSchemaNameParams): string => {
 	const { prefix, suffix, format, replacements } = schemaOption;
+	if (mode === "select") {
+		return `${prefix}${convertTableName({
+			tableName,
+			format,
+			replacements,
+		})}${suffix}`;
+	}
+
+	/* insert */
+	const { insertPrefix, insertSuffix } = separateOption;
+	const ip =
+		insertPrefix === "" || insertPrefix === undefined ? "" : `${insertPrefix}_`;
 	return `${prefix}${convertTableName({
-		tableName,
+		tableName: `${ip}${tableName}${insertSuffix ?? ""}`,
 		format,
 		replacements,
 	})}${suffix}`;
@@ -356,15 +421,28 @@ type ComposeTypeStringParams = {
 	typeOption: TypeOption;
 	tableName: string;
 	schemaName: string;
+	mode: CreateSchemaModeUnion;
+	separateOption: separateOption;
 };
 export const composeTypeString = ({
 	typeOption,
 	tableName,
 	schemaName,
+	mode,
+	separateOption,
 }: ComposeTypeStringParams): string => {
 	const { prefix, suffix, declared, format, replacements } = typeOption;
-
 	if (declared === "none") return "";
+
+	if (mode === "insert") {
+		const { insertPrefix, insertSuffix } = separateOption;
+		const str = `export ${declared} ${prefix}${convertTableName({
+			tableName: `${insertPrefix ?? ""}_${tableName}${insertSuffix ?? ""}`,
+			format,
+			replacements,
+		})}${suffix} = z.infer<typeof ${schemaName}>;`;
+		return `${str}`;
+	}
 
 	/* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
 	const str = `export ${declared} ${prefix}${convertTableName({
