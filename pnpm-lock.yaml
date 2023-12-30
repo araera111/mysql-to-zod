@@ -62,6 +62,9 @@ dependencies:
   ts-pattern:
     specifier: ^5.0.4
     version: 5.0.5
+  zod:
+    specifier: ^3.22.4
+    version: 3.22.4
 
 devDependencies:
   '@types/fs-extra':
@@ -88,9 +91,6 @@ devDependencies:
   vitest:
     specifier: ^0.33.0
     version: 0.33.0
-  zod:
-    specifier: ^3.22.4
-    version: 3.22.4
   zx:
     specifier: ^7.2.3
     version: 7.2.3
@@ -2862,7 +2862,6 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: true
 
   /zx@7.2.3:
     resolution: {integrity: sha512-QODu38nLlYXg/B/Gw7ZKiZrvPkEsjPN3LQ5JFXM7h0JvwhEdPNNl+4Ao1y4+o3CLNiDUNcwzQYZ4/Ko7kKzCMA==}
