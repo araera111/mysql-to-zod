@@ -44,7 +44,6 @@ export const buildSchemaText = async ({
 			headTable,
 			option.dbConnection,
 		);
-		console.log(tableDefinition);
 		const schemaTextEither = createSchemaFile(
 			tableDefinition,
 			option,
