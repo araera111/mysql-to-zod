@@ -1,6 +1,6 @@
 {
   "name": "mysql-to-zod",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Convert MySQL schemas into Zod schemas",
   "source": "src/main.ts",
   "main": "dist/main.js",
@@ -59,7 +59,8 @@
     "ts-case-convert": "^2.0.2",
     "ts-morph": "^20.0.0",
     "ts-node": "^10.9.1",
-    "ts-pattern": "^5.0.4"
+    "ts-pattern": "^5.0.4",
+    "zod": "^3.22.4"
   },
   "volta": {
     "node": "18.17.0",
