@@ -1,9 +1,8 @@
-import { G, R } from "@mobily/ts-belt";
+import { A, D, G, O, R, pipe } from "@mobily/ts-belt";
 import { Result } from "@mobily/ts-belt/dist/types/Result";
 import { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
-import { Either, isLeft, isRight, left, right } from "fp-ts/Either";
-import { assoc, isNil } from "ramda";
+import { DbConnectionOption } from "../options/dbConnection";
 import { MysqlToZodOption, basicMySQLToZodOption } from "../options/options";
 export const configLoad = async (): Promise<
 	Result<MysqlToZodOption, string>
@@ -29,32 +28,43 @@ export const configLoad = async (): Promise<
   configがrightで、argv[0]がないときは、configのdbConnectionを使う
   configがleftで、argv[0]があるときは、argv[0]を使う
 */
+
+type GetDBConnectionProps = {
+	dbConnection: O.Option<string>;
+	config: R.Result<MysqlToZodOption, string>;
+};
+const getDBConnection = ({
+	dbConnection,
+	config,
+}: GetDBConnectionProps): Result<string | DbConnectionOption, string> => {
+	if (O.isSome(dbConnection)) return R.Ok(dbConnection);
+	return pipe(
+		config,
+		R.toOption,
+		O.flatMap((x) => O.getWithDefault(x.dbConnection, O.None)),
+		O.toResult("dbConnection is required"),
+	);
+};
+
 export const init = async (
 	program: Command,
 ): Promise<
-	Either<string, { option: MysqlToZodOption; parsedProgram: Command }>
+	Result<{ option: MysqlToZodOption; parsedProgram: Command }, string>
 > => {
 	const config = await configLoad();
-	const dbConnection = program.args[0];
-
-	if (isLeft(config) && isNil(dbConnection))
-		return left("init error. dbConnection is required");
-
-	if (
-		isRight(config) &&
-		isNil(config.right.dbConnection) &&
-		isNil(dbConnection)
-	)
-		return left("init error. dbConnection is required");
-
-	const validConfig = isRight(config) ? config.right : basicMySQLToZodOption;
-
-	return right({
-		option: assoc(
-			"dbConnection",
-			dbConnection ?? validConfig.dbConnection,
-			validConfig,
-		),
-		parsedProgram: program,
+	const argsDBConnection = A.get(program.args, 0);
+	const dbConnection = getDBConnection({
+		dbConnection: argsDBConnection,
+		config,
 	});
+	return R.flatMap(dbConnection, (x) =>
+		R.Ok({
+			option: pipe(
+				config,
+				R.getWithDefault(basicMySQLToZodOption),
+				D.set("dbConnection", x),
+			),
+			parsedProgram: program,
+		}),
+	);
 };

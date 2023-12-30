@@ -4,6 +4,7 @@ import {
 	defaultTableCommentFormat,
 	optionCommentsSchema,
 } from "./comments";
+import { dbConnectionOptionSchema } from "./dbConnection";
 import { outputSchema } from "./output";
 import { schemaOptionSchema } from "./schema";
 import { separateOptionSchema } from "./separate";
@@ -12,7 +13,7 @@ import { typeOptionSchema } from "./type";
 
 export const mysqlToZodOptionSchema = z.object({
 	output: outputSchema.optional(),
-	dbConnection: z.any().optional(),
+	dbConnection: dbConnectionOptionSchema.optional(),
 	tableNames: z.string().array().optional().default([]),
 	comments: optionCommentsSchema.optional(),
 	type: typeOptionSchema.optional(),
