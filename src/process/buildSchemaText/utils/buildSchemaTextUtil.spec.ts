@@ -10,6 +10,7 @@ import {
 	SchemaZodImplementation,
 	SchemaZodReferences,
 } from "../../../options/schema";
+import { separateOption } from "../../../options/separate";
 import { Column } from "../types/buildSchemaTextType";
 import {
 	combineSchemaNameAndSchemaString,
@@ -47,7 +48,7 @@ describe("convertComment", () => {
 	it("case3 comment out", () => {
 		const tableName = "airport";
 		const comment = "International Commercial Airports";
-		const format = `/* !name : !text */`;
+		const format = "/* !name : !text */";
 		const isTable = true;
 		const result = "/* airport : International Commercial Airports */";
 		expect(convertComment({ name: tableName, comment, format, isTable })).toBe(
@@ -313,6 +314,7 @@ describe("composeColumnStringList", () => {
 			column: "title",
 			nullable: true,
 			comment: "BlogTitle",
+			autoIncrement: false,
 		};
 		const option: MysqlToZodOption = {
 			...basicMySQLToZodOption,
@@ -321,7 +323,9 @@ describe("composeColumnStringList", () => {
 			"// title : BlogTitle",
 			"title: z.string().nullable(),\n",
 		];
-		expect(composeColumnStringList({ column, option })).toStrictEqual(result);
+		expect(
+			composeColumnStringList({ column, option, mode: "select" }),
+		).toStrictEqual(result);
 	});
 
 	it("case2", () => {
@@ -330,6 +334,7 @@ describe("composeColumnStringList", () => {
 			column: "title",
 			nullable: true,
 			comment: "BlogTitle2",
+			autoIncrement: false,
 		};
 		const option: MysqlToZodOption = {
 			...basicMySQLToZodOption,
@@ -338,7 +343,9 @@ describe("composeColumnStringList", () => {
 			"// title : BlogTitle2",
 			"title: z.string().nullable(),\n",
 		];
-		expect(composeColumnStringList({ column, option })).toStrictEqual(result);
+		expect(
+			composeColumnStringList({ column, option, mode: "select" }),
+		).toStrictEqual(result);
 	});
 });
 
@@ -399,6 +406,11 @@ describe("replaceTableName", () => {
 });
 
 describe("composeSchemaNameString", () => {
+	const separateOption: separateOption = {
+		isSeparate: false,
+		insertPrefix: undefined,
+		insertSuffix: undefined,
+	};
 	const schemaOption: SchemaOption = {
 		replacements: [],
 		format: "camel",
@@ -407,12 +419,18 @@ describe("composeSchemaNameString", () => {
 		nullType: "nullable",
 		inline: true,
 	};
+
 	it("case1 basicOption", () => {
 		const option = { ...schemaOption };
 		const tableName = "todo";
 		const result = "todoSchema";
 		expect(
-			composeSchemaName({ schemaOption: option, tableName }),
+			composeSchemaName({
+				schemaOption: option,
+				tableName,
+				separateOption,
+				mode: "select",
+			}),
 		).toStrictEqual(result);
 	});
 
@@ -421,7 +439,12 @@ describe("composeSchemaNameString", () => {
 		const tableName = "todo";
 		const result = "todo";
 		expect(
-			composeSchemaName({ schemaOption: option, tableName }),
+			composeSchemaName({
+				schemaOption: option,
+				tableName,
+				separateOption,
+				mode: "select",
+			}),
 		).toStrictEqual(result);
 	});
 });
@@ -430,7 +453,8 @@ describe("combineSchemaNameAndSchemaString", () => {
 	it("case1", () => {
 		const schemaName = "todoSchema";
 		const schemaString = "id: z.number().nullable(),";
-		const result = `export const todoSchema = z.object({id: z.number().nullable(),});`;
+		const result =
+			"export const todoSchema = z.object({id: z.number().nullable(),});";
 		expect(combineSchemaNameAndSchemaString({ schemaName, schemaString })).toBe(
 			result,
 		);

@@ -37,6 +37,7 @@ export default defineConfig({
             { label: "Type", link: "/options/type" },
             { label: "Schema", link: "/options/schema" },
             { label: "Sync", link: "/options/sync" },
+            { label: "Separate", link: "/options/separate"}
           ],
         },
       ],

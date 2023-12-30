@@ -7,10 +7,12 @@ import {
 } from "../../../features/sync/utils/syncUtil";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
+import { separateOptionSchema } from "../../../options/separate";
 import { typeOptionSchema } from "../../../options/type";
 import { formatByPrettier } from "../../formatByPrettier";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
+	CreateSchemaModeUnion,
 	combineSchemaNameAndSchemaString,
 	composeColumnStringList,
 	composeSchemaName,
@@ -63,23 +65,38 @@ export const mergeSchemaTextWithOldInformation = ({
 	return formattedSchemaText.trim();
 };
 
-export const createSchema = (
-	tableName: string,
-	columns: Column[],
-	options: MysqlToZodOption,
-	tableComment: string | undefined,
+type CreateSchemaProps = {
+	tableName: string;
+	columns: Column[];
+	options: MysqlToZodOption;
+	tableComment: string | undefined;
 	/* mergeしないときはundefinedにする */
-	schemaInformationList: SchemaInformation[] | undefined,
-): SchemaResult => {
+	schemaInformationList: SchemaInformation[] | undefined;
+	mode: CreateSchemaModeUnion;
+};
+export const createSchema = ({
+	tableName,
+	columns,
+	options,
+	tableComment,
+	schemaInformationList,
+	mode,
+}: CreateSchemaProps): SchemaResult => {
 	const schemaString = columns
 		.map((x) =>
-			composeColumnStringList({ column: x, option: options }).join("\n"),
+			composeColumnStringList({ column: x, option: options, mode }).join("\n"),
 		)
 		.join("");
 
 	const schemaOption = schemaOptionSchema.parse(options.schema);
+	const separateOption = separateOptionSchema.parse(options.separate);
 
-	const schemaName = composeSchemaName({ schemaOption, tableName });
+	const schemaName = composeSchemaName({
+		schemaOption,
+		tableName,
+		mode,
+		separateOption,
+	});
 
 	const schemaText = combineSchemaNameAndSchemaString({
 		schemaName,
@@ -87,7 +104,6 @@ export const createSchema = (
 	});
 
 	/* schemaTextを古いschemaInformationとmergeする */
-
 	const thisSchemaInformation = schemaInformationList?.find(
 		(x) => x.tableName === schemaName,
 	);
@@ -106,14 +122,35 @@ export const createSchema = (
 		typeOption,
 		tableName,
 		schemaName,
+		mode,
+		separateOption,
 	});
 
+	const schema = composeTableSchemaTextList({
+		schemaText: merged,
+		typeString,
+		tableComment,
+	});
+
+	const separateSchema = separateOptionSchema.parse(options.separate);
+
+	/* isSeparateのとき、関数をinsert modeで再実行する */
+	const separeteInsertSchema =
+		separateSchema.isSeparate && mode === "select"
+			? `\n${
+					createSchema({
+						tableName,
+						columns,
+						options,
+						tableComment,
+						schemaInformationList,
+						mode: "insert",
+					}).schema
+			  }`
+			: "";
+
 	return {
-		schema: composeTableSchemaTextList({
-			schemaText: merged,
-			typeString,
-			tableComment,
-		}).join("\n"),
+		schema: schema.join("\n") + separeteInsertSchema,
 		columns,
 	};
 };
