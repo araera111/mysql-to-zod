@@ -29,6 +29,7 @@
   "author": "yuumillar",
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "^1.4.1",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.8.9",
     "@types/ramda": "^0.29.3",
@@ -38,10 +39,10 @@
     "typescript": "^5.2.2",
     "vitest": "^0.33.0",
     "zod": "^3.22.4",
-    "zx": "^7.2.3",
-    "@biomejs/biome": "^1.4.1"
+    "zx": "^7.2.3"
   },
   "dependencies": {
+    "@mobily/ts-belt": "4.0.0-rc.5",
     "@prettier/sync": "^0.3.0",
     "camelcase": "^7.0.1",
     "commander": "^11.0.0",

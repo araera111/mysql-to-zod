@@ -15,6 +15,7 @@ export const getTables = async (
 
 	if (!Array.isArray(tables)) return [];
 
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const result = tables.flatMap((x: any) => Object.values(x));
 	await connection.destroy();
 	return z.string().array().parse(result);

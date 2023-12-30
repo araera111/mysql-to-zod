@@ -1,6 +1,5 @@
 import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
-
 import { isNil, uniq } from "ramda";
 import {
 	getOutputFilePath,
