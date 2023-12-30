@@ -5,8 +5,6 @@ export const separateOptionSchema = z
 		isSeparate: z.boolean().optional().default(false),
 		insertPrefix: z.string().optional().default("insert"),
 		insertSuffix: z.string().optional().default(""),
-		selectPrefix: z.string().optional().default(""),
-		selectSuffix: z.string().optional().default(""),
 	})
 	.partial();
 

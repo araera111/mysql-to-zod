@@ -64,7 +64,7 @@ export const createSchemaFile = (
 		options,
 		tableComment,
 		schemaInformationList,
+		mode: "select",
 	});
-	console.log({ schema });
 	return right({ schema, columns });
 };

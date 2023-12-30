@@ -10,7 +10,7 @@ describe("createSchema", () => {
 				column: "id",
 				type: "INT",
 				nullable: false,
-				comment: "必ず一意になります",
+				comment: undefined,
 				autoIncrement: true,
 			},
 		];
@@ -18,6 +18,7 @@ describe("createSchema", () => {
 			tableNames: [],
 			separate: {
 				isSeparate: false,
+				insertPrefix: "insert",
 			},
 		};
 
@@ -37,6 +38,7 @@ export type Todo = z.infer<typeof todoSchema>;`;
 				columns,
 				options,
 				schemaInformationList: undefined,
+				mode: "select",
 			}),
 		).toStrictEqual(result);
 	});
@@ -48,7 +50,7 @@ export type Todo = z.infer<typeof todoSchema>;`;
 				column: "id",
 				type: "INT",
 				nullable: false,
-				comment: "必ず一意になります",
+				comment: undefined,
 				autoIncrement: true,
 			},
 		];
@@ -56,13 +58,14 @@ export type Todo = z.infer<typeof todoSchema>;`;
 			tableNames: [],
 			separate: {
 				isSeparate: true,
+				insertPrefix: "insert",
 			},
 		};
 
 		const resultSchema = `export const todoSchema = z.object({id: z.number(),
 });
 export type Todo = z.infer<typeof todoSchema>;
-export const insertTodoSchema = z.object({id: z.number().optional(),
+export const insertTodoSchema = z.object({id: z.number().nullable(),
 });
 export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 
@@ -78,6 +81,51 @@ export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 				columns,
 				options,
 				schemaInformationList: undefined,
+				mode: "select",
+			}),
+		).toStrictEqual(result);
+	});
+
+	it("case3 separate = true, suffix", () => {
+		const tableName = "todo";
+		const columns: Column[] = [
+			{
+				column: "id",
+				type: "INT",
+				nullable: false,
+				comment: undefined,
+				autoIncrement: true,
+			},
+		];
+		const options: MysqlToZodOption = {
+			tableNames: [],
+			separate: {
+				isSeparate: true,
+				insertPrefix: "",
+				insertSuffix: "Insert",
+			},
+		};
+
+		const resultSchema = `export const todoSchema = z.object({id: z.number(),
+});
+export type Todo = z.infer<typeof todoSchema>;
+export const todoInsertSchema = z.object({id: z.number().nullable(),
+});
+export type TodoInsert = z.infer<typeof todoInsertSchema>;`;
+
+		const result = {
+			schema: resultSchema,
+			columns,
+		};
+
+		expect(
+			createSchema({
+				tableName,
+				tableComment: undefined,
+				columns,
+				options,
+				schemaInformationList: undefined,
+				mode: "select",
 			}),
 		).toStrictEqual(result);
 	});
