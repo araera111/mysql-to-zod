@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@biomejs/biome':
-    specifier: ^1.4.1
-    version: 1.4.1
   '@prettier/sync':
     specifier: ^0.3.0
     version: 0.3.0(prettier@3.0.3)
@@ -67,6 +64,9 @@ dependencies:
     version: 3.22.4
 
 devDependencies:
+  '@biomejs/biome':
+    specifier: ^1.4.1
+    version: 1.4.1
   '@types/fs-extra':
     specifier: ^11.0.1
     version: 11.0.3
@@ -135,7 +135,7 @@ packages:
       '@biomejs/cli-linux-x64': 1.4.1
       '@biomejs/cli-win32-arm64': 1.4.1
       '@biomejs/cli-win32-x64': 1.4.1
-    dev: false
+    dev: true
 
   /@biomejs/cli-darwin-arm64@1.4.1:
     resolution: {integrity: sha512-PZWy2Idndqux38p6AXSDQM2ldRAWi32bvb7bMbTN0ALzpWYMYnxd71ornatumSSJYoNhKmxzDLq+jct7nZJ79w==}
@@ -143,7 +143,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@biomejs/cli-darwin-x64@1.4.1:
@@ -152,7 +152,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@biomejs/cli-linux-arm64@1.4.1:
@@ -161,7 +161,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@biomejs/cli-linux-x64@1.4.1:
@@ -170,7 +170,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@biomejs/cli-win32-arm64@1.4.1:
@@ -179,7 +179,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@biomejs/cli-win32-x64@1.4.1:
@@ -188,7 +188,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
+    dev: true
     optional: true
 
   /@cspotcode/source-map-support@0.8.1:
