@@ -27,21 +27,16 @@ const options = {
 		suffix: "Schema",
 		replacements: [],
 		nullType: "nullish",
-		inline: true,
+		inline: false,
 		zod: {
 			implementation: [],
 			references: [],
 		},
 	},
-	sync: {
-		active: false,
-	},
 	separate: {
 		isSeparate: true,
 		insertPrefix: "insert",
 		insertSuffix: "",
-		selectPrefix: "",
-		selectSuffix: "",
 	},
 };
 module.exports = options;
