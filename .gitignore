@@ -148,3 +148,4 @@ mysqlToZod
 .vscode
 npm
 updateBiome.mjs
+dist
