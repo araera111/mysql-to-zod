@@ -1,24 +1,21 @@
+import { G, R } from "@mobily/ts-belt";
+import { Result } from "@mobily/ts-belt/dist/types/Result";
 import { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
 import { Either, isLeft, isRight, left, right } from "fp-ts/Either";
 import { assoc, isNil } from "ramda";
-import {
-	MysqlToZodOption,
-	basicMySQLToZodOption,
-	mysqlToZodOptionSchema,
-} from "../options/options";
-
+import { MysqlToZodOption, basicMySQLToZodOption } from "../options/options";
 export const configLoad = async (): Promise<
-	Either<string, MysqlToZodOption>
+	Result<MysqlToZodOption, string>
 > => {
 	const explorer = cosmiconfig("mysqlToZod", {
 		searchPlaces: ["mysqlToZod.config.js"],
 	});
 
 	const cfg = await explorer.search();
-	return isNil(cfg)
-		? left("config file is not Found")
-		: right(mysqlToZodOptionSchema.parse(cfg.config));
+	return G.isNotNullable(cfg)
+		? R.Ok(cfg.config)
+		: R.Error("config file is not Found");
 };
 
 /*
