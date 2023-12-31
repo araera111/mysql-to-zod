@@ -12,10 +12,12 @@ export const getTables = async (
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const connection = await mysql.createConnection(dbConnection as any);
 	const [tables] = await connection.query("show tables");
+	await connection.destroy();
+
 	if (!Array.isArray(tables)) return [];
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const result = tables.flatMap((x: any) => Object.values(x));
-	await connection.destroy();
+
 	return z.string().array().parse(result);
 };
