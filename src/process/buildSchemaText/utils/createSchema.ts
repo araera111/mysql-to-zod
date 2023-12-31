@@ -68,8 +68,7 @@ type CreateSchemaProps = {
 	columns: Column[];
 	options: MysqlToZodOption;
 	tableComment: string | undefined;
-	/* mergeしないときはundefinedにする */
-	schemaInformationList: readonly SchemaInformation[] | undefined;
+	schemaInformationList: readonly SchemaInformation[];
 	mode: CreateSchemaModeUnion;
 };
 export const createSchema = ({
@@ -102,7 +101,7 @@ export const createSchema = ({
 	});
 
 	/* schemaTextを古いschemaInformationとmergeする */
-	const thisSchemaInformation = schemaInformationList?.find(
+	const thisSchemaInformation = schemaInformationList.find(
 		(x) => x.tableName === schemaName,
 	);
 

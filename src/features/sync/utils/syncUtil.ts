@@ -186,7 +186,9 @@ export const parseZodSchemaFile = async ({
 					R.mapError((x) => `parseZodSchemaFileError: ${x}`),
 				),
 			)
-			.with(false, () => R.Error("sync is not active"))
+			.with(false, () =>
+				R.Ok({ schemaInformationList: [], tableNames, option }),
+			)
 			.exhaustive(),
 	);
 };

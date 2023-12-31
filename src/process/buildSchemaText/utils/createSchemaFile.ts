@@ -31,7 +31,7 @@ export const isCreate = (ast: AST): ast is Create =>
 export const createSchemaFile = (
 	tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
 	options: MysqlToZodOption,
-	schemaInformationList: readonly SchemaInformation[] | undefined,
+	schemaInformationList: readonly SchemaInformation[],
 ): R.Result<SchemaResult, string> => {
 	const parser = new Parser();
 	const [tableName, tableDefinitionString] = tableDefinition;
