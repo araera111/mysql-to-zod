@@ -26,8 +26,11 @@ const main = async (command: Command) => {
 		AR.match((x) => x, throwError),
 	);
 	const { tableNames, sync } = option;
-	const dbConnection = dbConnectionOptionSchema.parse(option.dbConnection);
-	const tables = await getTables(tableNames, dbConnection);
+
+	const tables = await getTables(
+		tableNames,
+		dbConnectionOptionSchema.parse(option.dbConnection),
+	);
 
 	const schemaInformationList = sync?.active
 		? parseZodSchemaFile({

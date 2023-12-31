@@ -165,6 +165,7 @@ export const parseZodSchemaFile = ({
 	const result = pipe(
 		filePath,
 		(x) => readFileSync(x, { encoding: "utf-8" }),
+		/* TODO:to result type */
 		splitSchemaText,
 		A.map(parseZodSchema),
 	);
