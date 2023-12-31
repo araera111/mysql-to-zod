@@ -1,9 +1,6 @@
 import { A, AR, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
-import {
-	getOutputFilePath,
-	parseZodSchemaFile,
-} from "./features/sync/utils/syncUtil";
+import { parseZodSchemaFile } from "./features/sync/utils/syncUtil";
 import {
 	buildSchemaText,
 	composeGlobalSchema,
@@ -14,24 +11,29 @@ import {
 import { throwError } from "./throwError";
 
 const program = new Command();
+
 const main = (command: Command) =>
 	pipe(
 		command,
 		init,
+		/* get Tables */
 		AR.flatMap((option) => getTables(option)),
-		AR.flatMap(({ tableNames, option }) => {
-			const schemaInformationList = option.sync?.active
-				? parseZodSchemaFile({
-						filePath: getOutputFilePath(option),
-				  })
-				: undefined;
 
-			return buildSchemaText({
+		/* fetchSchemaInformationList */
+		AR.flatMap(({ option, tableNames }) =>
+			parseZodSchemaFile({ option, tableNames }),
+		),
+
+		/* buildSchemaText */
+		AR.flatMap(({ tableNames, option, schemaInformationList }) =>
+			buildSchemaText({
 				tables: tableNames,
 				option,
 				schemaInformationList,
-			});
-		}),
+			}),
+		),
+
+		/* outputFile */
 		AR.match(async ({ columns, option, text }) => {
 			const globalSchema = composeGlobalSchema({
 				typeList: pipe(

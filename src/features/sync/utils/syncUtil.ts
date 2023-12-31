@@ -1,6 +1,7 @@
-import { A, G, O, S, pipe } from "@mobily/ts-belt";
+import { A, G, O, R, S, pipe } from "@mobily/ts-belt";
 import { readFileSync } from "fs-extra";
 import { join } from "path";
+import { match } from "ts-pattern";
 import { MysqlToZodOption } from "../../../options";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation, SchemaProperty } from "../types/syncType";
@@ -153,18 +154,39 @@ export const parseZodSchema = (schema: string) => ({
 });
 
 type ParseZodSchemaFileProps = {
-	filePath: string;
+	option: MysqlToZodOption;
+	tableNames: readonly string[];
 };
-
-export const parseZodSchemaFile = ({
-	filePath,
-}: ParseZodSchemaFileProps): readonly SchemaInformation[] => {
-	const result = pipe(
-		filePath,
-		(x) => readFileSync(x, { encoding: "utf-8" }),
-		/* TODO:to result type */
-		splitSchemaText,
-		A.map(parseZodSchema),
+const readText = (path: string) => () => readFileSync(path, "utf-8");
+export const parseZodSchemaFile = async ({
+	option,
+	tableNames,
+}: ParseZodSchemaFileProps): Promise<
+	R.Result<
+		{
+			schemaInformationList: readonly SchemaInformation[];
+			tableNames: readonly string[];
+			option: MysqlToZodOption;
+		},
+		string
+	>
+> => {
+	return pipe(option?.sync?.active ?? false, (x) =>
+		match(x)
+			.with(true, () =>
+				pipe(
+					getOutputFilePath(option),
+					(x) => R.fromExecution(readText(x)),
+					R.map((x) => splitSchemaText(x)),
+					R.map((x) => ({
+						schemaInformationList: A.map(parseZodSchema)(x),
+						tableNames,
+						option,
+					})),
+					R.mapError((x) => `parseZodSchemaFileError: ${x}`),
+				),
+			)
+			.with(false, () => R.Error("sync is not active"))
+			.exhaustive(),
 	);
-	return result;
 };
