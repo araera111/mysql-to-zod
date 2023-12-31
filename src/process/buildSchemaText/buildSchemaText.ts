@@ -8,7 +8,7 @@ import { createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";
 
 type BuildSchemaTextParams = {
-	tables: string[];
+	tables: readonly string[];
 	option: MysqlToZodOption;
 	schemaInformationList: readonly SchemaInformation[] | undefined;
 };

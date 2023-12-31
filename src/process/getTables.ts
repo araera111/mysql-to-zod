@@ -1,23 +1,61 @@
-import { A, G } from "@mobily/ts-belt";
+import { A, AR, D, G, R, pipe } from "@mobily/ts-belt";
 import mysql from "mysql2/promise";
 import { z } from "zod";
-import { DbConnectionOption } from "../options/dbConnection";
-// tableの一覧をmysqlからknexで取得する関数
-export const getTables = async (
-	tableNames: string[],
+import { MysqlToZodOption } from "../options";
+import {
+	DbConnectionOption,
+	dbConnectionOptionSchema,
+} from "../options/dbConnection";
+
+const createConnection = async (
 	dbConnection: DbConnectionOption,
-): Promise<string[]> => {
-	// tableNamesが与えられている場合は、そのまま返す
-	if (G.isNotNullable(tableNames) && !A.isEmpty(tableNames)) return tableNames;
+): Promise<mysql.Connection> => {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const connection = await mysql.createConnection(dbConnection as any);
-	const [tables] = await connection.query("show tables");
-	await connection.destroy();
+	return connection;
+};
 
-	if (!Array.isArray(tables)) return [];
+const stringStringObjectSchema = z.record(z.string()).array(); // {[key: string]: string}[]
+// tableの一覧をmysqlからknexで取得する関数
+export const getTables = async (
+	option: MysqlToZodOption,
+): Promise<
+	R.Result<
+		{
+			tableNames: readonly string[];
+			option: MysqlToZodOption;
+		},
+		string
+	>
+> => {
+	const tableNames = option.tableNames;
+	// tableNamesが与えられている場合は、そのまま返す
+	if (G.isNotNullable(tableNames) && A.isNotEmpty(tableNames)) {
+		return R.Ok({ tableNames, option });
+	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const result = tables.flatMap((x: any) => Object.values(x));
+	const dbConnection = dbConnectionOptionSchema.parse(option.dbConnection);
 
-	return z.string().array().parse(result);
+	const tableNamesResult = await pipe(
+		dbConnection,
+		createConnection,
+		AR.make,
+		AR.map(async (x) => {
+			const [tables] = await x.query("show tables");
+			await x.destroy();
+			return tables;
+		}),
+		AR.flatMap((x) => AR.make(x)),
+		AR.map((x) => ({
+			tableNames: pipe(
+				x,
+				stringStringObjectSchema.parse,
+				A.flatMap((x) => D.values(x)),
+			),
+			option,
+		})),
+		AR.mapError((x) => `getTablesError: ${x}`),
+	);
+
+	return tableNamesResult;
 };

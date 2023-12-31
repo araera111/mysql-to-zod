@@ -4,7 +4,6 @@ import {
 	getOutputFilePath,
 	parseZodSchemaFile,
 } from "./features/sync/utils/syncUtil";
-import { dbConnectionOptionSchema } from "./options/dbConnection";
 import {
 	buildSchemaText,
 	composeGlobalSchema,
@@ -19,21 +18,16 @@ const main = (command: Command) =>
 	pipe(
 		command,
 		init,
-		AR.flatMap(async (option) => {
-			const { tableNames, sync, dbConnection } = option;
-			const tables = await getTables(
-				tableNames,
-				dbConnectionOptionSchema.parse(dbConnection),
-			);
-
-			const schemaInformationList = sync?.active
+		AR.flatMap((option) => getTables(option)),
+		AR.flatMap(({ tableNames, option }) => {
+			const schemaInformationList = option.sync?.active
 				? parseZodSchemaFile({
 						filePath: getOutputFilePath(option),
 				  })
 				: undefined;
 
 			return buildSchemaText({
-				tables,
+				tables: tableNames,
 				option,
 				schemaInformationList,
 			});
