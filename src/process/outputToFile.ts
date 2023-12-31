@@ -1,8 +1,8 @@
-import { join } from "path";
+import { G } from "@mobily/ts-belt";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/lib/function";
 import { mkdirpSync, writeFileSync } from "fs-extra";
-import { isNil } from "ramda";
+import { join } from "path";
 import { OptionOutput } from "../options/output";
 import { formatByPrettier } from "./formatByPrettier";
 
@@ -30,18 +30,14 @@ export const outputToFile = async ({
 	mkdirpSync(outDir);
 	const savePath = join(process.cwd(), outDir, fileName);
 	writeFileSync(savePath, formatted);
-	// eslint-disable-next-line no-console
-	console.log("schema file created!");
-	// eslint-disable-next-line no-console
-	console.log("path: ", savePath);
+	console.info("schema file created!");
+	console.info("path: ", savePath);
 
 	/* globalSchema */
-	if (isNil(globalSchema)) return;
+	if (G.isNullable(globalSchema)) return;
 	const globalSchemaFormatted = formatByPrettier(globalSchema);
 	const globalSchemaSavePath = join(process.cwd(), outDir, "globalSchema.ts");
 	writeFileSync(globalSchemaSavePath, globalSchemaFormatted);
-	// eslint-disable-next-line no-console
-	console.log("\nglobalSchema file created!");
-	// eslint-disable-next-line no-console
-	console.log("path: ", globalSchemaSavePath);
+	console.info("\nglobalSchema file created!");
+	console.info("path: ", globalSchemaSavePath);
 };

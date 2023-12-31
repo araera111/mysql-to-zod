@@ -1,16 +1,16 @@
-import { join } from "path";
+import { G, S } from "@mobily/ts-belt";
 import * as A from "fp-ts/Array";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import { readFileSync } from "fs-extra";
-import { includes, isNil } from "ramda";
+import { join } from "path";
 import { MysqlToZodOption } from "../../../options";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation, SchemaProperty } from "../types/syncType";
 
 export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
 	pipe(text.split(":"), ([name, schema]) => {
-		if (isNil(name) || isNil(schema)) return O.none;
+		if (G.isNullable(name) || G.isNullable(schema)) return O.none;
 		return O.some({
 			name: name.trim(),
 			schema: schema.trim().replace(",", ""),
@@ -21,7 +21,7 @@ export const getTableName = (text: string): O.Option<string> =>
 	pipe(
 		text.split("="),
 		A.lookup(0),
-		O.filter(includes("export const")),
+		O.filter(S.includes("export const")),
 		O.map((x) => x.split(" ")[2]),
 		O.chain(O.fromNullable),
 	);
@@ -35,7 +35,7 @@ export const getSchemaInformation = (
 	if (!text.includes("\n")) {
 		/* =で区切る */
 		const r = pipe(text.split("="), ([name, schema]) => {
-			if (isNil(name) || isNil(schema)) return O.none;
+			if (G.isNullable(name) || G.isNullable(schema)) return O.none;
 			const names = name.split(" ");
 			const nextTN = A.lookup(2, names);
 			const property = getSchemaProperty(
@@ -82,6 +82,7 @@ export const splitSchemaText = (str: string): string[] => {
 	let isReading = false;
 	let nowLine: string[] = [];
 	const line = str.split("\n");
+	// biome-ignore lint/complexity/noForEach: <explanation>
 	line.forEach((x) => {
 		if (x.includes("z.object({")) {
 			isReading = true;
@@ -106,6 +107,7 @@ export const splitSchemaText = (str: string): string[] => {
 const getSchemaTitle = (schema: string) => {
 	const split = schema.split(" ");
 	let title = "";
+	// biome-ignore lint/complexity/noForEach: <explanation>
 	split.forEach((x, i) => {
 		if (x.includes("const")) {
 			const nextWord = split[i + 1] ?? "";
@@ -122,7 +124,7 @@ const getSchemaProperties = (schema: string): SchemaProperty[] => {
 		.map((x) => x.split(":"))
 		.filter((x) => x.length === 2)
 		.flatMap(([left, right]) => {
-			if (isNil(left) || isNil(right)) return [];
+			if (G.isNullable(left) || G.isNullable(right)) return [];
 			/*
         when 1line
         ex: export const todoSchema = z.object({DB_ID: z.number()})
@@ -138,7 +140,7 @@ const getSchemaProperties = (schema: string): SchemaProperty[] => {
         split by "})" and left side (z.number()) is valid
       */
 			const validRight = right.includes("})") ? right?.split("})")[0] : right;
-			if (isNil(validLeft) || isNil(validRight)) return [];
+			if (G.isNullable(validLeft) || G.isNullable(validRight)) return [];
 
 			return {
 				name: validLeft.trim(),

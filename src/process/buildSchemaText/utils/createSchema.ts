@@ -1,5 +1,5 @@
+import { G } from "@mobily/ts-belt";
 import { pipe } from "fp-ts/function";
-import { isNil } from "ramda";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
 import {
 	parseZodSchema,
@@ -19,7 +19,6 @@ import {
 	composeTableSchemaTextList,
 	composeTypeString,
 } from "./buildSchemaTextUtil";
-
 type UpdateSchemaTextProps = {
 	schemaName: string;
 	schemaText: string;
@@ -50,7 +49,7 @@ export const mergeSchemaTextWithOldInformation = ({
 		const replaceElement = schemaInformation.properties.find(
 			(y) => y.name === property.name,
 		);
-		if (isNil(replaceElement)) return property;
+		if (G.isNullable(replaceElement)) return property;
 		return replaceElement;
 	});
 
@@ -108,7 +107,7 @@ export const createSchema = ({
 		(x) => x.tableName === schemaName,
 	);
 
-	const merged = isNil(thisSchemaInformation)
+	const merged = G.isNullable(thisSchemaInformation)
 		? schemaText
 		: mergeSchemaTextWithOldInformation({
 				schemaName,
