@@ -12,10 +12,7 @@ import {
 	init,
 	outputToFile,
 } from "./process";
-
-const throwError = (message: string) => {
-	throw new Error(message);
-};
+import { throwError } from "./throwError";
 
 const program = new Command();
 const main = async (command: Command) => {
@@ -39,29 +36,27 @@ const main = async (command: Command) => {
 
 	const schemaRawText = await buildSchemaText({
 		tables,
-		option: option,
-		schemaInformationList,
-	});
-
-	const globalSchema = composeGlobalSchema({
-		typeList: pipe(
-			schemaRawText,
-			R.map((x) => x.columns),
-			R.map(A.map((x) => x.type)),
-			R.map(A.uniq),
-			R.getWithDefault([] as readonly string[]),
-		),
 		option,
+		schemaInformationList,
 	});
 
 	R.match(
 		schemaRawText,
 		async (okx) => {
+			const globalSchema = composeGlobalSchema({
+				typeList: pipe(
+					okx.columns,
+					A.map((x) => x.type),
+					A.uniq,
+				),
+				option,
+			});
 			await outputToFile({
 				schemaRawText: okx.text,
 				output: option.output,
 				globalSchema,
 			});
+			return 0; // success
 		},
 		throwError,
 	);
