@@ -8,6 +8,7 @@ export const getTableDefinition = async (
 	const connection = await mysql.createConnection(dbConnection);
 	const [table] = await connection.query("show create table ??", tableName);
 	if (!Array.isArray(table)) return [];
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const result = table.flatMap((x: any) => Object.values(x));
 	await connection.destroy();
 	return z.string().array().parse(result);

@@ -1,5 +1,4 @@
-import { A, O, pipe } from "@mobily/ts-belt";
-import { Either, isLeft, right } from "fp-ts/lib/Either";
+import { A, O, R, pipe } from "@mobily/ts-belt";
 import { produce } from "immer";
 import { SchemaInformation } from "../../features/sync/types/syncType";
 import { MysqlToZodOption } from "../../options/options";
@@ -23,7 +22,7 @@ export const buildSchemaText = async ({
 	tables,
 	option,
 	schemaInformationList,
-}: BuildSchemaTextParams): Promise<Either<string, BuildSchemaTextResult>> => {
+}: BuildSchemaTextParams): Promise<R.Result<BuildSchemaTextResult, string>> => {
 	const importDeclaration = produce(['import { z } from "zod";'], (draft) => {
 		if (!option.schema?.inline)
 			draft.push("import { globalSchema } from './globalSchema';");
@@ -32,8 +31,8 @@ export const buildSchemaText = async ({
 	const loop = async (
 		restTables: readonly string[],
 		result: SchemaResult,
-	): Promise<Either<string, SchemaResult>> => {
-		if (A.isEmpty(restTables)) return right(result);
+	): Promise<R.Result<SchemaResult, string>> => {
+		if (A.isEmpty(restTables)) return R.Ok(result);
 		/* isEmptyで調べているのでgetExnを使用する */
 		const headTable = pipe(restTables, A.head, O.getExn);
 		const tailTables = pipe(restTables, A.tail, O.getExn);
@@ -48,26 +47,28 @@ export const buildSchemaText = async ({
 			option,
 			schemaInformationList,
 		);
-		if (isLeft(schemaTextEither)) return schemaTextEither;
 
-		const newResult = strListToStrLf([
-			result.schema,
-			schemaTextEither.right.schema,
-		]);
-
-		return loop(tailTables, {
-			schema: newResult,
-			columns: [...result.columns, ...schemaTextEither.right.columns],
-		});
+		return R.match(
+			schemaTextEither,
+			(ok) => {
+				const nextResult = produce(result, (draft) => {
+					draft.schema += ok.schema;
+					draft.columns.push(...ok.columns);
+				});
+				return loop(tailTables, nextResult);
+			},
+			async (err) => {
+				return await R.Error(err);
+			},
+		);
 	};
 	const schemaTexts = await loop(tables, {
 		schema: "",
 		columns: [],
 	});
-	if (isLeft(schemaTexts)) return schemaTexts;
 
-	return right({
-		text: strListToStrLf([importDeclaration, schemaTexts.right.schema]),
-		columns: schemaTexts.right.columns,
+	return R.flatMap(schemaTexts, (x) => {
+		const text = strListToStrLf([importDeclaration, x.schema]);
+		return R.Ok({ text, columns: x.columns });
 	});
 };

@@ -1,5 +1,4 @@
-import { G } from "@mobily/ts-belt";
-import { Either, left, right } from "fp-ts/Either";
+import { G, R } from "@mobily/ts-belt";
 import { AST, Create, Parser } from "node-sql-parser";
 import { objectToCamel } from "ts-case-convert";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
@@ -33,16 +32,16 @@ export const createSchemaFile = (
 	tableDefinition: string[], // 0がテーブルネーム、1がテーブル定義
 	options: MysqlToZodOption,
 	schemaInformationList: readonly SchemaInformation[] | undefined,
-): Either<string, SchemaResult> => {
+): R.Result<SchemaResult, string> => {
 	const parser = new Parser();
 	const [tableName, tableDefinitionString] = tableDefinition;
 	if (G.isNullable(tableName) || G.isNullable(tableDefinitionString))
-		return left(
+		return R.Error(
 			"createSchemaFileError. tableName or tableDefinitionString is nil",
 		);
 	const ast = parser.astify(tableDefinitionString);
 	if (Array.isArray(ast) || !isCreate(ast))
-		return left("createSchemaFileError ast parser error");
+		return R.Error("createSchemaFileError ast parser error");
 
 	const columns = columnsSchema.array().parse(
 		ast.create_definitions
@@ -65,5 +64,5 @@ export const createSchemaFile = (
 		schemaInformationList,
 		mode: "select",
 	});
-	return right({ schema, columns });
+	return R.Ok({ schema, columns });
 };

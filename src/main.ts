@@ -1,6 +1,5 @@
-import { A, AR, pipe } from "@mobily/ts-belt";
+import { A, AR, R, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
-import { isLeft } from "fp-ts/lib/Either";
 import {
 	getOutputFilePath,
 	parseZodSchemaFile,
@@ -43,24 +42,29 @@ const main = async (command: Command) => {
 		option: option,
 		schemaInformationList,
 	});
-	if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
 
 	const globalSchema = composeGlobalSchema({
 		typeList: pipe(
-			schemaRawText.right.columns,
-			A.map((x) => x.type),
-			A.uniq,
+			schemaRawText,
+			R.map((x) => x.columns),
+			R.map(A.map((x) => x.type)),
+			R.map(A.uniq),
+			R.getWithDefault([] as readonly string[]),
 		),
 		option,
 	});
 
-	await outputToFile({
-		schemaRawText: schemaRawText.right.text,
-		output: option.output,
-		globalSchema,
-	});
-
-	return 0;
+	R.match(
+		schemaRawText,
+		async (okx) => {
+			await outputToFile({
+				schemaRawText: okx.text,
+				output: option.output,
+				globalSchema,
+			});
+		},
+		throwError,
+	);
 };
 
 const VERSION = process.env.VERSION || "0.0.0";

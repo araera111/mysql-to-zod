@@ -29,9 +29,6 @@ dependencies:
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
-  fp-ts:
-    specifier: ^2.16.0
-    version: 2.16.1
   fs-extra:
     specifier: ^11.1.1
     version: 11.1.1
@@ -1315,10 +1312,6 @@ packages:
     dependencies:
       fetch-blob: 3.2.0
     dev: true
-
-  /fp-ts@2.16.1:
-    resolution: {integrity: sha512-by7U5W8dkIzcvDofUcO42yl9JbnHTEDBrzu3pt5fKT+Z4Oy85I21K80EYJYdjQGC2qum4Vo55Ag57iiIK4FYuA==}
-    dev: false
 
   /from@0.1.7:
     resolution: {integrity: sha512-twe20eF1OxVxp/ML/kq2p1uc6KvFK/+vs8WjEbeKmV2He22MKm7YF2ANIt+EOqhJ5L3K/SuuPhk0hWQDjOM23g==}
