@@ -14,17 +14,16 @@ import {
 	outputToFile,
 } from "./process";
 
+const throwError = (message: string) => {
+	throw new Error(message);
+};
+
 const program = new Command();
 const main = async (command: Command) => {
 	const option = await pipe(
 		command,
 		init,
-		AR.match(
-			(x) => x,
-			(v) => {
-				throw new Error(v);
-			},
-		),
+		AR.match((x) => x, throwError),
 	);
 	const { tableNames, sync } = option;
 	const dbConnection = dbConnectionOptionSchema.parse(option.dbConnection);
