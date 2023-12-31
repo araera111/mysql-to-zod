@@ -21,7 +21,6 @@ const main = (command: Command) =>
 		init,
 		AR.flatMap(async (option) => {
 			const { tableNames, sync, dbConnection } = option;
-
 			const tables = await getTables(
 				tableNames,
 				dbConnectionOptionSchema.parse(dbConnection),
