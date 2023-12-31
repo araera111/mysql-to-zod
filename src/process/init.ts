@@ -48,23 +48,21 @@ const getDBConnection = ({
 
 export const init = async (
 	program: Command,
-): Promise<
-	Result<{ option: MysqlToZodOption; parsedProgram: Command }, string>
-> => {
+): Promise<Result<MysqlToZodOption, string>> => {
 	const config = await configLoad();
 	const argsDBConnection = A.get(program.args, 0);
 	const dbConnection = getDBConnection({
 		dbConnection: argsDBConnection,
 		config,
 	});
+
 	return R.flatMap(dbConnection, (x) =>
-		R.Ok({
-			option: pipe(
+		R.Ok(
+			pipe(
 				config,
 				R.getWithDefault(basicMySQLToZodOption),
 				D.set("dbConnection", x),
 			),
-			parsedProgram: program,
-		}),
+		),
 	);
 };

@@ -63,7 +63,5 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
 		isSeparate: false,
 		insertPrefix: "insert",
 		insertSuffix: "",
-		selectPrefix: "",
-		selectSuffix: "",
 	},
 };

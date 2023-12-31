@@ -42,7 +42,8 @@ export const buildSchemaText = async ({
 
 		const tableDefinition = await getTableDefinition(
 			headTable,
-			option.dbConnection,
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			option.dbConnection as any,
 		);
 		const schemaTextEither = createSchemaFile(
 			tableDefinition,

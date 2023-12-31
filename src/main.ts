@@ -1,10 +1,11 @@
+import { A, AR, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
 import { isLeft } from "fp-ts/lib/Either";
-import { isNil, uniq } from "ramda";
 import {
 	getOutputFilePath,
 	parseZodSchemaFile,
 } from "./features/sync/utils/syncUtil";
+import { dbConnectionOptionSchema } from "./options/dbConnection";
 import {
 	buildSchemaText,
 	composeGlobalSchema,
@@ -14,15 +15,19 @@ import {
 } from "./process";
 
 const program = new Command();
-
 const main = async (command: Command) => {
-	const initEither = await init(command);
-	if (isLeft(initEither)) throw new Error(initEither.left);
-
-	const { option } = initEither.right;
-	const { dbConnection, tableNames, sync } = option;
-	if (isNil(dbConnection)) throw new Error("dbConnection is required");
-
+	const option = await pipe(
+		command,
+		init,
+		AR.match(
+			(x) => x,
+			(v) => {
+				throw new Error(v);
+			},
+		),
+	);
+	const { tableNames, sync } = option;
+	const dbConnection = dbConnectionOptionSchema.parse(option.dbConnection);
 	const tables = await getTables(tableNames, dbConnection);
 
 	const schemaInformationList = sync?.active
@@ -33,13 +38,17 @@ const main = async (command: Command) => {
 
 	const schemaRawText = await buildSchemaText({
 		tables,
-		option,
+		option: option,
 		schemaInformationList,
 	});
 	if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
 
 	const globalSchema = composeGlobalSchema({
-		typeList: uniq(schemaRawText.right.columns.map((x) => x.type)),
+		typeList: pipe(
+			schemaRawText.right.columns,
+			A.map((x) => x.type),
+			A.uniq,
+		),
 		option,
 	});
 

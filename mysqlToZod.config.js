@@ -41,5 +41,12 @@ const options = {
 		insertPrefix: "insert",
 		insertSuffix: "",
 	},
+	dbConnection: {
+		database: "my_todo",
+		host: "localhost",
+		password: "root",
+		port: 3306,
+		user: "root",
+	},
 };
 module.exports = options;
