@@ -1,6 +1,4 @@
-import { A, G } from "@mobily/ts-belt";
-import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
-import { isNone } from "fp-ts/lib/Option";
+import { A, G, O, pipe } from "@mobily/ts-belt";
 import { Create } from "node-sql-parser";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
@@ -346,11 +344,13 @@ type ConvertTableNameParams = {
 	replacements: string[][];
 };
 
-const loopReplace = (replacements: string[][], tableName: string): string => {
-	const nonEmptyReplacements = fromArray(replacements);
-	if (isNone(nonEmptyReplacements)) return tableName;
-	const headReplacements = head(nonEmptyReplacements.value);
-	const tailReplacements = tail(nonEmptyReplacements.value);
+const loopReplace = (
+	replacements: readonly string[][],
+	tableName: string,
+): string => {
+	if (A.isEmpty(replacements)) return tableName;
+	const headReplacements = pipe(replacements, A.head, O.getExn);
+	const tailReplacements = pipe(replacements, A.tail, O.getExn);
 	const string = replaceTableName({
 		tableName,
 		replacements: headReplacements,

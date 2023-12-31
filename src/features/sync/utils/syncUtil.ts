@@ -1,7 +1,4 @@
-import { G, S } from "@mobily/ts-belt";
-import * as A from "fp-ts/Array";
-import * as O from "fp-ts/Option";
-import { pipe } from "fp-ts/function";
+import { A, G, O, S, pipe } from "@mobily/ts-belt";
 import { readFileSync } from "fs-extra";
 import { join } from "path";
 import { MysqlToZodOption } from "../../../options";
@@ -10,8 +7,8 @@ import { SchemaInformation, SchemaProperty } from "../types/syncType";
 
 export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
 	pipe(text.split(":"), ([name, schema]) => {
-		if (G.isNullable(name) || G.isNullable(schema)) return O.none;
-		return O.some({
+		if (G.isNullable(name) || G.isNullable(schema)) return O.None;
+		return O.Some({
 			name: name.trim(),
 			schema: schema.trim().replace(",", ""),
 		});
@@ -20,10 +17,10 @@ export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
 export const getTableName = (text: string): O.Option<string> =>
 	pipe(
 		text.split("="),
-		A.lookup(0),
+		A.get(0),
 		O.filter(S.includes("export const")),
-		O.map((x) => x.split(" ")[2]),
-		O.chain(O.fromNullable),
+		O.flatMap((x) => x.split(" ")[2]),
+		O.fromNullable,
 	);
 
 export const getSchemaInformation = (
@@ -35,16 +32,16 @@ export const getSchemaInformation = (
 	if (!text.includes("\n")) {
 		/* =で区切る */
 		const r = pipe(text.split("="), ([name, schema]) => {
-			if (G.isNullable(name) || G.isNullable(schema)) return O.none;
+			if (G.isNullable(name) || G.isNullable(schema)) return O.None;
 			const names = name.split(" ");
-			const nextTN = A.lookup(2, names);
+			const nextTN = A.get(names, 2);
 			const property = getSchemaProperty(
 				schema.replace("z.object({ ", "").replace(" });", ""),
 			);
-			if (O.isNone(nextTN) || O.isNone(property)) return O.none;
-			const result = O.some({
-				tableName: nextTN.value.trim(),
-				properties: [property.value],
+			if (O.isNone(nextTN) || O.isNone(property)) return O.None;
+			const result = O.Some({
+				tableName: nextTN.trim(),
+				properties: [property],
 			});
 			return result;
 		});
@@ -55,10 +52,10 @@ export const getSchemaInformation = (
 	const schemaProperties = text
 		.split("\n")
 		.map((x) => getSchemaProperty(x))
-		.flatMap((x) => (O.isNone(x) ? [] : x.value));
-	if (O.isNone(tableName)) return O.none;
-	return O.some({
-		tableName: tableName.value,
+		.flatMap((x) => (O.isNone(x) ? [] : x));
+	if (O.isNone(tableName)) return O.None;
+	return O.Some({
+		tableName: tableName,
 		properties: schemaProperties,
 	});
 };
@@ -161,7 +158,7 @@ type ParseZodSchemaFileProps = {
 
 export const parseZodSchemaFile = ({
 	filePath,
-}: ParseZodSchemaFileProps): SchemaInformation[] => {
+}: ParseZodSchemaFileProps): readonly SchemaInformation[] => {
 	const result = pipe(
 		filePath,
 		(x) => readFileSync(x, { encoding: "utf-8" }),

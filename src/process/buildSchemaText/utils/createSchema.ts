@@ -1,5 +1,4 @@
-import { G } from "@mobily/ts-belt";
-import { pipe } from "fp-ts/function";
+import { G, pipe } from "@mobily/ts-belt";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
 import {
 	parseZodSchema,
@@ -70,7 +69,7 @@ type CreateSchemaProps = {
 	options: MysqlToZodOption;
 	tableComment: string | undefined;
 	/* mergeしないときはundefinedにする */
-	schemaInformationList: SchemaInformation[] | undefined;
+	schemaInformationList: readonly SchemaInformation[] | undefined;
 	mode: CreateSchemaModeUnion;
 };
 export const createSchema = ({

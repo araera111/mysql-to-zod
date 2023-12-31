@@ -1,4 +1,4 @@
-import * as O from "fp-ts/Option";
+import { O } from "@mobily/ts-belt";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { SchemaInformation, SchemaProperty } from "../types/syncType";
 import {
@@ -13,7 +13,7 @@ import {
 describe("getSchemaProperty", () => {
 	it("case1 some", () => {
 		const text = "DB_ID: z.number(),";
-		const result: O.Option<SchemaProperty> = O.some({
+		const result: O.Option<SchemaProperty> = O.Some({
 			name: "DB_ID",
 			schema: "z.number()",
 		});
@@ -22,13 +22,13 @@ describe("getSchemaProperty", () => {
 
 	it("case2 none", () => {
 		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<SchemaProperty> = O.none;
+		const result: O.Option<SchemaProperty> = O.None;
 		expect(getSchemaProperty(text)).toStrictEqual(result);
 	});
 
 	it("case3 none", () => {
 		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<SchemaProperty> = O.none;
+		const result: O.Option<SchemaProperty> = O.None;
 		expect(getSchemaProperty(text)).toStrictEqual(result);
 	});
 });
@@ -36,19 +36,19 @@ describe("getSchemaProperty", () => {
 describe("getTableName", () => {
 	it("case1 some", () => {
 		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<string> = O.some("configDisplaySchema");
+		const result: O.Option<string> = O.Some("configDisplaySchema");
 		expect(getTableName(text)).toStrictEqual(result);
 	});
 
 	it("case2 none", () => {
 		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<string> = O.none;
+		const result: O.Option<string> = O.None;
 		expect(getTableName(text)).toStrictEqual(result);
 	});
 
 	it("case3 none", () => {
 		const text = "({";
-		const result: O.Option<string> = O.none;
+		const result: O.Option<string> = O.None;
 		expect(getTableName(text)).toStrictEqual(result);
 	});
 });
@@ -76,7 +76,8 @@ describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のsc
 			tableName: "aaaSchema",
 			properties: [{ name: "DB_ID", schema: "z.number().optional()" }],
 		};
-		const schemaText = `export const aaaSchema = z.object({ DB_ID: z.number() });`;
+		const schemaText =
+			"export const aaaSchema = z.object({ DB_ID: z.number() });";
 
 		const result = `export const aaaSchema = z.object({
   DB_ID: z.number().optional(),
@@ -92,8 +93,9 @@ describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のsc
 
 describe("getSchemaInformation", () => {
 	it("case1", () => {
-		const text = `export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });`;
-		const result: O.Option<SchemaInformation> = O.some({
+		const text =
+			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "telBlacklistSchema",
 			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
 		});
@@ -107,7 +109,7 @@ describe("getSchemaInformation", () => {
   disp_cancel: z.number(),
   cancel_text: z.string(),
 });`;
-		const result: O.Option<SchemaInformation> = O.some({
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "configCancelSchema",
 			properties: [
 				{ name: "DB_ID", schema: "z.number()" },
@@ -122,7 +124,7 @@ describe("getSchemaInformation", () => {
 	it("case3", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation> = O.some({
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "telBlacklistSchema",
 			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
 		});
@@ -158,7 +160,7 @@ name: z.string(),
 	});
 
 	it("case 2", () => {
-		const schema = `export const todoSchema = z.object({DB_ID: z.number()})`;
+		const schema = "export const todoSchema = z.object({DB_ID: z.number()})";
 		const result = {
 			tableName: "todoSchema",
 			properties: [

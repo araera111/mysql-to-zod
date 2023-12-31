@@ -1,6 +1,5 @@
+import { A, O, pipe } from "@mobily/ts-belt";
 import { Either, isLeft, right } from "fp-ts/lib/Either";
-import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
-import { isNone } from "fp-ts/lib/Option";
 import { produce } from "immer";
 import { SchemaInformation } from "../../features/sync/types/syncType";
 import { MysqlToZodOption } from "../../options/options";
@@ -12,7 +11,7 @@ import { getTableDefinition } from "./utils/getTableDefinition";
 type BuildSchemaTextParams = {
 	tables: string[];
 	option: MysqlToZodOption;
-	schemaInformationList: SchemaInformation[] | undefined;
+	schemaInformationList: readonly SchemaInformation[] | undefined;
 };
 
 type BuildSchemaTextResult = {
@@ -31,14 +30,13 @@ export const buildSchemaText = async ({
 	}).join("\n");
 
 	const loop = async (
-		restTables: string[],
+		restTables: readonly string[],
 		result: SchemaResult,
 	): Promise<Either<string, SchemaResult>> => {
-		const nonEmptyTables = fromArray(restTables);
-		if (isNone(nonEmptyTables)) return right(result);
-
-		const headTable = head(nonEmptyTables.value);
-		const tailTables = tail(nonEmptyTables.value);
+		if (A.isEmpty(restTables)) return right(result);
+		/* isEmptyで調べているのでgetExnを使用する */
+		const headTable = pipe(restTables, A.head, O.getExn);
+		const tailTables = pipe(restTables, A.tail, O.getExn);
 
 		const tableDefinition = await getTableDefinition(
 			headTable,
