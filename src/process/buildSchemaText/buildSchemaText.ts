@@ -16,6 +16,7 @@ type BuildSchemaTextParams = {
 type BuildSchemaTextResult = {
 	text: string;
 	columns: Column[];
+	option: MysqlToZodOption;
 };
 
 export const buildSchemaText = async ({
@@ -69,6 +70,6 @@ export const buildSchemaText = async ({
 
 	return R.flatMap(schemaTexts, (x) => {
 		const text = strListToStrLf([importDeclaration, x.schema]);
-		return R.Ok({ text, columns: x.columns });
+		return R.Ok({ text, columns: x.columns, option });
 	});
 };

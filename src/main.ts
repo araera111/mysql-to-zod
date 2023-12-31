@@ -1,4 +1,4 @@
-import { A, AR, R, pipe } from "@mobily/ts-belt";
+import { A, AR, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
 import {
 	getOutputFilePath,
@@ -15,52 +15,46 @@ import {
 import { throwError } from "./throwError";
 
 const program = new Command();
-const main = async (command: Command) => {
-	const option = await pipe(
+const main = (command: Command) =>
+	pipe(
 		command,
 		init,
-		AR.match((x) => x, throwError),
-	);
-	const { tableNames, sync } = option;
+		AR.flatMap(async (option) => {
+			const { tableNames, sync, dbConnection } = option;
+			const tables = await getTables(
+				tableNames,
+				dbConnectionOptionSchema.parse(dbConnection),
+			);
 
-	const tables = await getTables(
-		tableNames,
-		dbConnectionOptionSchema.parse(option.dbConnection),
-	);
+			const schemaInformationList = sync?.active
+				? parseZodSchemaFile({
+						filePath: getOutputFilePath(option),
+				  })
+				: undefined;
 
-	const schemaInformationList = sync?.active
-		? parseZodSchemaFile({
-				filePath: getOutputFilePath(option),
-		  })
-		: undefined;
-
-	const schemaRawText = await buildSchemaText({
-		tables,
-		option,
-		schemaInformationList,
-	});
-
-	R.match(
-		schemaRawText,
-		async (okx) => {
+			return buildSchemaText({
+				tables,
+				option,
+				schemaInformationList,
+			});
+		}),
+		AR.match(async ({ columns, option, text }) => {
 			const globalSchema = composeGlobalSchema({
 				typeList: pipe(
-					okx.columns,
+					columns,
 					A.map((x) => x.type),
 					A.uniq,
 				),
 				option,
 			});
 			await outputToFile({
-				schemaRawText: okx.text,
+				schemaRawText: text,
 				output: option.output,
 				globalSchema,
 			});
 			return 0; // success
-		},
-		throwError,
+		}, throwError),
 	);
-};
 
 const VERSION = process.env.VERSION || "0.0.0";
 
