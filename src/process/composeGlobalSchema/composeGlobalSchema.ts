@@ -26,7 +26,7 @@ export const composeGlobalSchemaRow = ({
 };
 
 type ComposeGlobalSchemaParams = {
-	typeList: string[];
+	typeList: readonly string[];
 	option: MysqlToZodOption;
 };
 export const composeGlobalSchema = ({

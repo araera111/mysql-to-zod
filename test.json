@@ -1,0 +1,35 @@
+[
+  {
+    "tableName": "myTodoListSchema",
+    "properties": [
+      {
+        "name": "id",
+        "schema": "z.number(),"
+      },
+      {
+        "name": "status",
+        "schema": "z.string(),"
+      },
+      {
+        "name": "task",
+        "schema": "z.string(),"
+      },
+      {
+        "name": "description",
+        "schema": "z.string().nullish(),"
+      },
+      {
+        "name": "due_date",
+        "schema": "z.date().nullish(),"
+      },
+      {
+        "name": "created_at",
+        "schema": "z.date().nullish(),"
+      },
+      {
+        "name": "updated_at",
+        "schema": "z.date().nullish(),"
+      }
+    ]
+  }
+]

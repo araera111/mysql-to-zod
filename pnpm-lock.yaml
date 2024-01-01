@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@mobily/ts-belt':
+    specifier: 4.0.0-rc.5
+    version: 4.0.0-rc.5
   '@prettier/sync':
     specifier: ^0.3.0
     version: 0.3.0(prettier@3.0.3)
@@ -26,9 +29,6 @@ dependencies:
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
-  fp-ts:
-    specifier: ^2.16.0
-    version: 2.16.1
   fs-extra:
     specifier: ^11.1.1
     version: 11.1.1
@@ -41,12 +41,12 @@ dependencies:
   node-sql-parser:
     specifier: ^4.9.0
     version: 4.11.0
+  peggy:
+    specifier: ^3.0.2
+    version: 3.0.2
   prettier:
     specifier: ^3.0.0
     version: 3.0.3
-  ramda:
-    specifier: ^0.29.0
-    version: 0.29.1
   ts-case-convert:
     specifier: ^2.0.2
     version: 2.0.2
@@ -73,9 +73,6 @@ devDependencies:
   '@types/node':
     specifier: ^20.8.9
     version: 20.8.9
-  '@types/ramda':
-    specifier: ^0.29.3
-    version: 0.29.7
   esbuild:
     specifier: ^0.18.15
     version: 0.18.20
@@ -455,6 +452,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
 
+  /@mobily/ts-belt@4.0.0-rc.5:
+    resolution: {integrity: sha512-HLWJ8yKrfwdMzCvckRunrAL8Z+K5q31FdY6JzhkBp8o6uQsVuzf26KFyno1s6n6GB78OJEsjs57SaDk9plsJhA==}
+    engines: {node: '>= 10.*'}
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -750,12 +752,6 @@ packages:
     resolution: {integrity: sha512-CJyu2BqU/aZN/s8Ili3jiMctqXfTjCaWXirEcjRD8y1lUQZJ8eNohnal8+LXeWFs1VbdAOrCIdgATFsv+lnQ5Q==}
     dev: true
 
-  /@types/ramda@0.29.7:
-    resolution: {integrity: sha512-IUl6U95qwlQtVvZkSX4ODj08oJVtPyWMFRtPVNqhxc2rt+Bh7lCzTrGMYMZ7dmRKcAjtot3xrPnYGwsjdt8gzQ==}
-    dependencies:
-      types-ramda: 0.29.5
-    dev: true
-
   /@types/which@3.0.1:
     resolution: {integrity: sha512-OJWjr4k8gS1HXuOnCmQbBrQez+xqt/zqfp5PhgbKtsmEFEuojAg23arr+TiTZZ1TORdUF9RKXb/WKEpT1dwgSg==}
     dev: true
@@ -1011,6 +1007,11 @@ packages:
   /color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
     dev: true
+
+  /commander@10.0.1:
+    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
+    engines: {node: '>=14'}
+    dev: false
 
   /commander@11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
@@ -1319,10 +1320,6 @@ packages:
     dependencies:
       fetch-blob: 3.2.0
     dev: true
-
-  /fp-ts@2.16.1:
-    resolution: {integrity: sha512-by7U5W8dkIzcvDofUcO42yl9JbnHTEDBrzu3pt5fKT+Z4Oy85I21K80EYJYdjQGC2qum4Vo55Ag57iiIK4FYuA==}
-    dev: false
 
   /from@0.1.7:
     resolution: {integrity: sha512-twe20eF1OxVxp/ML/kq2p1uc6KvFK/+vs8WjEbeKmV2He22MKm7YF2ANIt+EOqhJ5L3K/SuuPhk0hWQDjOM23g==}
@@ -2069,6 +2066,15 @@ packages:
       through: 2.3.8
     dev: true
 
+  /peggy@3.0.2:
+    resolution: {integrity: sha512-n7chtCbEoGYRwZZ0i/O3t1cPr6o+d9Xx4Zwy2LYfzv0vjchMBU0tO+qYYyvZloBPcgRgzYvALzGWHe609JjEpg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      commander: 10.0.1
+      source-map-generator: 0.8.0
+    dev: false
+
   /picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
     dev: true
@@ -2148,10 +2154,6 @@ packages:
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-
-  /ramda@0.29.1:
-    resolution: {integrity: sha512-OfxIeWzd4xdUNxlWhgFazxsA/nl3mS4/jGZI5n00uWOoSSFRhC1b6gl6xvmzUamgmqELraWp0J/qqVlXYPDPyA==}
-    dev: false
 
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
@@ -2287,6 +2289,11 @@ packages:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
     engines: {node: '>=14.16'}
     dev: true
+
+  /source-map-generator@0.8.0:
+    resolution: {integrity: sha512-psgxdGMwl5MZM9S3FWee4EgsEaIjahYV5AzGnwUvPhWeITz/j6rKpysQHlQ4USdxvINlb8lKfWGIXwfkrgtqkA==}
+    engines: {node: '>= 10'}
+    dev: false
 
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
@@ -2526,10 +2533,6 @@ packages:
     resolution: {integrity: sha512-tL0w8U/pgaacOmkb9fRlYzWEUDCfVjjv9dD4wHTgZ61MjhuMt46VNWTG747NqW6vRzoWIKABVhFSOJ82FvXrfA==}
     dev: false
 
-  /ts-toolbelt@9.6.0:
-    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
-    dev: true
-
   /tsx@3.14.0:
     resolution: {integrity: sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==}
     hasBin: true
@@ -2549,12 +2552,6 @@ packages:
   /type-fest@0.6.0:
     resolution: {integrity: sha512-q+MB8nYR1KDLrgr4G5yemftpMC7/QLqVndBmEEdqzmNj5dcFOO4Oo8qlwZE3ULT3+Zim1F8Kq4cBnikNhlCMlg==}
     engines: {node: '>=8'}
-    dev: true
-
-  /types-ramda@0.29.5:
-    resolution: {integrity: sha512-u+bAYXHDPJR+amB0qMrMU/NXRB2PG8QqpO2v6j7yK/0mPZhlaaZj++ynYjnVpkPEpCkZEGxNpWY3X7qyLCGE3w==}
-    dependencies:
-      ts-toolbelt: 9.6.0
     dev: true
 
   /typescript@5.2.2:

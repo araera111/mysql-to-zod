@@ -1,10 +1,7 @@
-import { pipe } from "fp-ts/function";
-import { isNil } from "ramda";
+import { G, pipe } from "@mobily/ts-belt";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
-import {
-	parseZodSchema,
-	schemaInformationToText,
-} from "../../../features/sync/utils/syncUtil";
+import { schemaInformationToText } from "../../../features/sync/utils/syncUtil";
+import { parse } from "../../../features/sync/utils/zodParse";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { separateOptionSchema } from "../../../options/separate";
@@ -19,7 +16,6 @@ import {
 	composeTableSchemaTextList,
 	composeTypeString,
 } from "./buildSchemaTextUtil";
-
 type UpdateSchemaTextProps = {
 	schemaName: string;
 	schemaText: string;
@@ -34,9 +30,18 @@ export const mergeSchemaTextWithOldInformation = ({
 	/* 完成したテキストからschemaInformationをつくる */
 
 	const nextSchemaInformation = pipe(
-		schemaText.replaceAll("\n", ""),
+		schemaText,
 		formatByPrettier,
-		parseZodSchema,
+		parse,
+		(x) => x[0] as SchemaInformation,
+		(x) => {
+			return {
+				tableName: x.tableName,
+				properties: x.properties.flatMap((x) =>
+					G.isNotNullable(x) ? [x] : [],
+				),
+			};
+		},
 	);
 
 	/*
@@ -50,7 +55,7 @@ export const mergeSchemaTextWithOldInformation = ({
 		const replaceElement = schemaInformation.properties.find(
 			(y) => y.name === property.name,
 		);
-		if (isNil(replaceElement)) return property;
+		if (G.isNullable(replaceElement)) return property;
 		return replaceElement;
 	});
 
@@ -70,8 +75,7 @@ type CreateSchemaProps = {
 	columns: Column[];
 	options: MysqlToZodOption;
 	tableComment: string | undefined;
-	/* mergeしないときはundefinedにする */
-	schemaInformationList: SchemaInformation[] | undefined;
+	schemaInformationList: readonly SchemaInformation[];
 	mode: CreateSchemaModeUnion;
 };
 export const createSchema = ({
@@ -104,16 +108,21 @@ export const createSchema = ({
 	});
 
 	/* schemaTextを古いschemaInformationとmergeする */
-	const thisSchemaInformation = schemaInformationList?.find(
+	const thisSchemaInformation = schemaInformationList.find(
 		(x) => x.tableName === schemaName,
 	);
 
-	const merged = isNil(thisSchemaInformation)
+	const merged = G.isNullable(thisSchemaInformation)
 		? schemaText
 		: mergeSchemaTextWithOldInformation({
 				schemaName,
 				schemaText,
-				schemaInformation: thisSchemaInformation,
+				schemaInformation: {
+					tableName: thisSchemaInformation.tableName,
+					properties: thisSchemaInformation.properties.flatMap((x) =>
+						G.isNotNullable(x) ? [x] : [],
+					),
+				},
 		  });
 
 	const typeOption = typeOptionSchema.parse(options.type);

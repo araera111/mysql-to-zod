@@ -1,57 +1,8 @@
-import * as O from "fp-ts/Option";
+import { O } from "@mobily/ts-belt";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
-import { SchemaInformation, SchemaProperty } from "../types/syncType";
-import {
-	getSchemaInformation,
-	getSchemaProperty,
-	getTableName,
-	parseZodSchema,
-	schemaInformationToText,
-	splitSchemaText,
-} from "./syncUtil";
-
-describe("getSchemaProperty", () => {
-	it("case1 some", () => {
-		const text = "DB_ID: z.number(),";
-		const result: O.Option<SchemaProperty> = O.some({
-			name: "DB_ID",
-			schema: "z.number()",
-		});
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-
-	it("case2 none", () => {
-		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<SchemaProperty> = O.none;
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-
-	it("case3 none", () => {
-		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<SchemaProperty> = O.none;
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-});
-
-describe("getTableName", () => {
-	it("case1 some", () => {
-		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<string> = O.some("configDisplaySchema");
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-
-	it("case2 none", () => {
-		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<string> = O.none;
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-
-	it("case3 none", () => {
-		const text = "({";
-		const result: O.Option<string> = O.none;
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-});
+import { formatByPrettier } from "../../../process/formatByPrettier";
+import { SchemaInformation } from "../types/syncType";
+import { getSchemaInformation, schemaInformationToText } from "./syncUtil";
 
 describe("schemaInformationToText", () => {
 	it("case1", () => {
@@ -76,7 +27,8 @@ describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のsc
 			tableName: "aaaSchema",
 			properties: [{ name: "DB_ID", schema: "z.number().optional()" }],
 		};
-		const schemaText = `export const aaaSchema = z.object({ DB_ID: z.number() });`;
+		const schemaText =
+			"export const aaaSchema = z.object({ DB_ID: z.number() });";
 
 		const result = `export const aaaSchema = z.object({
   DB_ID: z.number().optional(),
@@ -92,8 +44,9 @@ describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のsc
 
 describe("getSchemaInformation", () => {
 	it("case1", () => {
-		const text = `export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });`;
-		const result: O.Option<SchemaInformation> = O.some({
+		const text =
+			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "telBlacklistSchema",
 			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
 		});
@@ -107,7 +60,7 @@ describe("getSchemaInformation", () => {
   disp_cancel: z.number(),
   cancel_text: z.string(),
 });`;
-		const result: O.Option<SchemaInformation> = O.some({
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "configCancelSchema",
 			properties: [
 				{ name: "DB_ID", schema: "z.number()" },
@@ -122,7 +75,7 @@ describe("getSchemaInformation", () => {
 	it("case3", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation> = O.some({
+		const result: O.Option<SchemaInformation> = O.Some({
 			tableName: "telBlacklistSchema",
 			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
 		});
@@ -130,93 +83,20 @@ describe("getSchemaInformation", () => {
 	});
 });
 
-describe("parseZodSchema", () => {
-	it("case 1", () => {
-		const schema = `export const memoSchema = z.object({
-DB_ID: z.number(),
-title: z.string(),
-name: z.string(),
-});`;
-		const result = {
-			tableName: "memoSchema",
-			properties: [
-				{
-					name: "DB_ID",
-					schema: "z.number()",
-				},
-				{
-					name: "title",
-					schema: "z.string()",
-				},
-				{
-					name: "name",
-					schema: "z.string()",
-				},
-			],
-		};
-		expect(parseZodSchema(schema)).toStrictEqual(result);
-	});
-
-	it("case 2", () => {
-		const schema = `export const todoSchema = z.object({DB_ID: z.number()})`;
-		const result = {
-			tableName: "todoSchema",
-			properties: [
-				{
-					name: "DB_ID",
-					schema: "z.number()",
-				},
-			],
-		};
-		expect(parseZodSchema(schema)).toStrictEqual(result);
-	});
-});
-
-describe("splitSchemaText", () => {
+describe("formatByPrettier", () => {
 	it("case1", () => {
-		const str = `
-export type AAA = z.infer<typeof AAASchema>;
-export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
+		const str =
+			"export const myTodoListSchema = z.object({  id: z.number(),  status: z.string(),  task: z.string(),  description: z.string().nullish(),  due_date: z.date().nullish(),  created_at: z.date().nullish(),  updated_at: z.date().nullish(),});";
+		const result = `export const myTodoListSchema = z.object({
+  id: z.number(),
+  status: z.string(),
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
 });
-export type BBB = z.infer<typeof BBBSchema>;
 `;
-		const result = [
-			`export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-`,
-		];
-		expect(splitSchemaText(str)).toStrictEqual(result);
-	});
-
-	it("case2", () => {
-		const str = `
-export type AAA = z.infer<typeof AAASchema>;
-export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-export type BBB = z.infer<typeof BBBSchema>;
-export const CCCSchema = z.object({ DB_ID: z.number()});
-`;
-
-		const result = [
-			`export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-`,
-			`export const CCCSchema = z.object({ DB_ID: z.number() });
-`,
-		];
-
-		expect(splitSchemaText(str)).toStrictEqual(result);
+		expect(formatByPrettier(str)).toBe(result);
 	});
 });

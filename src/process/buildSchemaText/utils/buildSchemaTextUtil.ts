@@ -1,7 +1,5 @@
-import { fromArray, head, tail } from "fp-ts/lib/NonEmptyArray";
-import { isNone } from "fp-ts/lib/Option";
+import { A, G, O, pipe } from "@mobily/ts-belt";
 import { Create } from "node-sql-parser";
-import { isEmpty, isNil } from "ramda";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
@@ -16,7 +14,6 @@ import { SchemaOption } from "../../../options/schema";
 import { separateOption } from "../../../options/separate";
 import { TypeOption } from "../../../options/type";
 import { Column, commentKeywordSchema } from "../types/buildSchemaTextType";
-
 export const isMaybeRegExp = (str: string): boolean =>
 	str.startsWith("/") && str.endsWith("/");
 
@@ -104,7 +101,7 @@ export const replaceTableName = ({
 }: ReplaceTableNameParams): string => {
 	const [before, after] = replacements;
 	/* if replacement[0]or[1] undefined -> return original tableName */
-	if (isNil(before) || isNil(after)) return tableName;
+	if (G.isNullable(before) || G.isNullable(after)) return tableName;
 
 	/* if notRegexp -> replace */
 	if (!isMaybeRegExp(before)) return tableName.replace(before, after);
@@ -152,14 +149,14 @@ export const getTableComment = ({
 	if (parsedOptionCommentsTable.active === false) return undefined;
 
 	const tableOptions = ast?.table_options;
-	if (isNil(tableOptions)) return undefined;
+	if (G.isNullable(tableOptions)) return undefined;
 
 	const comment = commentKeywordSchema.parse(
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		tableOptions.find((x: any) => x.keyword === "comment"),
 	);
 
-	if (isNil(comment)) return undefined;
+	if (G.isNullable(comment)) return undefined;
 
 	return convertComment({
 		name: tableName,
@@ -179,7 +176,9 @@ export const composeTableSchemaTextList = ({
 	typeString,
 	tableComment,
 }: ComposeTableSchemaTextParams): string[] => {
-	const tableCommentString = isNil(tableComment) ? "" : `\n${tableComment}`;
+	const tableCommentString = G.isNullable(tableComment)
+		? ""
+		: `\n${tableComment}`;
 	const strList = [tableCommentString, schemaText, typeString].filter(
 		(x) => x !== "",
 	);
@@ -201,7 +200,7 @@ export const toImplementation = ({
 		const reference = option?.schema?.zod?.references?.find(
 			(x) => x[0] === type,
 		);
-		if (!isNil(reference)) return `globalSchema.${reference[1]}`;
+		if (!G.isNullable(reference)) return `globalSchema.${reference[1]}`;
 
 		/* !inline && not includes reference */
 		return `globalSchema.mysql${type}`;
@@ -210,7 +209,7 @@ export const toImplementation = ({
 	const reference = option?.schema?.zod?.implementation?.find(
 		(x) => x[0] === type,
 	);
-	if (!isNil(reference)) return reference[1];
+	if (!G.isNullable(reference)) return reference[1];
 
 	return undefined;
 };
@@ -227,7 +226,7 @@ export const convertToZodType = ({
 		type,
 		option,
 	});
-	if (!isNil(impl)) return impl;
+	if (!G.isNullable(impl)) return impl;
 	return match(type)
 		.with("TINYINT", () => "z.number()")
 		.with("SMALLINT", () => "z.number()")
@@ -273,7 +272,7 @@ const getCommentString = ({
 	column,
 	option,
 }: ConvertCommentProps): string | undefined => {
-	if (isNil(comment) || !active) return undefined;
+	if (G.isNullable(comment) || !active) return undefined;
 	const { comments } = option;
 	return convertComment({
 		name: column.column,
@@ -332,7 +331,7 @@ export const composeColumnStringList = ({
 			type,
 			option,
 		})}${addNullType({ nullable, option, mode, autoIncrement })},\n`,
-	].flatMap((x) => (isNil(x) ? [] : [x]));
+	].flatMap((x) => (G.isNullable(x) ? [] : [x]));
 
 	return result;
 };
@@ -345,24 +344,25 @@ type ConvertTableNameParams = {
 	replacements: string[][];
 };
 
-const loopReplace = (replacements: string[][], tableName: string): string => {
-	const nonEmptyReplacements = fromArray(replacements);
-	if (isNone(nonEmptyReplacements)) return tableName;
-	const headReplacements = head(nonEmptyReplacements.value);
-	const tailReplacements = tail(nonEmptyReplacements.value);
+const loopReplace = (
+	replacements: readonly string[][],
+	tableName: string,
+): string => {
+	if (A.isEmpty(replacements)) return tableName;
+	const headReplacements = pipe(replacements, A.head, O.getExn);
+	const tailReplacements = pipe(replacements, A.tail, O.getExn);
 	const string = replaceTableName({
 		tableName,
 		replacements: headReplacements,
 	});
 	return loopReplace(tailReplacements, string);
 };
-
 export const convertTableName = ({
 	tableName,
 	format,
 	replacements,
 }: ConvertTableNameParams) => {
-	const replaced = isEmpty(replacements)
+	const replaced = A.isEmpty(replacements)
 		? tableName
 		: loopReplace(replacements, tableName);
 

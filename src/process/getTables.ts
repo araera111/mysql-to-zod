@@ -1,21 +1,78 @@
+import { A, AR, D, G, O, R, pipe } from "@mobily/ts-belt";
 import mysql from "mysql2/promise";
-import { isEmpty } from "ramda";
 import { z } from "zod";
+import { MysqlToZodOption } from "../options";
+import {
+	DbConnectionOption,
+	dbConnectionOptionSchema,
+} from "../options/dbConnection";
 
-// tableの一覧をmysqlからknexで取得する関数
-export const getTables = async (
-	tableNames: string[],
-	dbConnection: string,
-): Promise<string[]> => {
-	// tableNamesが与えられている場合は、そのまま返す
-	if (!isEmpty(tableNames)) return tableNames;
-
-	const connection = await mysql.createConnection(dbConnection);
-	const [tables] = await connection.query("show tables");
-
-	if (!Array.isArray(tables)) return [];
-
-	const result = tables.flatMap((x: any) => Object.values(x));
-	await connection.destroy();
-	return z.string().array().parse(result);
+const createConnection = async (
+	dbConnection: DbConnectionOption,
+): Promise<mysql.Connection> => {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const connection = await mysql.createConnection(dbConnection as any);
+	return connection;
 };
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const parseDBConnection = (arg: any): O.Option<DbConnectionOption> => {
+	const r = dbConnectionOptionSchema.safeParse(arg);
+	if (r.success) return O.Some(r.data);
+	return O.None;
+};
+
+const stringStringObjectSchema = z.record(z.string()).array(); // {[key: string]: string}[]
+// tableの一覧をmysqlからknexで取得する関数
+export const getTables = (
+	option: MysqlToZodOption,
+): Promise<
+	R.Result<
+		{
+			tableNames: readonly string[];
+			option: MysqlToZodOption;
+		},
+		string
+	>
+> =>
+	pipe(
+		option.tableNames,
+		O.fromPredicate((x) => G.isNullable(x) || A.isEmpty(x)),
+		O.match(
+			async (some) => R.Ok({ tableNames: some, option }),
+			() => {
+				return R.match(
+					pipe(
+						option,
+						(x) => x.dbConnection,
+						parseDBConnection,
+						O.toResult("dbConnection is required"),
+					),
+					(ok) =>
+						pipe(
+							ok,
+							createConnection,
+							AR.make,
+							AR.map(async (x) => {
+								const [tables] = await x.query("show tables");
+								await x.destroy();
+								return tables;
+							}),
+							AR.flatMap((x) => AR.make(x)),
+							AR.map((x) => ({
+								tableNames: pipe(
+									x,
+									stringStringObjectSchema.parse,
+									A.flatMap((x) => D.values(x)),
+								),
+								option,
+							})),
+							AR.mapError((x) => `getTablesError: ${x}`),
+						),
+					async (err) => {
+						return R.Error(err);
+					},
+				);
+			},
+		),
+	);

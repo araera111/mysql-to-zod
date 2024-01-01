@@ -1,11 +1,6 @@
+import { A, AR, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
-import { isLeft } from "fp-ts/lib/Either";
-
-import { isNil, uniq } from "ramda";
-import {
-	getOutputFilePath,
-	parseZodSchemaFile,
-} from "./features/sync/utils/syncUtil";
+import { parseZodSchemaFile } from "./features/sync/utils/syncUtil";
 import {
 	buildSchemaText,
 	composeGlobalSchema,
@@ -13,45 +8,49 @@ import {
 	init,
 	outputToFile,
 } from "./process";
+import { throwError } from "./throwError";
 
 const program = new Command();
 
-const main = async (command: Command) => {
-	const initEither = await init(command);
-	if (isLeft(initEither)) throw new Error(initEither.left);
+const main = (command: Command) =>
+	pipe(
+		command,
+		init,
+		/* get Tables */
+		AR.flatMap((option) => getTables(option)),
 
-	const { option } = initEither.right;
-	const { dbConnection, tableNames, sync } = option;
-	if (isNil(dbConnection)) throw new Error("dbConnection is required");
+		/* fetchSchemaInformationList */
+		AR.flatMap(({ option, tableNames }) =>
+			parseZodSchemaFile({ option, tableNames }),
+		),
 
-	const tables = await getTables(tableNames, dbConnection);
+		/* buildSchemaText */
+		AR.flatMap(({ tableNames, option, schemaInformationList }) =>
+			buildSchemaText({
+				tables: tableNames,
+				option,
+				schemaInformationList,
+			}),
+		),
 
-	const schemaInformationList = sync?.active
-		? parseZodSchemaFile({
-				filePath: getOutputFilePath(option),
-		  })
-		: undefined;
-
-	const schemaRawText = await buildSchemaText({
-		tables,
-		option,
-		schemaInformationList,
-	});
-	if (isLeft(schemaRawText)) throw new Error(schemaRawText.left);
-
-	const globalSchema = composeGlobalSchema({
-		typeList: uniq(schemaRawText.right.columns.map((x) => x.type)),
-		option,
-	});
-
-	await outputToFile({
-		schemaRawText: schemaRawText.right.text,
-		output: option.output,
-		globalSchema,
-	});
-
-	return 0;
-};
+		/* outputFile */
+		AR.match(async ({ columns, option, text }) => {
+			const globalSchema = composeGlobalSchema({
+				typeList: pipe(
+					columns,
+					A.map((x) => x.type),
+					A.uniq,
+				),
+				option,
+			});
+			await outputToFile({
+				schemaRawText: text,
+				output: option.output,
+				globalSchema,
+			});
+			return 0; // success
+		}, throwError),
+	);
 
 const VERSION = process.env.VERSION || "0.0.0";
 
