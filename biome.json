@@ -14,5 +14,10 @@
         "noUnusedVariables": "error"
       }
     }
+  },
+  "files": {
+    "ignore": [
+      "zodParse.ts"
+    ]
   }
 }

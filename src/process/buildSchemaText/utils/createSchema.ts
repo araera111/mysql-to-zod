@@ -1,9 +1,7 @@
 import { G, pipe } from "@mobily/ts-belt";
 import { SchemaInformation } from "../../../features/sync/types/syncType";
-import {
-	parseZodSchema,
-	schemaInformationToText,
-} from "../../../features/sync/utils/syncUtil";
+import { schemaInformationToText } from "../../../features/sync/utils/syncUtil";
+import { parse } from "../../../features/sync/utils/zodParse";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { separateOptionSchema } from "../../../options/separate";
@@ -32,9 +30,18 @@ export const mergeSchemaTextWithOldInformation = ({
 	/* 完成したテキストからschemaInformationをつくる */
 
 	const nextSchemaInformation = pipe(
-		schemaText.replaceAll("\n", ""),
+		schemaText,
 		formatByPrettier,
-		parseZodSchema,
+		parse,
+		(x) => x[0] as SchemaInformation,
+		(x) => {
+			return {
+				tableName: x.tableName,
+				properties: x.properties.flatMap((x) =>
+					G.isNotNullable(x) ? [x] : [],
+				),
+			};
+		},
 	);
 
 	/*
@@ -110,7 +117,12 @@ export const createSchema = ({
 		: mergeSchemaTextWithOldInformation({
 				schemaName,
 				schemaText,
-				schemaInformation: thisSchemaInformation,
+				schemaInformation: {
+					tableName: thisSchemaInformation.tableName,
+					properties: thisSchemaInformation.properties.flatMap((x) =>
+						G.isNotNullable(x) ? [x] : [],
+					),
+				},
 		  });
 
 	const typeOption = typeOptionSchema.parse(options.type);

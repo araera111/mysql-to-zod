@@ -10,7 +10,7 @@ import { getTableDefinition } from "./utils/getTableDefinition";
 type BuildSchemaTextParams = {
 	tables: readonly string[];
 	option: MysqlToZodOption;
-	schemaInformationList: readonly SchemaInformation[] | undefined;
+	schemaInformationList: readonly SchemaInformation[];
 };
 
 type BuildSchemaTextResult = {

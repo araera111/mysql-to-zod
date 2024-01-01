@@ -2,12 +2,7 @@ import { O } from "@mobily/ts-belt";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation } from "../types/syncType";
-import {
-	getSchemaInformation,
-	parseZodSchema,
-	schemaInformationToText,
-	splitSchemaText,
-} from "./syncUtil";
+import { getSchemaInformation, schemaInformationToText } from "./syncUtil";
 
 describe("schemaInformationToText", () => {
 	it("case1", () => {
@@ -85,97 +80,6 @@ describe("getSchemaInformation", () => {
 			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
 		});
 		expect(getSchemaInformation(text)).toStrictEqual(result);
-	});
-});
-
-describe("parseZodSchema", () => {
-	it("case 1", () => {
-		const schema = `export const memoSchema = z.object({
-DB_ID: z.number(),
-title: z.string(),
-name: z.string(),
-});`;
-		const result = {
-			tableName: "memoSchema",
-			properties: [
-				{
-					name: "DB_ID",
-					schema: "z.number()",
-				},
-				{
-					name: "title",
-					schema: "z.string()",
-				},
-				{
-					name: "name",
-					schema: "z.string()",
-				},
-			],
-		};
-		expect(parseZodSchema(schema)).toStrictEqual(result);
-	});
-
-	it("case 2", () => {
-		const schema = "export const todoSchema = z.object({DB_ID: z.number()})";
-		const result = {
-			tableName: "todoSchema",
-			properties: [
-				{
-					name: "DB_ID",
-					schema: "z.number()",
-				},
-			],
-		};
-		expect(parseZodSchema(schema)).toStrictEqual(result);
-	});
-});
-
-describe("splitSchemaText", () => {
-	it("case1", () => {
-		const str = `
-export type AAA = z.infer<typeof AAASchema>;
-export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-export type BBB = z.infer<typeof BBBSchema>;
-`;
-		const result = [
-			`export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-`,
-		];
-		expect(splitSchemaText(str)).toStrictEqual(result);
-	});
-
-	it("case2", () => {
-		const str = `
-export type AAA = z.infer<typeof AAASchema>;
-export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-export type BBB = z.infer<typeof BBBSchema>;
-export const CCCSchema = z.object({ DB_ID: z.number()});
-`;
-
-		const result = [
-			`export const todoSchema = z.object({
-  DB_ID: z.number(),
-  title: z.string(),
-  name: z.string(),
-});
-`,
-			`export const CCCSchema = z.object({ DB_ID: z.number() });
-`,
-		];
-
-		expect(splitSchemaText(str)).toStrictEqual(result);
 	});
 });
 
