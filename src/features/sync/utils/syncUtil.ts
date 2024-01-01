@@ -1,64 +1,17 @@
-import { A, G, O, R, S, pipe } from "@mobily/ts-belt";
+import { A, G, O, R, pipe } from "@mobily/ts-belt";
 import { readFileSync } from "fs-extra";
 import { join } from "path";
 import { match } from "ts-pattern";
 import { MysqlToZodOption } from "../../../options";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation, SchemaProperty } from "../types/syncType";
-
-export const getSchemaProperty = (text: string): O.Option<SchemaProperty> =>
-	pipe(text.split(":"), ([name, schema]) => {
-		if (G.isNullable(name) || G.isNullable(schema)) return O.None;
-		return O.Some({
-			name: name.trim(),
-			schema: schema.trim().replace(",", ""),
-		});
-	});
-
-export const getTableName = (text: string): O.Option<string> =>
-	pipe(
-		text.split("="),
-		A.get(0),
-		O.filter(S.includes("export const")),
-		O.flatMap((x) => x.split(" ")[2]),
-		O.fromNullable,
-	);
+import { parse } from "./zodParse";
 
 export const getSchemaInformation = (
 	text: string,
 ): O.Option<SchemaInformation> => {
-	const tableName = getTableName(text);
-
-	/* 1行だった場合（\nが存在しなかったときの処理） */
-	if (!text.includes("\n")) {
-		/* =で区切る */
-		const r = pipe(text.split("="), ([name, schema]) => {
-			if (G.isNullable(name) || G.isNullable(schema)) return O.None;
-			const names = name.split(" ");
-			const nextTN = A.get(names, 2);
-			const property = getSchemaProperty(
-				schema.replace("z.object({ ", "").replace(" });", ""),
-			);
-			if (O.isNone(nextTN) || O.isNone(property)) return O.None;
-			const result = O.Some({
-				tableName: nextTN.trim(),
-				properties: [property],
-			});
-			return result;
-		});
-
-		return r;
-	}
-
-	const schemaProperties = text
-		.split("\n")
-		.map((x) => getSchemaProperty(x))
-		.flatMap((x) => (O.isNone(x) ? [] : x));
-	if (O.isNone(tableName)) return O.None;
-	return O.Some({
-		tableName: tableName,
-		properties: schemaProperties,
-	});
+	const result = parse(text)[0];
+	return O.Some(result) as O.Option<SchemaInformation>;
 };
 
 export const schemaInformationToText = (

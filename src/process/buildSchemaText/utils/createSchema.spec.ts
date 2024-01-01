@@ -37,7 +37,7 @@ export type Todo = z.infer<typeof todoSchema>;`;
 				tableComment: undefined,
 				columns,
 				options,
-				schemaInformationList: undefined,
+				schemaInformationList: [],
 				mode: "select",
 			}),
 		).toStrictEqual(result);
@@ -80,7 +80,7 @@ export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 				tableComment: undefined,
 				columns,
 				options,
-				schemaInformationList: undefined,
+				schemaInformationList: [],
 				mode: "select",
 			}),
 		).toStrictEqual(result);
@@ -124,7 +124,7 @@ export type TodoInsert = z.infer<typeof todoInsertSchema>;`;
 				tableComment: undefined,
 				columns,
 				options,
-				schemaInformationList: undefined,
+				schemaInformationList: [],
 				mode: "select",
 			}),
 		).toStrictEqual(result);

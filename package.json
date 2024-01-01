@@ -53,6 +53,7 @@
     "immer": "^10.0.2",
     "mysql2": "^3.5.2",
     "node-sql-parser": "^4.9.0",
+    "peggy": "^3.0.2",
     "prettier": "^3.0.0",
     "ts-case-convert": "^2.0.2",
     "ts-morph": "^20.0.0",

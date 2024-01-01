@@ -1,57 +1,13 @@
 import { O } from "@mobily/ts-belt";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
-import { SchemaInformation, SchemaProperty } from "../types/syncType";
+import { formatByPrettier } from "../../../process/formatByPrettier";
+import { SchemaInformation } from "../types/syncType";
 import {
 	getSchemaInformation,
-	getSchemaProperty,
-	getTableName,
 	parseZodSchema,
 	schemaInformationToText,
 	splitSchemaText,
 } from "./syncUtil";
-
-describe("getSchemaProperty", () => {
-	it("case1 some", () => {
-		const text = "DB_ID: z.number(),";
-		const result: O.Option<SchemaProperty> = O.Some({
-			name: "DB_ID",
-			schema: "z.number()",
-		});
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-
-	it("case2 none", () => {
-		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<SchemaProperty> = O.None;
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-
-	it("case3 none", () => {
-		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<SchemaProperty> = O.None;
-		expect(getSchemaProperty(text)).toStrictEqual(result);
-	});
-});
-
-describe("getTableName", () => {
-	it("case1 some", () => {
-		const text = "export const configDisplaySchema = z.object({";
-		const result: O.Option<string> = O.Some("configDisplaySchema");
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-
-	it("case2 none", () => {
-		const text = "export type Config = z.infer<typeof configSchema>;";
-		const result: O.Option<string> = O.None;
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-
-	it("case3 none", () => {
-		const text = "({";
-		const result: O.Option<string> = O.None;
-		expect(getTableName(text)).toStrictEqual(result);
-	});
-});
 
 describe("schemaInformationToText", () => {
 	it("case1", () => {
@@ -220,5 +176,23 @@ export const CCCSchema = z.object({ DB_ID: z.number()});
 		];
 
 		expect(splitSchemaText(str)).toStrictEqual(result);
+	});
+});
+
+describe("formatByPrettier", () => {
+	it("case1", () => {
+		const str =
+			"export const myTodoListSchema = z.object({  id: z.number(),  status: z.string(),  task: z.string(),  description: z.string().nullish(),  due_date: z.date().nullish(),  created_at: z.date().nullish(),  updated_at: z.date().nullish(),});";
+		const result = `export const myTodoListSchema = z.object({
+  id: z.number(),
+  status: z.string(),
+  task: z.string(),
+  description: z.string().nullish(),
+  due_date: z.date().nullish(),
+  created_at: z.date().nullish(),
+  updated_at: z.date().nullish(),
+});
+`;
+		expect(formatByPrettier(str)).toBe(result);
 	});
 });
