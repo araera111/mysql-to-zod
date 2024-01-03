@@ -1,4 +1,4 @@
-import { O } from "@mobily/ts-belt";
+import { R } from "@mobily/ts-belt";
 import { MysqlToZodOption } from "../../../options";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { formatByPrettier } from "../../../process/formatByPrettier";
@@ -51,7 +51,7 @@ describe("getSchemaInformation", () => {
 	it("case1", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation[]> = O.Some([
+		const result: R.Result<SchemaInformation[], string> = R.Ok([
 			{
 				tableName: "telBlacklistSchema",
 				properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
@@ -67,7 +67,7 @@ describe("getSchemaInformation", () => {
   disp_cancel: z.number(),
   cancel_text: z.string(),
 });`;
-		const result: O.Option<SchemaInformation[]> = O.Some([
+		const result: R.Result<SchemaInformation[], string> = R.Ok([
 			{
 				tableName: "configCancelSchema",
 				properties: [
@@ -84,7 +84,7 @@ describe("getSchemaInformation", () => {
 	it("case3", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation[]> = O.Some([
+		const result: R.Result<SchemaInformation[], string> = R.Ok([
 			{
 				tableName: "telBlacklistSchema",
 				properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
