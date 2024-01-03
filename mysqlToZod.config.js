@@ -34,7 +34,7 @@ const options = {
 		},
 	},
 	sync: {
-		active: true,
+		active: false,
 	},
 	separate: {
 		isSeparate: true,

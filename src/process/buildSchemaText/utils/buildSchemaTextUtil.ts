@@ -1,4 +1,5 @@
 import { A, G, O, pipe } from "@mobily/ts-belt";
+import { produce } from "immer";
 import { Create } from "node-sql-parser";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
@@ -6,6 +7,7 @@ import {
 	OptionTableComments,
 	defaultColumnCommentFormat,
 	defaultTableCommentFormat,
+	optionCommentsSchema,
 	optionTableCommentsSchema,
 } from "../../../options/comments";
 import { CaseUnion } from "../../../options/common";
@@ -318,7 +320,7 @@ export const composeColumnStringList = ({
 	mode,
 }: ComposeColumnStringListProps): string[] => {
 	const { comment, nullable, type, autoIncrement } = column;
-	const { comments } = option;
+	const comments = optionCommentsSchema.parse(option?.comments);
 
 	const result: string[] = [
 		getCommentString({
@@ -453,3 +455,16 @@ export const composeTypeString = ({
 	return `${str}`;
 };
 export const strListToStrLf = (strList: string[]): string => strList.join("\n");
+
+type MakeImportDeclarationListProps = {
+	option: MysqlToZodOption;
+};
+export const makeImportDeclarationList = ({
+	option,
+}: MakeImportDeclarationListProps): string[] =>
+	produce(['import { z } from "zod";'], (draft) => {
+		if (!option.schema?.inline) {
+			draft.push("import { globalSchema } from './globalSchema';");
+		}
+		draft.push("\n");
+	});

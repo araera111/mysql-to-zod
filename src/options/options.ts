@@ -65,3 +65,7 @@ export const basicMySQLToZodOption: MysqlToZodOption = {
 		insertSuffix: "",
 	},
 };
+
+export const testBaseOption: MysqlToZodOption = {
+	tableNames: [],
+};

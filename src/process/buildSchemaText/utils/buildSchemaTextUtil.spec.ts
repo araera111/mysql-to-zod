@@ -1,5 +1,6 @@
 import { produce } from "immer";
 import { AST } from "node-sql-parser";
+import rfdc from "rfdc";
 import { OptionTableComments } from "../../../options/comments";
 import {
 	MysqlToZodOption,
@@ -19,6 +20,7 @@ import {
 	convertComment,
 	convertToZodType,
 	getTableComment,
+	makeImportDeclarationList,
 	replaceTableName,
 	strListToStrLf,
 	toImplementation,
@@ -917,5 +919,36 @@ describe("strListToStr", () => {
 		const strList = ["a", "b", "c"];
 		const result = "a\nb\nc";
 		expect(strListToStrLf(strList)).toBe(result);
+	});
+});
+describe("makeImportDeclaration", () => {
+	it("case1 zod", () => {
+		const option = rfdc()(basicMySQLToZodOption);
+		const result = ['import { z } from "zod";', "\n"];
+		expect(makeImportDeclarationList({ option })).toStrictEqual(result);
+	});
+
+	it("case2 global", () => {
+		const option: MysqlToZodOption = {
+			...basicMySQLToZodOption,
+			schema: {
+				format: "camel",
+				prefix: "",
+				suffix: "",
+				replacements: [],
+				nullType: "nullable",
+				inline: false,
+				zod: {
+					implementation: [],
+					references: [],
+				},
+			},
+		};
+		const result = [
+			'import { z } from "zod";',
+			"import { globalSchema } from './globalSchema';",
+			"\n",
+		];
+		expect(makeImportDeclarationList({ option })).toStrictEqual(result);
 	});
 });
