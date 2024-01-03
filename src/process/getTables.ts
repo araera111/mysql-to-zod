@@ -15,8 +15,7 @@ const createConnection = async (
 	return connection;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const parseDBConnection = (arg: any): O.Option<DbConnectionOption> => {
+const parseDBConnection = (arg: unknown): O.Option<DbConnectionOption> => {
 	const r = dbConnectionOptionSchema.safeParse(arg);
 	if (r.success) return O.Some(r.data);
 	return O.None;
@@ -39,8 +38,10 @@ export const getTables = (
 		option.tableNames,
 		O.fromPredicate((x) => G.isNullable(x) || A.isEmpty(x)),
 		O.match(
+			/* If options has tableNames, return as is */
 			async (some) => R.Ok({ tableNames: some, option }),
 			() => {
+				/* Whether there is a dbConnection in options or args */
 				return R.match(
 					pipe(
 						option,
@@ -48,6 +49,7 @@ export const getTables = (
 						parseDBConnection,
 						O.toResult("dbConnection is required"),
 					),
+					/* If there is a dbConnection, show tables to get tableNames */
 					(ok) =>
 						pipe(
 							ok,
