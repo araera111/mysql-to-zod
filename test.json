@@ -1,0 +1,23 @@
+[
+  "// [table:todo_list] : タスクの一覧を管理するテーブル",
+  "export const todoListSchema = z.object({// id : 必ず一意になります",
+  "id: z.number(),",
+  "task: z.string(),",
+  "description: z.string().nullish(),",
+  "due_date: z.date().nullish(),",
+  "created_at: z.date().nullish(),",
+  "updated_at: z.date().nullish(),",
+  "});",
+  "export type TodoList = z.infer<typeof todoListSchema>;",
+  "",
+  "// [table:todo_list] : タスクの一覧を管理するテーブル",
+  "export const insertTodoListSchema = z.object({// id : 必ず一意になります",
+  "id: z.number().nullish(),",
+  "task: z.string(),",
+  "description: z.string().nullish(),",
+  "due_date: z.date().nullish(),",
+  "created_at: z.date().nullish(),",
+  "updated_at: z.date().nullish(),",
+  "});",
+  "export type InsertTodoList = z.infer<typeof insertTodoListSchema>;"
+]
