@@ -46,11 +46,11 @@ export const buildSchemaText = async ({
 						// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 						option.dbConnection as any,
 					);
-					const schemaTextEither = createSchemaFile(
+					const schemaTextEither = createSchemaFile({
 						tableDefinition,
 						option,
 						schemaInformationList,
-					);
+					});
 
 					return R.match(
 						schemaTextEither,
