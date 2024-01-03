@@ -21,7 +21,10 @@ export const schemaInformationToText = (
 };
 
 export const getOutputFilePath = (option: MysqlToZodOption): string =>
-	join(option.output?.outDir ?? "./mysqlToZod", option.output?.fileName ?? "");
+	join(
+		option.output?.outDir ?? "./mysqlToZod",
+		option.output?.fileName ?? "schema.ts",
+	);
 
 export type ParseZodSchemaFileProps = {
 	option: MysqlToZodOption;

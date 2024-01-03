@@ -1,8 +1,13 @@
 import { O } from "@mobily/ts-belt";
+import { MysqlToZodOption } from "../../../options";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import { SchemaInformation } from "../types/syncType";
-import { getSchemaInformation, schemaInformationToText } from "./syncUtil";
+import {
+	getOutputFilePath,
+	getSchemaInformation,
+	schemaInformationToText,
+} from "./syncUtil";
 
 describe("schemaInformationToText", () => {
 	it("case1", () => {
@@ -46,10 +51,12 @@ describe("getSchemaInformation", () => {
 	it("case1", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation> = O.Some({
-			tableName: "telBlacklistSchema",
-			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
-		});
+		const result: O.Option<SchemaInformation[]> = O.Some([
+			{
+				tableName: "telBlacklistSchema",
+				properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
+			},
+		]);
 		expect(getSchemaInformation(text)).toStrictEqual(result);
 	});
 	it("case2", () => {
@@ -60,25 +67,29 @@ describe("getSchemaInformation", () => {
   disp_cancel: z.number(),
   cancel_text: z.string(),
 });`;
-		const result: O.Option<SchemaInformation> = O.Some({
-			tableName: "configCancelSchema",
-			properties: [
-				{ name: "DB_ID", schema: "z.number()" },
-				{ name: "GROUP_ID", schema: "z.number()" },
-				{ name: "sort_key", schema: "z.number()" },
-				{ name: "disp_cancel", schema: "z.number()" },
-				{ name: "cancel_text", schema: "z.string()" },
-			],
-		});
+		const result: O.Option<SchemaInformation[]> = O.Some([
+			{
+				tableName: "configCancelSchema",
+				properties: [
+					{ name: "DB_ID", schema: "z.number()" },
+					{ name: "GROUP_ID", schema: "z.number()" },
+					{ name: "sort_key", schema: "z.number()" },
+					{ name: "disp_cancel", schema: "z.number()" },
+					{ name: "cancel_text", schema: "z.string()" },
+				],
+			},
+		]);
 		expect(getSchemaInformation(text)).toStrictEqual(result);
 	});
 	it("case3", () => {
 		const text =
 			"export const telBlacklistSchema = z.object({ tel_no_blacklist: z.string() });";
-		const result: O.Option<SchemaInformation> = O.Some({
-			tableName: "telBlacklistSchema",
-			properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
-		});
+		const result: O.Option<SchemaInformation[]> = O.Some([
+			{
+				tableName: "telBlacklistSchema",
+				properties: [{ name: "tel_no_blacklist", schema: "z.string()" }],
+			},
+		]);
 		expect(getSchemaInformation(text)).toStrictEqual(result);
 	});
 });
@@ -98,5 +109,27 @@ describe("formatByPrettier", () => {
 });
 `;
 		expect(formatByPrettier(str)).toBe(result);
+	});
+});
+
+describe("getOutputFilePath", () => {
+	it("case1 no config", () => {
+		const option: MysqlToZodOption = {
+			tableNames: [],
+		};
+		const result = "mysqlToZod/schema.ts";
+		expect(getOutputFilePath(option)).toBe(result);
+	});
+
+	it("case2 exist config", () => {
+		const option: MysqlToZodOption = {
+			tableNames: [],
+			output: {
+				outDir: "./output",
+				fileName: "dbSchema.ts",
+			},
+		};
+		const result = "output/dbSchema.ts";
+		expect(getOutputFilePath(option)).toBe(result);
 	});
 });

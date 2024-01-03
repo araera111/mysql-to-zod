@@ -1,6 +1,5 @@
 import { R, pipe } from "@mobily/ts-belt";
 import { match } from "ts-pattern";
-
 import { MysqlToZodOption } from "../../options";
 import { SchemaInformation } from "./types/syncType";
 import {
