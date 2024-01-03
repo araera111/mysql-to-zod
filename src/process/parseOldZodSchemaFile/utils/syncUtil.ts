@@ -1,13 +1,22 @@
+import { R, pipe } from "@mobily/ts-belt";
 import { readFileSync } from "fs-extra";
 import { join } from "path";
 import { MysqlToZodOption } from "../../../options";
-import { SchemaInformation } from "../types/syncType";
+import { SchemaInformation, schemaInformationSchema } from "../types/syncType";
 import { parse } from "./zodParse";
 
-export const getSchemaInformation = (text: string): SchemaInformation[] => {
-	const result = parse(text);
-	return result as SchemaInformation[];
-};
+export const getSchemaInformation = (
+	text: string,
+): R.Result<SchemaInformation[], string> =>
+	pipe(
+		text,
+		parse,
+		(x) => R.fromExecution(() => x),
+		R.flatMap((x) =>
+			R.fromExecution(() => schemaInformationSchema.array().parse(x)),
+		),
+		R.mapError((x) => `getSchemaInformationError: ${x}`),
+	);
 
 export const schemaInformationToText = (
 	schemaInformation: SchemaInformation,

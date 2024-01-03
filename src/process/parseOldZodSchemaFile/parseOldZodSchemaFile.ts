@@ -28,12 +28,15 @@ export const parseZodSchemaFile = async ({
 				pipe(
 					getOutputFilePath(option),
 					(x) => R.fromExecution(readText(x)),
+					R.mapError((x) => `readTextError: ${x}`),
 					R.map((x) => ({
-						schemaInformationList: getSchemaInformation(x),
+						schemaInformationList: R.getWithDefault(
+							getSchemaInformation(x),
+							[],
+						),
 						tableNames,
 						option,
 					})),
-					R.mapError((x) => `parseZodSchemaFileError: ${x}`),
 				),
 			)
 			.with(false, () =>
