@@ -1,5 +1,5 @@
 import { R } from "@mobily/ts-belt";
-import { AST } from "node-sql-parser";
+import { AST, Create } from "node-sql-parser";
 import rfdc from "rfdc";
 import { MysqlToZodOption } from "../../../options";
 import { CaseUnion } from "../../../options/common";
@@ -7,6 +7,7 @@ import { TypeOption } from "../../../options/type";
 import {
 	composeTypeString,
 	convertTableName,
+	getTableComment,
 	toPascalWrapper,
 } from "./buildSchemaTextUtil";
 import { createSchemaFile, isCreate, makeColumnList } from "./createSchemaFile";
@@ -184,7 +185,7 @@ describe("createSchemaFile", () => {
 		const result = R.Ok({
 			schema:
 				"\n// [table:todo_list] : タスクの一覧を管理するテーブル\nexport const todoListSchema = z.object({// id : 必ず一意になります\nid: z.number(),\ntask: z.string(),\ndescription: z.string().nullish(),\ndue_date: z.date().nullish(),\ncreated_at: z.date().nullish(),\nupdated_at: z.date().nullish(),\n});\nexport type TodoList = z.infer<typeof todoListSchema>;\n\n// [table:todo_list] : タスクの一覧を管理するテーブル\nexport const insertTodoListSchema = z.object({// id : 必ず一意になります\nid: z.number().nullish(),\ntask: z.string(),\ndescription: z.string().nullish(),\ndue_date: z.date().nullish(),\ncreated_at: z.date().nullish(),\nupdated_at: z.date().nullish(),\n});\nexport type InsertTodoList = z.infer<typeof insertTodoListSchema>;",
-			columns: [
+			columnList: [
 				{
 					column: "id",
 					type: "INT",
@@ -420,5 +421,199 @@ describe("makeColumnList", () => {
 		];
 
 		expect(makeColumnList({ create_definitions })).toStrictEqual(result);
+	});
+});
+
+describe("getTableComment", () => {
+	it("", () => {
+		const props: {
+			ast: Create;
+			optionCommentsTable: { active: true; format: string };
+			tableName: string;
+		} = {
+			ast: {
+				type: "create",
+				keyword: "table",
+				temporary: null,
+				if_not_exists: null,
+				table: [
+					{
+						db: null,
+						table: "todo_list",
+					},
+				],
+				ignore_replace: null,
+				as: null,
+				query_expr: null,
+				create_definitions: [
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "id",
+						},
+						definition: {
+							dataType: "INT",
+							suffix: [],
+						},
+						resource: "column",
+						nullable: {
+							type: "not null",
+							value: "not null",
+						},
+						auto_increment: "auto_increment",
+						comment: {
+							type: "comment",
+							keyword: "comment",
+							symbol: null,
+							value: {
+								type: "single_quote_string",
+								value: "必ず一意になります",
+							},
+						},
+					},
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "task",
+						},
+						definition: {
+							dataType: "VARCHAR",
+							length: 255,
+						},
+						resource: "column",
+						nullable: {
+							type: "not null",
+							value: "not null",
+						},
+					},
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "description",
+						},
+						definition: {
+							dataType: "TEXT",
+						},
+						resource: "column",
+					},
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "due_date",
+						},
+						definition: {
+							dataType: "DATE",
+						},
+						resource: "column",
+						default_val: {
+							type: "default",
+							value: {
+								type: "null",
+								value: null,
+							},
+						},
+					},
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "created_at",
+						},
+						definition: {
+							dataType: "TIMESTAMP",
+						},
+						resource: "column",
+						nullable: {
+							type: "null",
+							value: "null",
+						},
+						default_val: {
+							type: "default",
+							value: {
+								type: "function",
+								name: "CURRENT_TIMESTAMP",
+								over: null,
+							},
+						},
+					},
+					{
+						column: {
+							type: "column_ref",
+							table: null,
+							column: "updated_at",
+						},
+						definition: {
+							dataType: "TIMESTAMP",
+						},
+						resource: "column",
+						nullable: {
+							type: "null",
+							value: "null",
+						},
+						default_val: {
+							type: "default",
+							value: {
+								type: "function",
+								name: "CURRENT_TIMESTAMP",
+								over: {
+									type: "on update",
+									keyword: "CURRENT_TIMESTAMP",
+									parentheses: false,
+									expr: null,
+								},
+							},
+						},
+					},
+					{
+						constraint: null,
+						definition: [
+							{
+								type: "column_ref",
+								column: "id",
+								order_by: null,
+							},
+						],
+						constraint_type: "primary key",
+						keyword: null,
+						index_type: null,
+						resource: "constraint",
+						index_options: null,
+					},
+				],
+				table_options: [
+					{
+						keyword: "engine",
+						symbol: "=",
+						value: "INNODB",
+					},
+					{
+						keyword: "default charset",
+						symbol: "=",
+						value: "utf8mb4",
+					},
+					{
+						keyword: "collate",
+						symbol: "=",
+						value: "utf8mb4_0900_ai_ci",
+					},
+					{
+						keyword: "comment",
+						symbol: "=",
+						value: "'タスクの一覧を管理するテーブル'",
+					},
+				],
+			},
+			optionCommentsTable: {
+				active: true,
+				format: "// [table:!name] : !text",
+			},
+			tableName: "todo_list",
+		};
+		const result = "// [table:todo_list] : タスクの一覧を管理するテーブル";
+		expect(getTableComment(props)).toBe(result);
 	});
 });

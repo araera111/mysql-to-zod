@@ -143,30 +143,35 @@ export const getTableComment = ({
 	tableName,
 	ast,
 	optionCommentsTable,
-}: GetTableCommentParams): string | undefined => {
-	const parsedOptionCommentsTable = optionTableCommentsSchema.parse(
+	/* TODO:wip, string | undefined -> Option<string> */
+}: GetTableCommentParams): string | undefined =>
+	pipe(
 		optionCommentsTable ?? {},
+		optionTableCommentsSchema.parse,
+		(optionCommentsTable) =>
+			optionCommentsTable.active === true
+				? O.Some(optionCommentsTable)
+				: O.None,
+		O.flatMap((optionCommentsTable) =>
+			pipe(
+				ast?.table_options,
+				O.fromNullable,
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				O.map((x) => x.find((x: any) => x.keyword === "comment")),
+				O.flatMap((x) => commentKeywordSchema.parse(x)),
+				O.map((x) =>
+					convertComment({
+						name: tableName,
+						comment: x.value.slice(1, -1),
+						format: optionCommentsTable.format,
+						isTable: true,
+					}),
+				),
+				O.toUndefined,
+			),
+		),
+		O.toUndefined,
 	);
-
-	if (parsedOptionCommentsTable.active === false) return undefined;
-
-	const tableOptions = ast?.table_options;
-	if (G.isNullable(tableOptions)) return undefined;
-
-	const comment = commentKeywordSchema.parse(
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		tableOptions.find((x: any) => x.keyword === "comment"),
-	);
-
-	if (G.isNullable(comment)) return undefined;
-
-	return convertComment({
-		name: tableName,
-		comment: comment.value.slice(1, -1),
-		format: parsedOptionCommentsTable.format,
-		isTable: true,
-	});
-};
 
 type ComposeTableSchemaTextParams = {
 	schemaText: string;

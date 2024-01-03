@@ -73,7 +73,7 @@ export const mergeSchemaTextWithOldInformation = ({
 
 type CreateSchemaProps = {
 	tableName: string;
-	columns: readonly Column[];
+	columnList: readonly Column[];
 	options: MysqlToZodOption;
 	tableComment: string | undefined;
 	schemaInformationList: readonly SchemaInformation[];
@@ -81,7 +81,7 @@ type CreateSchemaProps = {
 };
 export const createSchema = ({
 	tableName,
-	columns,
+	columnList: columns,
 	options,
 	tableComment,
 	schemaInformationList,
@@ -150,7 +150,7 @@ export const createSchema = ({
 			? `\n${
 					createSchema({
 						tableName,
-						columns,
+						columnList: columns,
 						options,
 						tableComment,
 						schemaInformationList,

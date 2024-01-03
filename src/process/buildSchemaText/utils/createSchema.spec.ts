@@ -5,7 +5,7 @@ import { createSchema } from "./createSchema";
 describe("createSchema", () => {
 	it("case 1 separate = false", () => {
 		const tableName = "todo";
-		const columns: Column[] = [
+		const columnList: Column[] = [
 			{
 				column: "id",
 				type: "INT",
@@ -28,14 +28,14 @@ export type Todo = z.infer<typeof todoSchema>;`;
 
 		const result = {
 			schema: resultSchema,
-			columns,
+			columnList,
 		};
 
 		expect(
 			createSchema({
 				tableName,
 				tableComment: undefined,
-				columns,
+				columnList,
 				options,
 				schemaInformationList: [],
 				mode: "select",
@@ -45,7 +45,7 @@ export type Todo = z.infer<typeof todoSchema>;`;
 
 	it("case2 separate = true", () => {
 		const tableName = "todo";
-		const columns: Column[] = [
+		const columnList: Column[] = [
 			{
 				column: "id",
 				type: "INT",
@@ -71,14 +71,14 @@ export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 
 		const result = {
 			schema: resultSchema,
-			columns,
+			columnList,
 		};
 
 		expect(
 			createSchema({
 				tableName,
 				tableComment: undefined,
-				columns,
+				columnList,
 				options,
 				schemaInformationList: [],
 				mode: "select",
@@ -88,7 +88,7 @@ export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 
 	it("case3 separate = true, suffix", () => {
 		const tableName = "todo";
-		const columns: Column[] = [
+		const columnList: Column[] = [
 			{
 				column: "id",
 				type: "INT",
@@ -115,14 +115,14 @@ export type TodoInsert = z.infer<typeof todoInsertSchema>;`;
 
 		const result = {
 			schema: resultSchema,
-			columns,
+			columnList,
 		};
 
 		expect(
 			createSchema({
 				tableName,
 				tableComment: undefined,
-				columns,
+				columnList,
 				options,
 				schemaInformationList: [],
 				mode: "select",
