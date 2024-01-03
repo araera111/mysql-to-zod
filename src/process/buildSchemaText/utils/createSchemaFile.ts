@@ -1,8 +1,8 @@
 import { G, R } from "@mobily/ts-belt";
 import { AST, Create, Parser } from "node-sql-parser";
 import { objectToCamel } from "ts-case-convert";
-import { SchemaInformation } from "../../../features/sync/types/syncType";
 import { MysqlToZodOption } from "../../../options/options";
+import { SchemaInformation } from "../../parseOldZodSchemaFile/types/syncType";
 import { SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
 import { createSchema } from "./createSchema";

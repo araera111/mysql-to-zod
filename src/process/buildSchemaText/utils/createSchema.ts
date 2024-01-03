@@ -1,12 +1,12 @@
 import { G, pipe } from "@mobily/ts-belt";
-import { SchemaInformation } from "../../../features/sync/types/syncType";
-import { schemaInformationToText } from "../../../features/sync/utils/syncUtil";
-import { parse } from "../../../features/sync/utils/zodParse";
 import { MysqlToZodOption } from "../../../options/options";
 import { schemaOptionSchema } from "../../../options/schema";
 import { separateOptionSchema } from "../../../options/separate";
 import { typeOptionSchema } from "../../../options/type";
 import { formatByPrettier } from "../../formatByPrettier";
+import { SchemaInformation } from "../../parseOldZodSchemaFile/types/syncType";
+import { schemaInformationToText } from "../../parseOldZodSchemaFile/utils/syncUtil";
+import { parse } from "../../parseOldZodSchemaFile/utils/zodParse";
 import { Column, SchemaResult } from "../types/buildSchemaTextType";
 import {
 	CreateSchemaModeUnion,

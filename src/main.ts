@@ -1,6 +1,5 @@
 import { A, AR, pipe } from "@mobily/ts-belt";
 import { Command } from "commander";
-import { parseZodSchemaFile } from "./features/sync/utils/syncUtil";
 import {
 	buildSchemaText,
 	composeGlobalSchema,
@@ -8,6 +7,7 @@ import {
 	init,
 	outputToFile,
 } from "./process";
+import { parseZodSchemaFile } from "./process/parseOldZodSchemaFile/parseOldZodSchemaFile";
 import { throwError } from "./throwError";
 
 const program = new Command();
@@ -16,7 +16,7 @@ const main = (command: Command) =>
 	pipe(
 		command,
 		init,
-		/* get Tables */
+		/* getTables */
 		AR.flatMap((option) => getTables(option)),
 
 		/* fetchSchemaInformationList */

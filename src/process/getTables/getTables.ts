@@ -1,25 +1,7 @@
 import { A, AR, D, G, O, R, pipe } from "@mobily/ts-belt";
-import mysql from "mysql2/promise";
 import { z } from "zod";
-import { MysqlToZodOption } from "../options";
-import {
-	DbConnectionOption,
-	dbConnectionOptionSchema,
-} from "../options/dbConnection";
-
-const createConnection = async (
-	dbConnection: DbConnectionOption,
-): Promise<mysql.Connection> => {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const connection = await mysql.createConnection(dbConnection as any);
-	return connection;
-};
-
-const parseDBConnection = (arg: unknown): O.Option<DbConnectionOption> => {
-	const r = dbConnectionOptionSchema.safeParse(arg);
-	if (r.success) return O.Some(r.data);
-	return O.None;
-};
+import { MysqlToZodOption } from "../../options";
+import { createConnection, parseDBConnection } from "./utils/getTablesUtil";
 
 const stringStringObjectSchema = z.record(z.string()).array(); // {[key: string]: string}[]
 // tableの一覧をmysqlからknexで取得する関数

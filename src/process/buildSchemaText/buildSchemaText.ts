@@ -1,7 +1,7 @@
 import { A, O, R, pipe } from "@mobily/ts-belt";
 import { produce } from "immer";
-import { SchemaInformation } from "../../features/sync/types/syncType";
 import { MysqlToZodOption } from "../../options/options";
+import { SchemaInformation } from "../parseOldZodSchemaFile/types/syncType";
 import { Column, SchemaResult } from "./types/buildSchemaTextType";
 import { strListToStrLf } from "./utils/buildSchemaTextUtil";
 import { createSchemaFile } from "./utils/createSchemaFile";
