@@ -1,23 +1,139 @@
 [
-  "// [table:todo_list] : タスクの一覧を管理するテーブル",
-  "export const todoListSchema = z.object({// id : 必ず一意になります",
-  "id: z.number(),",
-  "task: z.string(),",
-  "description: z.string().nullish(),",
-  "due_date: z.date().nullish(),",
-  "created_at: z.date().nullish(),",
-  "updated_at: z.date().nullish(),",
-  "});",
-  "export type TodoList = z.infer<typeof todoListSchema>;",
-  "",
-  "// [table:todo_list] : タスクの一覧を管理するテーブル",
-  "export const insertTodoListSchema = z.object({// id : 必ず一意になります",
-  "id: z.number().nullish(),",
-  "task: z.string(),",
-  "description: z.string().nullish(),",
-  "due_date: z.date().nullish(),",
-  "created_at: z.date().nullish(),",
-  "updated_at: z.date().nullish(),",
-  "});",
-  "export type InsertTodoList = z.infer<typeof insertTodoListSchema>;"
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "id"
+    },
+    "definition": {
+      "dataType": "INT",
+      "suffix": []
+    },
+    "resource": "column",
+    "nullable": {
+      "type": "not null",
+      "value": "not null"
+    },
+    "auto_increment": "auto_increment",
+    "comment": {
+      "type": "comment",
+      "keyword": "comment",
+      "symbol": null,
+      "value": {
+        "type": "single_quote_string",
+        "value": "必ず一意になります"
+      }
+    }
+  },
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "task"
+    },
+    "definition": {
+      "dataType": "VARCHAR",
+      "length": 255
+    },
+    "resource": "column",
+    "nullable": {
+      "type": "not null",
+      "value": "not null"
+    }
+  },
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "description"
+    },
+    "definition": {
+      "dataType": "TEXT"
+    },
+    "resource": "column"
+  },
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "due_date"
+    },
+    "definition": {
+      "dataType": "DATE"
+    },
+    "resource": "column",
+    "default_val": {
+      "type": "default",
+      "value": {
+        "type": "null",
+        "value": null
+      }
+    }
+  },
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "created_at"
+    },
+    "definition": {
+      "dataType": "TIMESTAMP"
+    },
+    "resource": "column",
+    "nullable": {
+      "type": "null",
+      "value": "null"
+    },
+    "default_val": {
+      "type": "default",
+      "value": {
+        "type": "function",
+        "name": "CURRENT_TIMESTAMP",
+        "over": null
+      }
+    }
+  },
+  {
+    "column": {
+      "type": "column_ref",
+      "table": null,
+      "column": "updated_at"
+    },
+    "definition": {
+      "dataType": "TIMESTAMP"
+    },
+    "resource": "column",
+    "nullable": {
+      "type": "null",
+      "value": "null"
+    },
+    "default_val": {
+      "type": "default",
+      "value": {
+        "type": "function",
+        "name": "CURRENT_TIMESTAMP",
+        "over": {
+          "type": "on update",
+          "keyword": "CURRENT_TIMESTAMP",
+          "parentheses": false,
+          "expr": null
+        }
+      }
+    }
+  },
+  {
+    "constraint": null,
+    "definition": [
+      {
+        "type": "column_ref",
+        "column": "id",
+        "order_by": null
+      }
+    ],
+    "constraint_type": "primary key",
+    "keyword": null,
+    "index_type": null,
+    "resource": "constraint",
+    "index_options": null
+  }
 ]

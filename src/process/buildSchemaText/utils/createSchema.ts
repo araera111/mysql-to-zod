@@ -7,7 +7,7 @@ import { formatByPrettier } from "../../formatByPrettier";
 import { SchemaInformation } from "../../parseOldZodSchemaFile/types/syncType";
 import { schemaInformationToText } from "../../parseOldZodSchemaFile/utils/syncUtil";
 import { parse } from "../../parseOldZodSchemaFile/utils/zodParse";
-import { Column, SchemaResult } from "../types/buildSchemaTextType";
+import { Column } from "../types/buildSchemaTextType";
 import {
 	CreateSchemaModeUnion,
 	combineSchemaNameAndSchemaString,
@@ -16,6 +16,7 @@ import {
 	composeTableSchemaTextList,
 	composeTypeString,
 } from "./buildSchemaTextUtil";
+import { SchemaResult } from "./createSchemaFile";
 type UpdateSchemaTextProps = {
 	schemaName: string;
 	schemaText: string;
@@ -72,7 +73,7 @@ export const mergeSchemaTextWithOldInformation = ({
 
 type CreateSchemaProps = {
 	tableName: string;
-	columns: Column[];
+	columns: readonly Column[];
 	options: MysqlToZodOption;
 	tableComment: string | undefined;
 	schemaInformationList: readonly SchemaInformation[];
@@ -160,6 +161,6 @@ export const createSchema = ({
 
 	return {
 		schema: schema.join("\n") + separeteInsertSchema,
-		columns,
+		columnList: columns,
 	};
 };

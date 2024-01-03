@@ -9,7 +9,7 @@ import {
 	convertTableName,
 	toPascalWrapper,
 } from "./buildSchemaTextUtil";
-import { createSchemaFile, isCreate } from "./createSchemaFile";
+import { createSchemaFile, isCreate, makeColumnList } from "./createSchemaFile";
 
 describe("isCreate", () => {
 	it("case1 true", () => {
@@ -230,5 +230,195 @@ describe("createSchemaFile", () => {
 			],
 		});
 		expect(createSchemaFile(props)).toStrictEqual(result);
+	});
+});
+
+describe("makeColumnList", () => {
+	it("case1", () => {
+		const create_definitions = [
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "id",
+				},
+				definition: {
+					dataType: "INT",
+					suffix: [],
+				},
+				resource: "column",
+				nullable: {
+					type: "not null",
+					value: "not null",
+				},
+				auto_increment: "auto_increment",
+				comment: {
+					type: "comment",
+					keyword: "comment",
+					symbol: null,
+					value: {
+						type: "single_quote_string",
+						value: "必ず一意になります",
+					},
+				},
+			},
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "task",
+				},
+				definition: {
+					dataType: "VARCHAR",
+					length: 255,
+				},
+				resource: "column",
+				nullable: {
+					type: "not null",
+					value: "not null",
+				},
+			},
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "description",
+				},
+				definition: {
+					dataType: "TEXT",
+				},
+				resource: "column",
+			},
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "due_date",
+				},
+				definition: {
+					dataType: "DATE",
+				},
+				resource: "column",
+				default_val: {
+					type: "default",
+					value: {
+						type: "null",
+						value: null,
+					},
+				},
+			},
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "created_at",
+				},
+				definition: {
+					dataType: "TIMESTAMP",
+				},
+				resource: "column",
+				nullable: {
+					type: "null",
+					value: "null",
+				},
+				default_val: {
+					type: "default",
+					value: {
+						type: "function",
+						name: "CURRENT_TIMESTAMP",
+						over: null,
+					},
+				},
+			},
+			{
+				column: {
+					type: "column_ref",
+					table: null,
+					column: "updated_at",
+				},
+				definition: {
+					dataType: "TIMESTAMP",
+				},
+				resource: "column",
+				nullable: {
+					type: "null",
+					value: "null",
+				},
+				default_val: {
+					type: "default",
+					value: {
+						type: "function",
+						name: "CURRENT_TIMESTAMP",
+						over: {
+							type: "on update",
+							keyword: "CURRENT_TIMESTAMP",
+							parentheses: false,
+							expr: null,
+						},
+					},
+				},
+			},
+			{
+				constraint: null,
+				definition: [
+					{
+						type: "column_ref",
+						column: "id",
+						order_by: null,
+					},
+				],
+				constraint_type: "primary key",
+				keyword: null,
+				index_type: null,
+				resource: "constraint",
+				index_options: null,
+			},
+		];
+		const result = [
+			{
+				column: "id",
+				type: "INT",
+				nullable: false,
+				comment: "必ず一意になります",
+				autoIncrement: true,
+			},
+			{
+				column: "task",
+				type: "VARCHAR",
+				nullable: false,
+				comment: undefined,
+				autoIncrement: false,
+			},
+			{
+				column: "description",
+				type: "TEXT",
+				nullable: true,
+				comment: undefined,
+				autoIncrement: false,
+			},
+			{
+				column: "due_date",
+				type: "DATE",
+				nullable: true,
+				comment: undefined,
+				autoIncrement: false,
+			},
+			{
+				column: "created_at",
+				type: "TIMESTAMP",
+				nullable: true,
+				comment: undefined,
+				autoIncrement: false,
+			},
+			{
+				column: "updated_at",
+				type: "TIMESTAMP",
+				nullable: true,
+				comment: undefined,
+				autoIncrement: false,
+			},
+		];
+
+		expect(makeColumnList({ create_definitions })).toStrictEqual(result);
 	});
 });

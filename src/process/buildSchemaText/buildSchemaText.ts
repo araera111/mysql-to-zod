@@ -3,12 +3,12 @@ import { produce } from "immer";
 import { MysqlToZodOption } from "../../options/options";
 import { debugWriteFileSync } from "../../utils/debugUtil";
 import { SchemaInformation } from "../parseOldZodSchemaFile/types/syncType";
-import { Column, SchemaResult } from "./types/buildSchemaTextType";
+import { Column } from "./types/buildSchemaTextType";
 import {
 	makeImportDeclarationList,
 	strListToStrLf,
 } from "./utils/buildSchemaTextUtil";
-import { createSchemaFile } from "./utils/createSchemaFile";
+import { SchemaResult, createSchemaFile } from "./utils/createSchemaFile";
 import { getTableDefinition } from "./utils/getTableDefinition";
 
 type BuildSchemaTextProps = {
@@ -19,7 +19,7 @@ type BuildSchemaTextProps = {
 
 type BuildSchemaTextResult = {
 	text: string;
-	columns: Column[];
+	columns: readonly Column[];
 	option: MysqlToZodOption;
 };
 
@@ -58,7 +58,7 @@ export const buildSchemaText = async ({
 							debugWriteFileSync(ok);
 							const nextResult = produce(result, (draft) => {
 								draft.schema += ok.schema;
-								draft.columns.push(...ok.columns);
+								draft.columnList.push(...ok.columnList);
 							});
 							return loop(tail, nextResult);
 						},
@@ -71,11 +71,11 @@ export const buildSchemaText = async ({
 
 	const schemaTexts = await loop(tables, {
 		schema: "",
-		columns: [],
+		columnList: [],
 	});
 
 	return R.flatMap(schemaTexts, (x) => {
 		const text = strListToStrLf([...importDeclarationList, x.schema]);
-		return R.Ok({ text, columns: x.columns, option });
+		return R.Ok({ text, columns: x.columnList, option });
 	});
 };
