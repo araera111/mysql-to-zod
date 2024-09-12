@@ -23,15 +23,15 @@ Timestamp: z.date(),
 `;
 		const newFile = `import { z } from "zod";
 
-		export const globalSchema = {
+	export const globalSchema = {
 
-		NNN: z.number(),
+	NNN: z.number(),
 
-		mysqlVARCHAR: z.string(),
+	mysqlVARCHAR: z.string(),
 
-		mysqlTINYINT: z.number(),
+	mysqlTINYINT: z.number(),
 
-		mysqlTIMESTAMP: z.date(),
+	mysqlTIMESTAMP: z.date(),
 
 };
 `;

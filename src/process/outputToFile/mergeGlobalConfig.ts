@@ -1,4 +1,4 @@
-import { A, G } from "@mobily/ts-belt";
+import { A, G, pipe } from "@mobily/ts-belt";
 import { formatByPrettier } from "../formatByPrettier";
 type MergeGlobalConfigProps = {
 	oldGlobalSchema: string;
@@ -17,15 +17,34 @@ const splitWithDelimiter = (str: string, delimiter: string) => {
 };
 
 export const toKeyValuePair = (schemaText: string) => {
-	return schemaText
-		.replaceAll("\t", "")
-		.split("\n\n")
-		.filter(
-			(line) =>
-				!ignoreList.some((ignoreWord) => line.includes(ignoreWord)) &&
-				line !== "",
-		)
-		.flatMap((x) => {
+	const loop = (
+		rest: readonly string[],
+		result: string[],
+		str: string,
+		mode: "array" | "string",
+	): string[] => {
+		const [head, ...tail] = rest;
+		if (head === undefined) return result;
+		if (head.startsWith("\t")) {
+			return loop(
+				tail,
+				result,
+				`${str}\n${head.replaceAll("\t", "")}`,
+				"string",
+			);
+		}
+		if (mode === "string" && !head.startsWith("\t")) {
+			return loop(tail, [...result, `${str}\n${head}`], "", "array");
+		}
+		return loop(tail, [...result, str], head, "array");
+	};
+	return pipe(
+		schemaText.split("\n"),
+		A.flatMap((x) => (x === "" ? [] : x.replace("\t", ""))),
+		(x) => loop(x, [], "", "array"),
+		A.filter((x) => x !== ""),
+		A.filter((x) => !ignoreList.some((ignoreWord) => x.includes(ignoreWord))),
+		A.flatMap((x) => {
 			const [key, ...value] = splitWithDelimiter(x, ":");
 			const joinedValue = value.join("").replace(":", ""); // delete first colon.
 			if (!joinedValue || !key) return [];
@@ -33,7 +52,8 @@ export const toKeyValuePair = (schemaText: string) => {
 				key: key.trim(),
 				value: joinedValue.trim(),
 			};
-		});
+		}),
+	);
 };
 
 export const mergeGlobalConfig = async ({

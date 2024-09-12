@@ -9,6 +9,8 @@ export const formatByPrettier = async (str: string, type: SupportedFormatters = 
 		case "babel-ts":
 			return prettier.format(str, {
 				parser: "babel-ts",
+        // Tabs are used instead of spaces to handle indentation when merging globalSchema
+        useTabs: true,
 			});
 		case "sql":
 			return prettier.format(str, {
@@ -20,7 +22,5 @@ export const formatByPrettier = async (str: string, type: SupportedFormatters = 
 			});
 		default:
 			return "";
-
 	}
-
 }

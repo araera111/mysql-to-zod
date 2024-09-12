@@ -80,7 +80,7 @@ export const composeGlobalSchema = ({
 		"};",
 	]
 		.filter((x) => x !== "")
-		.join("\n\n");
+		.join("\n");
 
 	return result;
 };
