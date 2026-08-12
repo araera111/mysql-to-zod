@@ -1,24 +1,21 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "suspicious": {
-        "noConsoleLog": "error"
-      },
-      "correctness": {
-        "noUnusedVariables": "error",
-        "noUnusedImports": "error"
-      }
-    }
-  },
-  "files": {
-    "ignore": [
-      "zodParse.ts"
-    ]
-  }
+	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noConsole": { "level": "error", "options": { "allow": ["log", "error", "info"] } },
+				"noTemplateCurlyInString": "off"
+			},
+			"correctness": {
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error"
+			}
+		}
+	},
+	"files": {
+		"includes": ["**", "!**/zodParse.ts"]
+	}
 }
