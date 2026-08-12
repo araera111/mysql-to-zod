@@ -25,7 +25,9 @@ const commentToText = (comment: unknown): string | undefined => {
 const convertToColumn = (definition: CreateDefinition) => {
 	if (definition.resource !== "column") return undefined;
 
-	const column = definition.column.column;
+	const columnRef = definition.column;
+	if (columnRef.type !== "column_ref") return undefined;
+	const column = typeof columnRef.column === "string" ? columnRef.column : undefined;
 	if (Predicate.isNullable(column)) return undefined;
 
 	const type = definition.definition?.dataType;

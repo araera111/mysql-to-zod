@@ -24,7 +24,7 @@ const parseDBConnection = (arg: unknown): Option.Option<DbConnectionOption> => {
 	return r.success ? Option.some(r.data) : Option.none();
 };
 
-const stringStringObjectSchema = z.record(z.string()).array(); // {[key: string]: string}[]
+const stringStringObjectSchema = z.record(z.string(), z.string()).array(); // {[key: string]: string}[]
 
 // mysqlからテーブル一覧を取得する関数
 export const getTables = (

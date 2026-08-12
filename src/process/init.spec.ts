@@ -48,6 +48,9 @@ describe("configLoad", () => {
 				insertPrefix: "insert",
 				insertSuffix: "",
 			},
+			sync: {
+				active: false,
+			},
 			dbConnection: {
 				database: "my_todo",
 				host: "localhost",
@@ -77,6 +80,48 @@ describe("configLoad", () => {
 				sqlFileName: "tables.sql",
 				saveSql: false,
 				saveAst: false,
+			},
+			comments: {
+				table: {
+					active: true,
+					format: "// [table:!name] : !text",
+				},
+				column: {
+					active: true,
+					format: "// !name : !text",
+				},
+			},
+			type: {
+				declared: "type",
+				format: "pascal",
+				prefix: "",
+				suffix: "",
+				replacements: [],
+			},
+			schema: {
+				format: "camel",
+				prefix: "",
+				suffix: "Schema",
+				replacements: [],
+				nullType: "nullable",
+				inline: true,
+				zod: {
+					implementation: [],
+					references: [],
+					maxLength: {
+						active: false,
+						inline: null,
+						global: null,
+					},
+				},
+			},
+			sync: {
+				active: false,
+			},
+			separate: {
+				isSeparate: false,
+				insertPrefix: "insert",
+				insertSuffix: "",
 			},
 		});
 	});
