@@ -30,7 +30,7 @@
   "author": "yuumillar",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.5.7",
     "@testcontainers/mysql": "^12.1.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^26.2.0",
