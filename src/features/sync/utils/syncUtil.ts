@@ -3,12 +3,18 @@ import { R, pipe } from "@mobily/ts-belt";
 import { readFileSync } from "fs-extra";
 import { match } from "ts-pattern";
 import type { MysqlToZodOption } from "../../../options";
-import type { SchemaInformation } from "../types/syncType";
+import {
+	type SchemaInformation,
+	schemaInformationSchema,
+} from "../types/syncType";
 import { parse } from "./zodParse";
 
 export const getSchemaInformation = (text: string): SchemaInformation[] => {
-	const result = parse(text);
-	return result as SchemaInformation[];
+	const parsed = parse(text);
+	return parsed.flatMap((x) => {
+		const r = schemaInformationSchema.safeParse(x);
+		return r.success ? [r.data] : [];
+	});
 };
 
 export const schemaInformationToText = (

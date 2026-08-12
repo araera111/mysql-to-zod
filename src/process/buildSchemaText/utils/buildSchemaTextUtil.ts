@@ -1,4 +1,4 @@
-import { A, G, O, pipe } from "@mobily/ts-belt";
+import { Array, Option, Predicate, pipe } from "effect";
 import type { Create } from "node-sql-parser";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
@@ -17,76 +17,12 @@ import {
 	type Column,
 	commentKeywordSchema,
 } from "../types/buildSchemaTextType";
-export const isMaybeRegExp = (str: string): boolean =>
+
+const isMaybeRegExp = (str: string): boolean =>
 	str.startsWith("/") && str.endsWith("/");
 
-/* 
-  knex result
-	  {
-	  tinyint_column: -128,
-	  smallint_column: -32768,
-	  mediumint_column: -8388608,
-	  int_column: -2147483648,
-	  bigint_column: -9223372036854776000,
-	  float_column: -3.40282e+38,
-	  double_column: -1.7976931348623155e+308,
-	  decimal_column: '1234.56',
-	  date_column: 2023-07-12T15:00:00.000Z,
-	  time_column: '23:59:59',
-	  datetime_column: 2023-07-13T14:59:59.000Z,
-	  timestamp_column: 2023-07-13T14:59:59.000Z,
-	  year_column: 2023,
-	  char_column: 'char_value',
-	  varchar_column: 'varchar_value',
-	  binary_column: <Buffer 31 31 31 00 00 00 00 00 00 00>,
-	  varbinary_column: <Buffer 76 61 72 62 69 6e 61 72 79 5f 76 61 6c 75 65>,
-	  tinyblob_column: <Buffer 74 69 6e 79 62 6c 6f 62 5f 76 61 6c 75 65>,
-	  blob_column: <Buffer 62 6c 6f 62 5f 76 61 6c 75 65>,
-	  mediumblob_column: <Buffer 6d 65 64 69 75 6d 62 6c 6f 62 5f 76 61 6c 75 65>,
-	  longblob_column: <Buffer 6c 6f 6e 67 62 6c 6f 62 5f 76 61 6c 75 65>,
-	  tinytext_column: 'tinytext_value',
-	  text_column: 'text_value',
-	  mediumtext_column: 'mediumtext_value',
-	  longtext_column: 'longtext_value',
-	  enum_column: 'value1',
-	  set_column: 'value2'
-	}
-*/
-
-/*
-  const typeMap = {
-	tinyint: "number",
-	smallint: "number",
-	mediumint: "number",
-	int: "number",
-	bigint: "number",
-	float: "number",
-	double: "number",
-	decimal: "string",
-	date: "date",
-	time: "string",
-	datetime: "date",
-	timestamp: "date",
-	year: "number",
-	char: "string",
-	varchar: "string",
-	binary: "Buffer",
-	varbinary: "Buffer",
-	tinyblob: "Buffer",
-	blob: "Buffer",
-	mediumblob: "Buffer",
-	longblob: "Buffer",
-	tinytext: "string",
-	text: "string",
-	mediumtext: "string",
-	longtext: "string",
-	enum: "string",
-	set: "string",
-  };
-  */
-
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
-export const addSingleQuotation = (str: string) => {
+export const addSingleQuotation = (str: string): string => {
 	if (str.match(/^[0-9]/)) {
 		return `'${str}'`;
 	}
@@ -104,7 +40,9 @@ export const replaceTableName = ({
 }: ReplaceTableNameParams): string => {
 	const [before, after] = replacements;
 	/* if replacement[0]or[1] undefined -> return original tableName */
-	if (G.isNullable(before) || G.isNullable(after)) return tableName;
+	if (Predicate.isNullable(before) || Predicate.isNullable(after)) {
+		return tableName;
+	}
 
 	/* if notRegexp -> replace */
 	if (!isMaybeRegExp(before)) return tableName.replace(before, after);
@@ -114,7 +52,7 @@ export const replaceTableName = ({
 	return tableName.replace(regex, after);
 };
 
-type ConvertComment = {
+type ConvertCommentParams = {
 	name: string;
 	comment: string;
 	format: string;
@@ -125,7 +63,7 @@ export const convertComment = ({
 	comment,
 	format,
 	isTable,
-}: ConvertComment) => {
+}: ConvertCommentParams): string => {
 	if (format === "") {
 		const defaultFormat = isTable
 			? defaultTableCommentFormat
@@ -152,14 +90,13 @@ export const getTableComment = ({
 	if (parsedOptionCommentsTable.active === false) return undefined;
 
 	const tableOptions = ast?.table_options;
-	if (G.isNullable(tableOptions)) return undefined;
+	if (Predicate.isNullable(tableOptions)) return undefined;
 
 	const comment = commentKeywordSchema.parse(
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		tableOptions.find((x: any) => x.keyword === "comment"),
+		tableOptions.find((x) => x.keyword === "comment"),
 	);
 
-	if (G.isNullable(comment)) return undefined;
+	if (Predicate.isNullable(comment)) return undefined;
 
 	return convertComment({
 		name: tableName,
@@ -179,13 +116,10 @@ export const composeTableSchemaTextList = ({
 	typeString,
 	tableComment,
 }: ComposeTableSchemaTextParams): string[] => {
-	const tableCommentString = G.isNullable(tableComment)
+	const tableCommentString = Predicate.isNullable(tableComment)
 		? ""
 		: `\n${tableComment}`;
-	const strList = [tableCommentString, schemaText, typeString].filter(
-		(x) => x !== "",
-	);
-	return strList;
+	return [tableCommentString, schemaText, typeString].filter((x) => x !== "");
 };
 
 type ToImplementationParams = {
@@ -203,7 +137,7 @@ export const toImplementation = ({
 		const reference = option?.schema?.zod?.references?.find(
 			(x) => x[0] === type,
 		);
-		if (!G.isNullable(reference)) return `globalSchema.${reference[1]}`;
+		if (!Predicate.isNullable(reference)) return `globalSchema.${reference[1]}`;
 
 		/* !inline && not includes reference */
 		return `globalSchema.mysql${type}`;
@@ -212,7 +146,7 @@ export const toImplementation = ({
 	const reference = option?.schema?.zod?.implementation?.find(
 		(x) => x[0] === type,
 	);
-	if (!G.isNullable(reference)) return reference[1];
+	if (!Predicate.isNullable(reference)) return reference[1];
 
 	return undefined;
 };
@@ -229,7 +163,7 @@ export const convertToZodType = ({
 		type,
 		option,
 	});
-	if (!G.isNullable(impl)) return impl;
+	if (!Predicate.isNullable(impl)) return impl;
 	return match(type)
 		.with("TINYINT", () => "z.number()")
 		.with("SMALLINT", () => "z.number()")
@@ -263,7 +197,7 @@ export const convertToZodType = ({
 		.otherwise(() => "z.unknown()");
 };
 
-type ConvertCommentProps = {
+type GetCommentStringParams = {
 	comment: string | undefined;
 	active: boolean;
 	column: Column;
@@ -274,8 +208,8 @@ const getCommentString = ({
 	active,
 	column,
 	option,
-}: ConvertCommentProps): string | undefined => {
-	if (G.isNullable(comment) || !active) return undefined;
+}: GetCommentStringParams): string | undefined => {
+	if (Predicate.isNullable(comment) || !active) return undefined;
 	const { comments } = option;
 	return convertComment({
 		name: column.column,
@@ -287,7 +221,7 @@ const getCommentString = ({
 
 export type CreateSchemaModeUnion = "select" | "insert";
 
-type AddNullTypeProps = {
+type AddNullTypeParams = {
 	autoIncrement: boolean;
 	nullable: boolean;
 	mode: CreateSchemaModeUnion;
@@ -298,7 +232,7 @@ const addNullType = ({
 	nullable,
 	mode,
 	option,
-}: AddNullTypeProps) => {
+}: AddNullTypeParams): string => {
 	if (mode === "select") {
 		return nullable ? `.${option.schema?.nullType ?? "nullable"}()` : "";
 	}
@@ -308,7 +242,7 @@ const addNullType = ({
 		: "";
 };
 
-type ComposeColumnStringListProps = {
+type ComposeColumnStringListParams = {
 	column: Column;
 	option: MysqlToZodOption;
 	mode: CreateSchemaModeUnion;
@@ -317,7 +251,7 @@ export const composeColumnStringList = ({
 	column,
 	option,
 	mode,
-}: ComposeColumnStringListProps): string[] => {
+}: ComposeColumnStringListParams): string[] => {
 	const { comment, nullable, type, autoIncrement, length } = column;
 	const { comments } = option;
 
@@ -327,10 +261,10 @@ export const composeColumnStringList = ({
 	});
 	const maybeNullable = addNullType({ nullable, option, mode, autoIncrement });
 
-	const isValidLength = (value: typeof length, datatype: string) =>
-		option.schema?.zod?.maxLength?.active &&
-		!option.schema?.inline &&
-		value &&
+	const isValidLength = (value: typeof length, datatype: string): boolean =>
+		option.schema?.zod?.maxLength?.active === true &&
+		option.schema?.inline === false &&
+		Predicate.isNotNullable(value) &&
 		value > 0 &&
 		datatype !== "DATE" &&
 		datatype !== "TIMESTAMP";
@@ -353,7 +287,7 @@ export const composeColumnStringList = ({
 	// assemble final schema string
 	const zodSchema = zodType + max + maybeNullable;
 
-	const result: string[] = [
+	return [
 		getCommentString({
 			comment,
 			active: comments?.column?.active ?? true,
@@ -361,12 +295,8 @@ export const composeColumnStringList = ({
 			option,
 		}),
 		`${addSingleQuotation(column.column)}: ${zodSchema},\n`,
-	].flatMap((x) => (G.isNullable(x) ? [] : [x]));
-
-	return result;
+	].flatMap((x) => (Predicate.isNullable(x) ? [] : [x]));
 };
-
-export const toPascalWrapper = (str: string) => toPascal(str);
 
 type ConvertTableNameParams = {
 	tableName: string;
@@ -378,21 +308,22 @@ const loopReplace = (
 	replacements: readonly string[][],
 	tableName: string,
 ): string => {
-	if (A.isEmpty(replacements)) return tableName;
-	const headReplacements = pipe(replacements, A.head, O.getExn);
-	const tailReplacements = pipe(replacements, A.tail, O.getExn);
-	const string = replaceTableName({
+	if (Array.isEmpty(replacements)) return tableName;
+	const headReplacements = pipe(replacements, Array.head, Option.getOrThrow);
+	const tailReplacements = pipe(replacements, Array.tail, Option.getOrThrow);
+	const replaced = replaceTableName({
 		tableName,
 		replacements: headReplacements,
 	});
-	return loopReplace(tailReplacements, string);
+	return loopReplace(tailReplacements, replaced);
 };
+
 export const convertTableName = ({
 	tableName,
 	format,
 	replacements,
-}: ConvertTableNameParams) => {
-	const replaced = A.isEmpty(replacements)
+}: ConvertTableNameParams): string => {
+	const replaced = Array.isEmpty(replacements)
 		? tableName
 		: loopReplace(replacements, tableName);
 
@@ -411,10 +342,10 @@ type CombineSchemaNameAndSchemaStringParams = {
 export const combineSchemaNameAndSchemaString = ({
 	schemaName,
 	schemaString,
-}: CombineSchemaNameAndSchemaStringParams) =>
+}: CombineSchemaNameAndSchemaStringParams): string =>
 	`export const ${schemaName} = z.object({${schemaString}});`;
 
-type composeSchemaNameParams = {
+type ComposeSchemaNameParams = {
 	schemaOption: SchemaOption;
 	tableName: string;
 	mode: CreateSchemaModeUnion;
@@ -426,7 +357,7 @@ export const composeSchemaName = ({
 	tableName,
 	mode,
 	separateOption,
-}: composeSchemaNameParams): string => {
+}: ComposeSchemaNameParams): string => {
 	const { prefix, suffix, format, replacements } = schemaOption;
 	if (mode === "select") {
 		return `${prefix}${convertTableName({
@@ -466,20 +397,19 @@ export const composeTypeString = ({
 
 	if (mode === "insert") {
 		const { insertPrefix, insertSuffix } = separateOption;
-		const str = `export ${declared} ${prefix}${convertTableName({
+		return `export ${declared} ${prefix}${convertTableName({
 			tableName: `${insertPrefix ?? ""}_${tableName}${insertSuffix ?? ""}`,
 			format,
 			replacements,
 		})}${suffix} = z.infer<typeof ${schemaName}>;`;
-		return `${str}`;
 	}
 
-	/* export:prefix type:declared Todo:tableName = z.infer<typeof todo:schemaname>; */
-	const str = `export ${declared} ${prefix}${convertTableName({
+	return `export ${declared} ${prefix}${convertTableName({
 		tableName,
 		format,
 		replacements,
 	})}${suffix} = z.infer<typeof ${schemaName}>;`;
-	return `${str}`;
 };
-export const strListToStrLf = (strList: string[]): string => strList.join("\n");
+
+export const strListToStrLf = (strList: string[]): string =>
+	strList.join("\n");

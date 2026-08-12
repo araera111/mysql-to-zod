@@ -4,7 +4,6 @@ import type { TypeOption } from "../../../options/type";
 import {
 	composeTypeString,
 	convertTableName,
-	toPascalWrapper,
 } from "./buildSchemaTextUtil";
 import { isCreate } from "./createSchemaFile";
 
@@ -34,14 +33,6 @@ describe("convertTableName", () => {
 		const replacements: string[][] = [];
 		const result = "todo";
 		expect(convertTableName({ tableName, format, replacements })).toBe(result);
-	});
-});
-
-describe("toPascalWrapper", () => {
-	it("case 1", () => {
-		const str = "todo";
-		const result = "Todo";
-		expect(toPascalWrapper(str)).toBe(result);
 	});
 });
 

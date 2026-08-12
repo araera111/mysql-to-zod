@@ -1,4 +1,4 @@
-import { A, AR, D, G, O, R, pipe } from "@mobily/ts-belt";
+import { Array, Effect, Option, Predicate, pipe } from "effect";
 import mysql from "mysql2/promise";
 import { z } from "zod";
 import type { MysqlToZodOption } from "../../options";
@@ -8,82 +8,62 @@ import {
 } from "../../options/dbConnection";
 import { filterTable } from "./utils/getTablesUtil";
 
-const createConnection = async (
+const createConnection = (
 	dbConnection: DbConnectionOption,
-): Promise<mysql.Connection> => {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const connection = await mysql.createConnection(dbConnection as any);
-	return connection;
-};
+): Effect.Effect<mysql.Connection, string> =>
+	Effect.tryPromise({
+		try: () =>
+			typeof dbConnection === "string"
+				? mysql.createConnection(dbConnection)
+				: mysql.createConnection(dbConnection),
+		catch: (x) => `getTablesError: ${String(x)}`,
+	});
 
-const parseDBConnection = (arg: unknown): O.Option<DbConnectionOption> => {
+const parseDBConnection = (
+	arg: unknown,
+): Option.Option<DbConnectionOption> => {
 	const r = dbConnectionOptionSchema.safeParse(arg);
-	if (r.success) return O.Some(r.data);
-	return O.None;
+	return r.success ? Option.some(r.data) : Option.none();
 };
 
 const stringStringObjectSchema = z.record(z.string()).array(); // {[key: string]: string}[]
-// tableの一覧をmysqlからknexで取得する関数
+
+// mysqlからテーブル一覧を取得する関数
 export const getTables = (
 	option: MysqlToZodOption,
-): Promise<
-	R.Result<
-		{
-			tableNames: readonly string[];
-			option: MysqlToZodOption;
-		},
-		string
-	>
+): Effect.Effect<
+	{ tableNames: readonly string[]; option: MysqlToZodOption },
+	string
 > =>
-	pipe(
-		option.tableNames,
-		O.fromPredicate((x) => G.isNullable(x)),
-		O.match(
-			/* If options has tableNames, return as is */
-			async (some) => {
-				return R.Ok({ tableNames: some, option });
-			},
-			() => {
-				/* Whether there is a dbConnection in options or args */
-				return R.match(
-					pipe(
-						option,
-						(x) => x.dbConnection,
-						parseDBConnection,
-						O.toResult("dbConnection is required"),
-					),
-					/* If there is a dbConnection, show tables to get tableNames */
-					(ok) =>
-						pipe(
-							ok,
-							createConnection,
-							AR.make,
-							AR.map(async (x) => {
-								const [tables] = await x.query("show tables");
-								await x.destroy();
-								return tables;
-							}),
-							AR.flatMap((x) => AR.make(x)),
-							AR.map((x) => ({
-								tableNames: pipe(
-									x,
-									stringStringObjectSchema.parse,
-									A.flatMap((x) => D.values(x)),
-									A.filter((tableName) =>
-										filterTable({
-											configTableNameList: option.tableNames ?? [],
-											tableName,
-										}),
-									),
-								),
-								option,
-							})),
-							AR.mapError((x) => `getTablesError: ${x}`),
-						),
-					async (err) => {
-						return R.Error(err);
-					},
-				);
-			},
-		),
-	);
+	Effect.gen(function* () {
+		const configTableNames = option.tableNames;
+		/* option.tableNamesがあればそのまま返す */
+		if (Predicate.isNotNullable(configTableNames)) {
+			return { tableNames: configTableNames, option };
+		}
+
+		/* dbConnectionからテーブル一覧を取得する */
+		const dbConnection = yield* pipe(
+			parseDBConnection(option.dbConnection),
+			Effect.fromOption(() => "dbConnection is required"),
+		);
+		const connection = yield* createConnection(dbConnection);
+		const [tables] = yield* Effect.tryPromise({
+			try: () => connection.query("show tables"),
+			catch: (x) => `getTablesError: ${String(x)}`,
+		});
+		yield* Effect.tryPromise({
+			try: () => connection.destroy(),
+			catch: (x) => `getTablesError: ${String(x)}`,
+		});
+
+		const tableNames = pipe(
+			tables,
+			stringStringObjectSchema.parse,
+			Array.flatMap((x) => Object.values(x)),
+			Array.filter((tableName) =>
+				filterTable({ configTableNameList: configTableNames ?? [], tableName }),
+			),
+		);
+		return { tableNames, option };
+	});

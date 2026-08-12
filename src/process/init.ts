@@ -1,5 +1,4 @@
-import { A, D, G, O, R, pipe } from "@mobily/ts-belt";
-import type { Result } from "@mobily/ts-belt/dist/types/Result";
+import { Array, Effect, Option, Predicate, pipe } from "effect";
 import type { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
 import { z } from "zod";
@@ -8,18 +7,24 @@ import {
 	type MysqlToZodOption,
 	basicMySQLToZodOption,
 } from "../options/options";
-export const configLoad = async (
-	configFilePath: string,
-): Promise<Result<MysqlToZodOption, string>> => {
-	const explorer = cosmiconfig("mysqlToZod", {
-		searchPlaces: [configFilePath],
-	});
-	const cfg = await explorer.search();
 
-	return G.isNotNullable(cfg)
-		? R.Ok(cfg.config)
-		: R.Error("config file is not Found");
-};
+export const configLoad = (
+	configFilePath: string,
+): Effect.Effect<MysqlToZodOption, string> =>
+	pipe(
+		Effect.tryPromise({
+			try: () =>
+				cosmiconfig("mysqlToZod", {
+					searchPlaces: [configFilePath],
+				}).search(),
+			catch: () => "config file is not Found",
+		}),
+		Effect.flatMap((cfg) =>
+			Predicate.isNullable(cfg)
+				? Effect.fail("config file is not Found")
+				: Effect.succeed(cfg.config),
+		),
+	);
 
 /*
   この関数は、configファイルを読み込む
@@ -34,19 +39,22 @@ export const configLoad = async (
 */
 
 type GetDBConnectionProps = {
-	dbConnection: O.Option<string>;
-	config: R.Result<MysqlToZodOption, string>;
+	dbConnection: Option.Option<string>;
+	config: Effect.Effect<MysqlToZodOption, string>;
 };
 const getDBConnection = ({
 	dbConnection,
 	config,
-}: GetDBConnectionProps): Result<string | DbConnectionOption, string> => {
-	if (O.isSome(dbConnection)) return R.Ok(dbConnection);
+}: GetDBConnectionProps): Effect.Effect<string | DbConnectionOption, string> => {
+	if (Option.isSome(dbConnection)) return Effect.succeed(dbConnection.value);
 	return pipe(
 		config,
-		R.toOption,
-		O.flatMap((x) => O.getWithDefault(x.dbConnection, O.None)),
-		O.toResult("dbConnection is required"),
+		Effect.flatMap((x) =>
+			Option.match(Option.fromNullable(x.dbConnection), {
+				onNone: () => Effect.fail("dbConnection is required"),
+				onSome: Effect.succeed,
+			}),
+		),
 	);
 };
 
@@ -54,24 +62,20 @@ export const commandOptionSchema = z.object({
 	file: z.string(),
 });
 export type CommandOption = z.infer<typeof commandOptionSchema>;
-export const init = async (
+
+export const init = (
 	program: Command,
 	configFilePath: string,
-): Promise<Result<MysqlToZodOption, string>> => {
-	const config = await configLoad(configFilePath);
-	const argsDBConnection = A.get(program.args, 0);
-	const dbConnection = getDBConnection({
-		dbConnection: argsDBConnection,
-		config,
+): Effect.Effect<MysqlToZodOption, string> =>
+	Effect.gen(function* () {
+		const config = yield* configLoad(configFilePath);
+		const dbConnection = yield* getDBConnection({
+			dbConnection: Array.get(program.args, 0),
+			config,
+		});
+		const option = yield* pipe(
+			config,
+			Effect.getOrElse(() => Effect.succeed(basicMySQLToZodOption)),
+		);
+		return { ...option, dbConnection };
 	});
-
-	return R.flatMap(dbConnection, (x) =>
-		R.Ok(
-			pipe(
-				config,
-				R.getWithDefault(basicMySQLToZodOption),
-				D.set("dbConnection", x),
-			),
-		),
-	);
-};

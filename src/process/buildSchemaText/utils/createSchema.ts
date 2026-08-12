@@ -1,5 +1,8 @@
-import { G, pipe } from "@mobily/ts-belt";
-import type { SchemaInformation } from "../../../features/sync/types/syncType";
+import { A, G, O, pipe } from "@mobily/ts-belt";
+import {
+	type SchemaInformation,
+	schemaInformationSchema,
+} from "../../../features/sync/types/syncType";
 import { schemaInformationToText } from "../../../features/sync/utils/syncUtil";
 import { parse } from "../../../features/sync/utils/zodParse";
 import type { MysqlToZodOption } from "../../../options/options";
@@ -16,41 +19,36 @@ import {
 	composeTableSchemaTextList,
 	composeTypeString,
 } from "./buildSchemaTextUtil";
-type UpdateSchemaTextProps = {
+
+type MergeSchemaTextWithOldInformationProps = {
 	schemaName: string;
-	schemaText: string;
 	schemaInformation: SchemaInformation;
+	schemaText: string;
 };
 
 export const mergeSchemaTextWithOldInformation = async ({
 	schemaName,
 	schemaInformation,
 	schemaText,
-}: UpdateSchemaTextProps) => {
+}: MergeSchemaTextWithOldInformationProps) => {
 	/* 完成したテキストからschemaInformationをつくる */
 	const formatted = await formatByPrettier(schemaText);
 	const nextSchemaInformation = pipe(
 		formatted,
 		parse,
-		(x) => x[0] as SchemaInformation,
-		(x) => {
-			return {
-				tableName: x.tableName,
-				properties: x.properties.flatMap((x) =>
-					G.isNotNullable(x) ? [x] : [],
-				),
-			};
-		},
+		A.head,
+		O.flatMap((x) =>
+			O.fromNullable(schemaInformationSchema.safeParse(x).data),
+		),
 	);
 
-	/*
-    完成したテキストとnameが一致していないときは、そのまま返す
-    この前ですでにfindを使って取得しているはずだが、一応。
-  */
-	if (nextSchemaInformation.tableName !== schemaName) return schemaText;
+	/* パースできない場合や、nameが一致しないときは、そのまま返す */
+	if (O.isNone(nextSchemaInformation)) return schemaText;
+	const { tableName, properties } = O.getExn(nextSchemaInformation);
+	if (tableName !== schemaName) return schemaText;
 
 	/* 一致しているときは、propertiesからfindして、あったら入れ替える */
-	const nextProperties = nextSchemaInformation.properties.map((property) => {
+	const nextProperties = properties.map((property) => {
 		const replaceElement = schemaInformation.properties.find(
 			(y) => y.name === property.name,
 		);
@@ -59,7 +57,7 @@ export const mergeSchemaTextWithOldInformation = async ({
 	});
 
 	const replacedSchemaInformation = {
-		...nextSchemaInformation,
+		tableName,
 		properties: nextProperties,
 	};
 	const rawNextSchemaText = schemaInformationToText(
@@ -93,6 +91,7 @@ export const createSchema = async ({
 
 	const schemaOption = schemaOptionSchema.parse(options.schema);
 	const separateOption = separateOptionSchema.parse(options.separate);
+	const typeOption = typeOptionSchema.parse(options.type);
 
 	const schemaName = composeSchemaName({
 		schemaOption,
@@ -116,15 +115,8 @@ export const createSchema = async ({
 		: await mergeSchemaTextWithOldInformation({
 				schemaName,
 				schemaText,
-				schemaInformation: {
-					tableName: thisSchemaInformation.tableName,
-					properties: thisSchemaInformation.properties.flatMap((x) =>
-						G.isNotNullable(x) ? [x] : [],
-					),
-				},
+				schemaInformation: thisSchemaInformation,
 			});
-
-	const typeOption = typeOptionSchema.parse(options.type);
 
 	const typeString = composeTypeString({
 		typeOption,
@@ -140,11 +132,9 @@ export const createSchema = async ({
 		tableComment,
 	});
 
-	const separateSchema = separateOptionSchema.parse(options.separate);
-
 	/* isSeparateのとき、関数をinsert modeで再実行する */
-	const separeteInsertSchema =
-		separateSchema.isSeparate && mode === "select"
+	const separateInsertSchema =
+		separateOption.isSeparate && mode === "select"
 			? `\n${await createSchema({
 					tableName,
 					columns,
@@ -156,7 +146,7 @@ export const createSchema = async ({
 			: "";
 
 	return {
-		schema: schema.join("\n") + separeteInsertSchema,
+		schema: schema.join("\n") + separateInsertSchema,
 		columns,
 	};
 };

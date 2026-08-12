@@ -6,6 +6,7 @@ type ComposeGlobalSchemaRowParams = {
 	type: string;
 	option: MysqlToZodOption;
 };
+
 export const composeGlobalSchemaRow = ({
 	type,
 	option,
@@ -13,9 +14,7 @@ export const composeGlobalSchemaRow = ({
 	const existReference = option.schema?.zod?.references?.find(
 		(x) => x[0] === type,
 	);
-	return `${
-		existReference ? existReference[1] : `mysql${type}`
-	}: ${convertToZodType({
+	return `${existReference ? existReference[1] : `mysql${type}`}: ${convertToZodType({
 		type,
 		option: produce(option, (draft) => {
 			if (draft.schema) {
@@ -30,53 +29,54 @@ type ComposeGlobalSchemaParams = {
 	option: MysqlToZodOption;
 };
 
-let maxLengthFunction = `
-maxLength: (arg: any, limit: number, ctx?: RefinementCtx) : boolean => {
-  if (arg?.toString()?.length > limit) {
-    if (ctx)
-      ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
-        maximum: limit,
-        type: typeof arg === "number" ? "number" : "string",
-        inclusive: true,
-		_MSG_
-     });
-    return false;
-  }
-  return true;
-},`;
+const buildMaxLengthFunction = (option: MysqlToZodOption): string => {
+	const maxLength = option.schema?.zod?.maxLength;
+	if (maxLength?.active !== true) return "";
+
+	const messageLine = maxLength.global
+		? `\t\t\t\tmessage: \`${maxLength.global}\`,`
+		: "";
+
+	return [
+		"maxLength: (arg: any, limit: number, ctx?: RefinementCtx): boolean => {",
+		"\tif (arg?.toString()?.length > limit) {",
+		"\t\tif (ctx)",
+		"\t\t\tctx.addIssue({",
+		"\t\t\t\tcode: z.ZodIssueCode.too_big,",
+		"\t\t\t\tmaximum: limit,",
+		'\t\t\t\ttype: typeof arg === "number" ? "number" : "string",',
+		"\t\t\t\tinclusive: true,",
+		messageLine,
+		"\t\t\t});",
+		"\t\treturn false;",
+		"\t}",
+		"\treturn true;",
+		"},",
+	]
+		.filter((x) => x !== "")
+		.join("\n");
+};
+
+const buildImportStatement = (option: MysqlToZodOption): string =>
+	option.schema?.inline === false && option.schema?.zod?.maxLength?.active === true
+		? 'import { z, RefinementCtx } from "zod";'
+		: 'import { z } from "zod";';
 
 export const composeGlobalSchema = ({
 	typeList,
 	option,
 }: ComposeGlobalSchemaParams): string | undefined => {
 	if (option.schema?.inline === true) return undefined;
-	const rows = typeList
-		.map((type) => composeGlobalSchemaRow({ type, option }))
-		.join("")
-		.split("\n")
-		.filter((x) => x !== "");
-	if (option.schema?.zod?.maxLength?.active) {
-		let message = "";
-		if (option.schema?.zod?.maxLength?.global) {
-			message = `message: \`${option.schema.zod.maxLength.global}\``;
-		}
-		maxLengthFunction = maxLengthFunction.replace("_MSG_", message);
-	} else {
-		maxLengthFunction = "";
-	}
 
-	const importStatement =
-		option?.schema?.inline === false &&
-		option?.schema?.zod?.maxLength?.active === true
-			? 'import { z, RefinementCtx } from "zod";'
-			: 'import { z } from "zod";';
+	const rows = typeList.map((type) =>
+		composeGlobalSchemaRow({ type, option }).trim(),
+	);
 
 	const result = [
-		importStatement,
+		buildImportStatement(option),
 		"export const globalSchema = {",
 		...rows,
-		`${maxLengthFunction}`,
+		buildMaxLengthFunction(option),
 		"};",
 	]
 		.filter((x) => x !== "")
