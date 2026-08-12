@@ -18,9 +18,13 @@ export default defineConfig({
 					lang: "ja",
 				},
 			},
-			social: {
-				github: "https://github.com/araera111/mysql-to-zod",
-			},
+			social: [
+				{
+					icon: "github",
+					label: "GitHub",
+					href: "https://github.com/araera111/mysql-to-zod",
+				},
+			],
 			sidebar: [
 				{
 					label: "Start Here",
