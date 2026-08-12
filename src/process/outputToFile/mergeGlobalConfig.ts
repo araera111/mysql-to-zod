@@ -44,7 +44,7 @@ export const toKeyValuePair = (schemaText: string): KV[] => {
 	};
 	return pipe(
 		schemaText.split("\n"),
-		A.map((x) => (x === "" ? undefined : x.replace("\t", ""))),
+		A.map((x) => (x === "" ? undefined : x.replace(/^\t/, ""))),
 		A.filter(Predicate.isNotNullable),
 		(x) => loop(x, [], "", "array"),
 		A.filter((x) => x !== ""),
