@@ -4,6 +4,7 @@ import { Command } from "commander";
 import { Effect } from "effect";
 import { createConnection } from "mysql2/promise";
 import { runCommand } from "./runCommand";
+
 // use docker. if you don't use docker, this test will fail. skip this test.
 describe("runCommand", async () => {
 	const container = await new MySqlContainer("mysql:8.4").start();

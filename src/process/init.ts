@@ -4,8 +4,8 @@ import { Array as A, Effect, Option, Predicate, pipe } from "effect";
 import { z } from "zod";
 import type { DbConnectionOption } from "../options/dbConnection";
 import {
-	type MysqlToZodOption,
 	basicMySQLToZodOption,
+	type MysqlToZodOption,
 	mysqlToZodOptionSchema,
 } from "../options/options";
 

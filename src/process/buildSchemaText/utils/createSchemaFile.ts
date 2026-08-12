@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { SchemaInformation } from "../../../features/sync/types/syncType";
 import type { MysqlToZodOption } from "../../../options/options";
 import { writeLocalFile } from "../../outputToFile/outputToFile";
-import { type SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
+import { columnsSchema, type SchemaResult } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
 import { createSchema } from "./createSchema";
 
@@ -27,7 +27,8 @@ const convertToColumn = (definition: CreateDefinition) => {
 
 	const columnRef = definition.column;
 	if (columnRef.type !== "column_ref") return undefined;
-	const column = typeof columnRef.column === "string" ? columnRef.column : undefined;
+	const column =
+		typeof columnRef.column === "string" ? columnRef.column : undefined;
 	if (Predicate.isNullable(column)) return undefined;
 
 	const type = definition.definition?.dataType;

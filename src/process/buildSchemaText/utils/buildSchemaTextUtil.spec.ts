@@ -2,8 +2,8 @@ import { produce } from "immer";
 import type { AST, Create } from "node-sql-parser";
 import type { OptionTableComments } from "../../../options/comments";
 import {
-	type MysqlToZodOption,
 	basicMySQLToZodOption,
+	type MysqlToZodOption,
 } from "../../../options/options";
 import type {
 	SchemaOption,

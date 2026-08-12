@@ -1,5 +1,6 @@
 import { Effect, Either } from "effect";
 import { configLoad } from "./init";
+
 describe("configLoad", () => {
 	it("case1 default path", async () => {
 		const actual = await Effect.runPromise(

@@ -3,9 +3,9 @@ import type { Create } from "node-sql-parser";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
 import {
-	type OptionTableComments,
 	defaultColumnCommentFormat,
 	defaultTableCommentFormat,
+	type OptionTableComments,
 	optionTableCommentsSchema,
 } from "../../../options/comments";
 import type { CaseUnion } from "../../../options/common";

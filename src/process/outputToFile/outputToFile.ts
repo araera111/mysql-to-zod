@@ -1,11 +1,11 @@
 import { join, resolve } from "node:path";
 import { Effect, Predicate, pipe } from "effect";
 import { mkdirpSync, readFileSync, writeFileSync } from "fs-extra";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { type OptionOutput, outputDefaults } from "../../options";
 import {
-	type SupportedFormatters,
 	formatByPrettier,
+	type SupportedFormatters,
 } from "../formatByPrettier";
 import { mergeGlobalSchemaWrapper } from "./mergeGlobalConfig";
 

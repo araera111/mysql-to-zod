@@ -1,7 +1,7 @@
 import { produce } from "immer";
 import {
-	type MysqlToZodOption,
 	basicMySQLToZodOption,
+	type MysqlToZodOption,
 } from "../../options/options";
 import {
 	composeGlobalSchema,
