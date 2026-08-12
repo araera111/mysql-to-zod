@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import type { MysqlToZodOption } from "../../../options";
 import type { Column } from "../types/buildSchemaTextType";
 import { createSchema } from "./createSchema";
@@ -32,14 +33,16 @@ export type Todo = z.infer<typeof todoSchema>;`;
 		};
 
 		expect(
-			await createSchema({
-				tableName,
-				tableComment: undefined,
-				columns,
-				options,
-				schemaInformationList: [],
-				mode: "select",
-			}),
+			await Effect.runPromise(
+				createSchema({
+					tableName,
+					tableComment: undefined,
+					columns,
+					options,
+					schemaInformationList: [],
+					mode: "select",
+				}),
+			),
 		).toStrictEqual(result);
 	});
 
@@ -75,14 +78,16 @@ export type InsertTodo = z.infer<typeof insertTodoSchema>;`;
 		};
 
 		expect(
-			await createSchema({
-				tableName,
-				tableComment: undefined,
-				columns,
-				options,
-				schemaInformationList: [],
-				mode: "select",
-			}),
+			await Effect.runPromise(
+				createSchema({
+					tableName,
+					tableComment: undefined,
+					columns,
+					options,
+					schemaInformationList: [],
+					mode: "select",
+				}),
+			),
 		).toStrictEqual(result);
 	});
 
@@ -119,14 +124,16 @@ export type TodoInsert = z.infer<typeof todoInsertSchema>;`;
 		};
 
 		expect(
-			await createSchema({
-				tableName,
-				tableComment: undefined,
-				columns,
-				options,
-				schemaInformationList: [],
-				mode: "select",
-			}),
+			await Effect.runPromise(
+				createSchema({
+					tableName,
+					tableComment: undefined,
+					columns,
+					options,
+					schemaInformationList: [],
+					mode: "select",
+				}),
+			),
 		).toStrictEqual(result);
 	});
 });

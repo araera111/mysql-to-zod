@@ -1,10 +1,7 @@
 import type { AST } from "node-sql-parser";
 import type { CaseUnion } from "../../../options/common";
 import type { TypeOption } from "../../../options/type";
-import {
-	composeTypeString,
-	convertTableName,
-} from "./buildSchemaTextUtil";
+import { composeTypeString, convertTableName } from "./buildSchemaTextUtil";
 import { isCreate } from "./createSchemaFile";
 
 describe("isCreate", () => {

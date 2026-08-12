@@ -1,4 +1,0 @@
-TODO:ColumnにdefaultValue, auto_incrementを作成する。
-nullableのときの処理はすでに作成されている。
-auto_incrementについては
-columns: Column[],ここに足す

@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { mergeSchemaTextWithOldInformation } from "../../../process/buildSchemaText/utils/createSchema";
 import { formatByPrettier } from "../../../process/formatByPrettier";
 import type { SchemaInformation } from "../types/syncType";
@@ -32,11 +33,13 @@ describe("mergeSchemaTextWithOldInformation 完成したschemaTextと以前のsc
 		const result = `export const aaaSchema = z.object({
 	DB_ID: z.number().optional(),
 });`;
-		const ex = await mergeSchemaTextWithOldInformation({
-			schemaInformation,
-			schemaName,
-			schemaText,
-		});
+		const ex = await Effect.runPromise(
+			mergeSchemaTextWithOldInformation({
+				schemaInformation,
+				schemaName,
+				schemaText,
+			}),
+		);
 		expect(ex).toBe(result);
 	});
 });
@@ -102,6 +105,6 @@ describe("formatByPrettier", () => {
 	updated_at: z.date().nullish(),
 });
 `;
-		expect(await formatByPrettier(str)).toBe(result);
+		expect(await Effect.runPromise(formatByPrettier(str))).toBe(result);
 	});
 });

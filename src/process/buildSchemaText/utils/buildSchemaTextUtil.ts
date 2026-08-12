@@ -1,4 +1,4 @@
-import { Array, Option, Predicate, pipe } from "effect";
+import { Array as A, Option, Predicate, pipe } from "effect";
 import type { Create } from "node-sql-parser";
 import { toCamel, toPascal, toSnake } from "ts-case-convert";
 import { match } from "ts-pattern";
@@ -22,7 +22,7 @@ const isMaybeRegExp = (str: string): boolean =>
 	str.startsWith("/") && str.endsWith("/");
 
 // 1文字目が数字の場合は、先頭と末尾に''をつける関数
-export const addSingleQuotation = (str: string): string => {
+const addSingleQuotation = (str: string): string => {
 	if (str.match(/^[0-9]/)) {
 		return `'${str}'`;
 	}
@@ -308,9 +308,9 @@ const loopReplace = (
 	replacements: readonly string[][],
 	tableName: string,
 ): string => {
-	if (Array.isEmpty(replacements)) return tableName;
-	const headReplacements = pipe(replacements, Array.head, Option.getOrThrow);
-	const tailReplacements = pipe(replacements, Array.tail, Option.getOrThrow);
+	if (A.isEmptyReadonlyArray(replacements)) return tableName;
+	const headReplacements = pipe(replacements, A.head, Option.getOrThrow);
+	const tailReplacements = pipe(replacements, A.tail, Option.getOrThrow);
 	const replaced = replaceTableName({
 		tableName,
 		replacements: headReplacements,
@@ -323,7 +323,7 @@ export const convertTableName = ({
 	format,
 	replacements,
 }: ConvertTableNameParams): string => {
-	const replaced = Array.isEmpty(replacements)
+	const replaced = A.isEmptyReadonlyArray(replacements)
 		? tableName
 		: loopReplace(replacements, tableName);
 
@@ -411,5 +411,4 @@ export const composeTypeString = ({
 	})}${suffix} = z.infer<typeof ${schemaName}>;`;
 };
 
-export const strListToStrLf = (strList: string[]): string =>
-	strList.join("\n");
+export const strListToStrLf = (strList: string[]): string => strList.join("\n");

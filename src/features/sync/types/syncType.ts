@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const schemaPropertySchema = z.object({
+const schemaPropertySchema = z.object({
 	name: z.string(),
 	schema: z.string(),
 });

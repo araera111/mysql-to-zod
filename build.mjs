@@ -1,4 +1,3 @@
-// date-fnsをimport
 import * as esbuild from "esbuild";
 import fs from "fs-extra";
 
@@ -7,7 +6,7 @@ const { version } = JSON.parse(packageJson);
 
 // build
 await esbuild.build({
-  entryPoints: ["./src/main.js"],
+  entryPoints: ["./src/main.ts"],
   platform: "node",
   outfile: "./dist/main.js",
   tsconfig: "tsconfig.build.json",

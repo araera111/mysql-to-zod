@@ -1,7 +1,8 @@
 import { join } from "node:path";
-import { A, G, pipe } from "@mobily/ts-belt";
+import { Array as A, Effect, Predicate, pipe } from "effect";
 import { existsSync, readFileSync } from "fs-extra";
 import { formatByPrettier } from "../formatByPrettier";
+
 type MergeGlobalConfigProps = {
 	oldGlobalSchema: string;
 	newGlobalSchema: string;
@@ -13,18 +14,19 @@ type KV = {
 
 const ignoreList = ["import", "export", "};"];
 
-const splitWithDelimiter = (str: string, delimiter: string) => {
+const splitWithDelimiter = (str: string, delimiter: string): string[] => {
 	const regex = new RegExp(`(?=${delimiter})`);
 	return str.split(regex);
 };
 
-export const toKeyValuePair = (schemaText: string) => {
+export const toKeyValuePair = (schemaText: string): KV[] => {
+	// タブで始まる行は直前のブロックに連結する
 	const loop = (
 		rest: readonly string[],
-		result: string[],
+		result: readonly string[],
 		str: string,
 		mode: "array" | "string",
-	): string[] => {
+	): readonly string[] => {
 		const [head, ...tail] = rest;
 		if (head === undefined) return result;
 		if (head.startsWith("\t")) {
@@ -35,64 +37,84 @@ export const toKeyValuePair = (schemaText: string) => {
 				"string",
 			);
 		}
-		if (mode === "string" && !head.startsWith("\t")) {
+		if (mode === "string") {
 			return loop(tail, [...result, `${str}\n${head}`], "", "array");
 		}
 		return loop(tail, [...result, str], head, "array");
 	};
 	return pipe(
 		schemaText.split("\n"),
-		A.flatMap((x) => (x === "" ? [] : x.replace("\t", ""))),
+		A.map((x) => (x === "" ? undefined : x.replace("\t", ""))),
+		A.filter(Predicate.isNotNullable),
 		(x) => loop(x, [], "", "array"),
 		A.filter((x) => x !== ""),
 		A.filter((x) => !ignoreList.some((ignoreWord) => x.includes(ignoreWord))),
-		A.flatMap((x) => {
+		A.map((x) => {
 			const [key, ...value] = splitWithDelimiter(x, ":");
 			const joinedValue = value.join("").replace(":", ""); // delete first colon.
-			if (!joinedValue || !key) return [];
+			if (!joinedValue || !key) return undefined;
 			return {
 				key: key.trim(),
 				value: joinedValue.trim(),
 			};
 		}),
+		A.filter(Predicate.isNotNullable),
 	);
 };
 
-export const mergeGlobalConfig = async ({
-	oldGlobalSchema,
-	newGlobalSchema: globalSchema,
-}: MergeGlobalConfigProps) => {
-	// forced use tabs format.
-	const formattedOld = await formatByPrettier(oldGlobalSchema);
-	const formattedNew = await formatByPrettier(globalSchema);
-
-	const oldAst = toKeyValuePair(formattedOld);
-	const newAst = toKeyValuePair(formattedNew);
-	const res = [...oldAst, ...newAst];
-
-	const loop = (rest: KV[], keyList: string[], result: KV[]): KV[] => {
+// 既存のキーを優先しつつ、新しいキーを追加する
+const mergeKeyValuePairs = (list: readonly KV[]): KV[] => {
+	const loop = (
+		rest: readonly KV[],
+		keyList: readonly string[],
+		result: readonly KV[],
+	): readonly KV[] => {
 		if (rest.length === 0) return result;
 		const [x, ...xs] = rest;
-		if (G.isNullable(x)) return result;
-		const isExist = keyList.includes(x.key);
-		if (isExist) return loop(xs, keyList, result);
+		if (Predicate.isNullable(x)) return result;
+		if (keyList.includes(x.key)) return loop(xs, keyList, result);
 		return loop(xs, [...keyList, x.key], [...result, x]);
 	};
+	return [...loop(list, [], [])];
+};
 
-	const oldImportStatement = oldGlobalSchema
-		.split("\n")
-		.filter((x) => x.includes("import") && x.includes("zod"));
-	const newImportStatement = globalSchema
-		.split("\n")
-		.filter((x) => x.includes("import") && x.includes("zod"));
+export const mergeGlobalConfig = ({
+	oldGlobalSchema,
+	newGlobalSchema: globalSchema,
+}: MergeGlobalConfigProps): Effect.Effect<string, string> =>
+	Effect.gen(function* () {
+		// forced use tabs format.
+		const formattedOld = yield* formatByPrettier(oldGlobalSchema);
+		const formattedNew = yield* formatByPrettier(globalSchema);
 
-	const importStateMents = [...oldImportStatement, ...newImportStatement];
-	// loopでmergeImportStatementを処理する
-	const importLoop = (rest: string[], result: string): string => {
+		const oldAst = toKeyValuePair(formattedOld);
+		const newAst = toKeyValuePair(formattedNew);
+		const mergedKv = mergeKeyValuePairs([...oldAst, ...newAst]);
+
+		const importStatements = [
+			...oldGlobalSchema
+				.split("\n")
+				.filter((x) => x.includes("import") && x.includes("zod")),
+			...globalSchema
+				.split("\n")
+				.filter((x) => x.includes("import") && x.includes("zod")),
+		];
+		const importZod = mergeImportStatements(importStatements);
+
+		const exportGlobal = "export const globalSchema = {\n";
+		const body = mergedKv.map((x) => `  ${x.key}: ${x.value}`).join("\n");
+		const end = "};\n";
+		const resultText = `${importZod}${exportGlobal}${body}${end}`;
+		return yield* formatByPrettier(resultText);
+	});
+
+// import文を順にマージする
+const mergeImportStatements = (statements: readonly string[]): string => {
+	const loop = (rest: readonly string[], result: string): string => {
 		if (rest.length === 0) return result;
 		const [x, ...xs] = rest;
-		if (G.isNullable(x)) return result;
-		return importLoop(
+		if (Predicate.isNullable(x)) return result;
+		return loop(
 			xs,
 			mergeImportStatement({
 				oldImportStatement: result,
@@ -100,15 +122,7 @@ export const mergeGlobalConfig = async ({
 			}),
 		);
 	};
-
-	const result = loop(res, [], []);
-	const importZod = importLoop(importStateMents, "");
-	const exportGlobal = "export const globalSchema = {\n";
-	const body = result.map((x) => `  ${x.key}: ${x.value}`).join("\n");
-	const end = "};\n";
-	const resultText = `${importZod}${exportGlobal}${body}${end}`;
-	const final = await formatByPrettier(resultText);
-	return final;
+	return loop(statements, "");
 };
 
 type MergeImportStatementProps = {
@@ -118,7 +132,7 @@ type MergeImportStatementProps = {
 export const mergeImportStatement = ({
 	oldImportStatement,
 	newImportStatement,
-}: MergeImportStatementProps) => {
+}: MergeImportStatementProps): string => {
 	const olds =
 		oldImportStatement
 			.split("{")[1]
@@ -131,26 +145,25 @@ export const mergeImportStatement = ({
 			?.split("}")[0]
 			?.split(",")
 			.map((x) => x.trim()) ?? [];
-	const merged = [...A.uniq([...olds, ...news])].sort();
-	const result = `import { ${merged.join(", ")} } from "zod";`;
-	return result;
+	const merged = [...A.dedupe([...olds, ...news])].sort();
+	return `import { ${merged.join(", ")} } from "zod";`;
 };
 
 type MergeGlobalSchemaWrapperProps = {
 	newGlobalSchema: string;
 	outputDir: string;
 };
-export const mergeGlobalSchemaWrapper = async ({
+export const mergeGlobalSchemaWrapper = ({
 	newGlobalSchema,
 	outputDir,
-}: MergeGlobalSchemaWrapperProps) => {
-	const globalSchemaPath = join(outputDir, "globalSchema.ts");
-	if (existsSync(globalSchemaPath)) {
-		const result = await mergeGlobalConfig({
-			oldGlobalSchema: readFileSync(globalSchemaPath, "utf-8"),
-			newGlobalSchema,
-		});
-		return result;
-	}
-	return newGlobalSchema;
-};
+}: MergeGlobalSchemaWrapperProps): Effect.Effect<string, string> =>
+	Effect.gen(function* () {
+		const globalSchemaPath = join(outputDir, "globalSchema.ts");
+		if (existsSync(globalSchemaPath)) {
+			return yield* mergeGlobalConfig({
+				oldGlobalSchema: readFileSync(globalSchemaPath, "utf-8"),
+				newGlobalSchema,
+			});
+		}
+		return newGlobalSchema;
+	});

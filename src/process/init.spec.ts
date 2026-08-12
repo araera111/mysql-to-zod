@@ -12,6 +12,7 @@ describe("configLoad", () => {
 				globalSchemaFileName: "globalSchema.ts",
 				saveSql: true,
 				sqlFileName: "tables.sql",
+				saveAst: false,
 			},
 			comments: {
 				table: {
@@ -72,6 +73,10 @@ describe("configLoad", () => {
 			output: {
 				outDir: "./test-out-put",
 				fileName: "schema.ts",
+				globalSchemaFileName: "globalSchema.ts",
+				sqlFileName: "tables.sql",
+				saveSql: false,
+				saveAst: false,
 			},
 		});
 	});

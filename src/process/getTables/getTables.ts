@@ -1,4 +1,4 @@
-import { Array, Effect, Option, Predicate, pipe } from "effect";
+import { Array as A, Effect, Option, Predicate, pipe } from "effect";
 import mysql from "mysql2/promise";
 import { z } from "zod";
 import type { MysqlToZodOption } from "../../options";
@@ -19,9 +19,7 @@ const createConnection = (
 		catch: (x) => `getTablesError: ${String(x)}`,
 	});
 
-const parseDBConnection = (
-	arg: unknown,
-): Option.Option<DbConnectionOption> => {
+const parseDBConnection = (arg: unknown): Option.Option<DbConnectionOption> => {
 	const r = dbConnectionOptionSchema.safeParse(arg);
 	return r.success ? Option.some(r.data) : Option.none();
 };
@@ -43,25 +41,25 @@ export const getTables = (
 		}
 
 		/* dbConnectionからテーブル一覧を取得する */
-		const dbConnection = yield* pipe(
+		const dbConnection = yield* Option.match(
 			parseDBConnection(option.dbConnection),
-			Effect.fromOption(() => "dbConnection is required"),
+			{
+				onNone: () => Effect.fail("dbConnection is required"),
+				onSome: Effect.succeed,
+			},
 		);
 		const connection = yield* createConnection(dbConnection);
 		const [tables] = yield* Effect.tryPromise({
 			try: () => connection.query("show tables"),
 			catch: (x) => `getTablesError: ${String(x)}`,
 		});
-		yield* Effect.tryPromise({
-			try: () => connection.destroy(),
-			catch: (x) => `getTablesError: ${String(x)}`,
-		});
+		yield* Effect.sync(() => connection.destroy());
 
 		const tableNames = pipe(
 			tables,
 			stringStringObjectSchema.parse,
-			Array.flatMap((x) => Object.values(x)),
-			Array.filter((tableName) =>
+			A.flatMap((x) => Object.values(x)),
+			A.filter((tableName) =>
 				filterTable({ configTableNameList: configTableNames ?? [], tableName }),
 			),
 		);

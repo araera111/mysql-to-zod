@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { Effect } from "effect";
 import {
 	mergeGlobalConfig,
 	mergeImportStatement,
@@ -47,10 +48,12 @@ export const globalSchema = {
 };
 `;
 		expect(
-			await mergeGlobalConfig({
-				oldGlobalSchema: old,
-				newGlobalSchema: newFile,
-			}),
+			await Effect.runPromise(
+				mergeGlobalConfig({
+					oldGlobalSchema: old,
+					newGlobalSchema: newFile,
+				}),
+			),
 		).toBe(result);
 	});
 
@@ -63,10 +66,12 @@ Timestamp: z.date(),
 `;
 		const newSchema = readFileSync("test/files/testGlobalSchema.ts", "utf-8");
 		expect(
-			await mergeGlobalConfig({
-				oldGlobalSchema: old,
-				newGlobalSchema: newSchema,
-			}),
+			await Effect.runPromise(
+				mergeGlobalConfig({
+					oldGlobalSchema: old,
+					newGlobalSchema: newSchema,
+				}),
+			),
 		).toBe(readFileSync("test/files/resultSchema.ts", "utf-8"));
 	});
 });

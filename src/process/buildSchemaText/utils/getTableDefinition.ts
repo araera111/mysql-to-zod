@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { MysqlToZodOption } from "../../../options";
 import { outputSqlToFile } from "../../outputToFile/outputToFile";
 
-export type RequestForTable = {
+type RequestForTable = {
 	tableName: string;
 	option: MysqlToZodOption;
 };
@@ -31,7 +31,6 @@ export const getTableDefinition = ({
 			});
 			if (!Array.isArray(table)) return [];
 
-			// mysql2@3.11.0\node_modules\mysql2\typings\mysql\lib\Connection.d.ts
 			const result = table.flatMap((x) => Object.values(x));
 			const sql = z.string().array().parse(result);
 			if (option.output?.saveSql) {
@@ -39,9 +38,6 @@ export const getTableDefinition = ({
 			}
 			return sql;
 		} finally {
-			yield* Effect.tryPromise({
-				try: () => connection.destroy(),
-				catch: () => undefined,
-			});
+			yield* Effect.sync(() => connection.destroy());
 		}
 	});

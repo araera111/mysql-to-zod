@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { MySqlContainer } from "@testcontainers/mysql";
 import { Command } from "commander";
+import { Effect } from "effect";
 import { createConnection } from "mysql2/promise";
 import { runCommand } from "./runCommand";
 // use docker. if you don't use docker, this test will fail. skip this test.
@@ -40,7 +41,9 @@ describe("runCommand", async () => {
 		const program = new Command();
 
 		const configFilePath = "test/config/testmainFunctionConfig.js";
-		expect(await runCommand(program, configFilePath)).toBe(0);
+		expect(await Effect.runPromise(runCommand(program, configFilePath))).toBe(
+			0,
+		);
 
 		const result = `import { z } from "zod";
 import { globalSchema } from "./globalSchema";
@@ -93,7 +96,9 @@ export type Todo = z.infer<typeof todoSchema>;
 		const program = new Command();
 
 		const configFilePath = "test/config/rawTest2Config.js";
-		expect(await runCommand(program, configFilePath)).toBe(0);
+		expect(await Effect.runPromise(runCommand(program, configFilePath))).toBe(
+			0,
+		);
 
 		const result = `import { z } from "zod";
 import { globalSchema } from "./globalSchema";

@@ -1,11 +1,12 @@
-import { Array, Effect, Option, Predicate, pipe } from "effect";
 import type { Command } from "commander";
 import { cosmiconfig } from "cosmiconfig";
+import { Array as A, Effect, Option, Predicate, pipe } from "effect";
 import { z } from "zod";
 import type { DbConnectionOption } from "../options/dbConnection";
 import {
 	type MysqlToZodOption,
 	basicMySQLToZodOption,
+	mysqlToZodOptionSchema,
 } from "../options/options";
 
 export const configLoad = (
@@ -17,12 +18,15 @@ export const configLoad = (
 				cosmiconfig("mysqlToZod", {
 					searchPlaces: [configFilePath],
 				}).search(),
-			catch: () => "config file is not Found",
+			catch: (_: unknown): string => "config file is not Found",
 		}),
 		Effect.flatMap((cfg) =>
 			Predicate.isNullable(cfg)
 				? Effect.fail("config file is not Found")
-				: Effect.succeed(cfg.config),
+				: pipe(
+						Effect.try(() => mysqlToZodOptionSchema.parse(cfg.config)),
+						Effect.mapError(() => "config file is invalid"),
+					),
 		),
 	);
 
@@ -45,7 +49,10 @@ type GetDBConnectionProps = {
 const getDBConnection = ({
 	dbConnection,
 	config,
-}: GetDBConnectionProps): Effect.Effect<string | DbConnectionOption, string> => {
+}: GetDBConnectionProps): Effect.Effect<
+	string | DbConnectionOption,
+	string
+> => {
 	if (Option.isSome(dbConnection)) return Effect.succeed(dbConnection.value);
 	return pipe(
 		config,
@@ -61,21 +68,20 @@ const getDBConnection = ({
 export const commandOptionSchema = z.object({
 	file: z.string(),
 });
-export type CommandOption = z.infer<typeof commandOptionSchema>;
 
 export const init = (
 	program: Command,
 	configFilePath: string,
 ): Effect.Effect<MysqlToZodOption, string> =>
 	Effect.gen(function* () {
-		const config = yield* configLoad(configFilePath);
+		const configResult = configLoad(configFilePath);
 		const dbConnection = yield* getDBConnection({
-			dbConnection: Array.get(program.args, 0),
-			config,
+			dbConnection: A.get(program.args, 0),
+			config: configResult,
 		});
 		const option = yield* pipe(
-			config,
-			Effect.getOrElse(() => Effect.succeed(basicMySQLToZodOption)),
+			configResult,
+			Effect.orElse(() => Effect.succeed(basicMySQLToZodOption)),
 		);
 		return { ...option, dbConnection };
 	});

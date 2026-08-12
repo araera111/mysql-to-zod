@@ -1,4 +1,4 @@
-import { A, G, O, pipe } from "@mobily/ts-belt";
+import { Array as A, Effect, Option, Predicate, pipe } from "effect";
 import {
 	type SchemaInformation,
 	schemaInformationSchema,
@@ -26,46 +26,45 @@ type MergeSchemaTextWithOldInformationProps = {
 	schemaText: string;
 };
 
-export const mergeSchemaTextWithOldInformation = async ({
+export const mergeSchemaTextWithOldInformation = ({
 	schemaName,
 	schemaInformation,
 	schemaText,
-}: MergeSchemaTextWithOldInformationProps) => {
-	/* 完成したテキストからschemaInformationをつくる */
-	const formatted = await formatByPrettier(schemaText);
-	const nextSchemaInformation = pipe(
-		formatted,
-		parse,
-		A.head,
-		O.flatMap((x) =>
-			O.fromNullable(schemaInformationSchema.safeParse(x).data),
-		),
-	);
-
-	/* パースできない場合や、nameが一致しないときは、そのまま返す */
-	if (O.isNone(nextSchemaInformation)) return schemaText;
-	const { tableName, properties } = O.getExn(nextSchemaInformation);
-	if (tableName !== schemaName) return schemaText;
-
-	/* 一致しているときは、propertiesからfindして、あったら入れ替える */
-	const nextProperties = properties.map((property) => {
-		const replaceElement = schemaInformation.properties.find(
-			(y) => y.name === property.name,
+}: MergeSchemaTextWithOldInformationProps): Effect.Effect<string, string> =>
+	Effect.gen(function* () {
+		/* 完成したテキストからschemaInformationをつくる */
+		const formatted = yield* formatByPrettier(schemaText);
+		const nextSchemaInformation = pipe(
+			formatted,
+			(x) => parse(x),
+			A.head,
+			Option.flatMap((x) =>
+				Option.fromNullable(schemaInformationSchema.safeParse(x).data),
+			),
 		);
-		if (G.isNullable(replaceElement)) return property;
-		return replaceElement;
-	});
 
-	const replacedSchemaInformation = {
-		tableName,
-		properties: nextProperties,
-	};
-	const rawNextSchemaText = schemaInformationToText(
-		replacedSchemaInformation,
-	).join("");
-	const formattedSchemaText = await formatByPrettier(rawNextSchemaText);
-	return formattedSchemaText.trim();
-};
+		/* パースできない場合や、nameが一致しないときは、そのまま返す */
+		if (Option.isNone(nextSchemaInformation)) return schemaText;
+		const { tableName, properties } = Option.getOrThrow(nextSchemaInformation);
+		if (tableName !== schemaName) return schemaText;
+
+		/* 一致しているときは、propertiesからfindして、あったら入れ替える */
+		const nextProperties = properties.map((property) => {
+			const replaceElement = schemaInformation.properties.find(
+				(y) => y.name === property.name,
+			);
+			if (Predicate.isNullable(replaceElement)) return property;
+			return replaceElement;
+		});
+
+		const rawNextSchemaText = schemaInformationToText({
+			tableName,
+			properties: nextProperties,
+		}).join("");
+		return yield* formatByPrettier(rawNextSchemaText).pipe(
+			Effect.map((x) => x.trim()),
+		);
+	});
 
 type CreateSchemaProps = {
 	tableName: string;
@@ -75,78 +74,85 @@ type CreateSchemaProps = {
 	schemaInformationList: readonly SchemaInformation[];
 	mode: CreateSchemaModeUnion;
 };
-export const createSchema = async ({
+export const createSchema = ({
 	tableName,
 	columns,
 	options,
 	tableComment,
 	schemaInformationList,
 	mode,
-}: CreateSchemaProps): Promise<SchemaResult> => {
-	const schemaString = columns
-		.map((x) =>
-			composeColumnStringList({ column: x, option: options, mode }).join("\n"),
-		)
-		.join("");
+}: CreateSchemaProps): Effect.Effect<SchemaResult, string> =>
+	Effect.gen(function* () {
+		const schemaString = columns
+			.map((x) =>
+				composeColumnStringList({ column: x, option: options, mode }).join(
+					"\n",
+				),
+			)
+			.join("");
 
-	const schemaOption = schemaOptionSchema.parse(options.schema);
-	const separateOption = separateOptionSchema.parse(options.separate);
-	const typeOption = typeOptionSchema.parse(options.type);
+		const schemaOption = schemaOptionSchema.parse(options.schema);
+		const separateOption = separateOptionSchema.parse(options.separate);
+		const typeOption = typeOptionSchema.parse(options.type);
 
-	const schemaName = composeSchemaName({
-		schemaOption,
-		tableName,
-		mode,
-		separateOption,
-	});
+		const schemaName = composeSchemaName({
+			schemaOption,
+			tableName,
+			mode,
+			separateOption,
+		});
 
-	const schemaText = combineSchemaNameAndSchemaString({
-		schemaName,
-		schemaString,
-	});
+		const schemaText = combineSchemaNameAndSchemaString({
+			schemaName,
+			schemaString,
+		});
 
-	/* schemaTextを古いschemaInformationとmergeする */
-	const thisSchemaInformation = schemaInformationList.find(
-		(x) => x.tableName === schemaName,
-	);
+		/* schemaTextを古いschemaInformationとmergeする */
+		const thisSchemaInformation = schemaInformationList.find(
+			(x) => x.tableName === schemaName,
+		);
 
-	const merged = G.isNullable(thisSchemaInformation)
-		? schemaText
-		: await mergeSchemaTextWithOldInformation({
-				schemaName,
-				schemaText,
-				schemaInformation: thisSchemaInformation,
+		const merged = Predicate.isNullable(thisSchemaInformation)
+			? schemaText
+			: yield* pipe(
+					mergeSchemaTextWithOldInformation({
+						schemaName,
+						schemaText,
+						schemaInformation: thisSchemaInformation,
+					}),
+					Effect.catchAll(() => Effect.succeed(schemaText)),
+				);
+
+		const typeString = composeTypeString({
+			typeOption,
+			tableName,
+			schemaName,
+			mode,
+			separateOption,
+		});
+
+		const schema = composeTableSchemaTextList({
+			schemaText: merged,
+			typeString,
+			tableComment,
+		});
+
+		/* isSeparateのとき、insert modeで再実行して追記する */
+		const schemaList = [schema.join("\n")];
+		if (separateOption.isSeparate && mode === "select") {
+			const insertSchema = yield* createSchema({
+				tableName,
+				columns,
+				options,
+				tableComment,
+				schemaInformationList,
+				mode: "insert",
 			});
+			schemaList.push(insertSchema.schema);
+		}
 
-	const typeString = composeTypeString({
-		typeOption,
-		tableName,
-		schemaName,
-		mode,
-		separateOption,
+		return {
+			schema: schemaList.join("\n"),
+			columns,
+		};
 	});
-
-	const schema = composeTableSchemaTextList({
-		schemaText: merged,
-		typeString,
-		tableComment,
-	});
-
-	/* isSeparateのとき、関数をinsert modeで再実行する */
-	const separateInsertSchema =
-		separateOption.isSeparate && mode === "select"
-			? `\n${await createSchema({
-					tableName,
-					columns,
-					options,
-					tableComment,
-					schemaInformationList,
-					mode: "insert",
-				}).then((x) => x.schema)}`
-			: "";
-
-	return {
-		schema: schema.join("\n") + separateInsertSchema,
-		columns,
-	};
-};

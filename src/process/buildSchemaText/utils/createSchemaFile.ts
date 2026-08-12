@@ -1,11 +1,7 @@
 import { Effect, Predicate } from "effect";
-import {
-	type AST,
-	type Create,
-	type CreateColumnDefinition,
-	Parser,
-} from "node-sql-parser";
+import { type AST, type Create, Parser } from "node-sql-parser";
 import { objectToCamel } from "ts-case-convert";
+import { z } from "zod";
 import type { SchemaInformation } from "../../../features/sync/types/syncType";
 import type { MysqlToZodOption } from "../../../options/options";
 import { writeLocalFile } from "../../outputToFile/outputToFile";
@@ -13,15 +9,28 @@ import { type SchemaResult, columnsSchema } from "../types/buildSchemaTextType";
 import { getTableComment } from "./buildSchemaTextUtil";
 import { createSchema } from "./createSchema";
 
-export const convertToColumn = (definition: CreateColumnDefinition) => {
-	const column = definition.column?.column;
+type CreateDefinition = NonNullable<Create["create_definitions"]>[number];
+
+// node-sql-parserの型定義では comment.value は string だが、実際のASTでは { value: string } の場合もある
+const commentValueSchema = z.union([
+	z.string(),
+	z.object({ value: z.string() }),
+]);
+
+const commentToText = (comment: unknown): string | undefined => {
+	const parsed = commentValueSchema.safeParse(comment).data;
+	return typeof parsed === "string" ? parsed : parsed?.value;
+};
+
+const convertToColumn = (definition: CreateDefinition) => {
+	if (definition.resource !== "column") return undefined;
+
+	const column = definition.column.column;
 	if (Predicate.isNullable(column)) return undefined;
 
 	const type = definition.definition?.dataType;
 	const nullable = definition.nullable?.type !== "not null";
-	const commentValue = definition.comment?.value;
-	const comment =
-		typeof commentValue === "string" ? commentValue : commentValue?.value;
+	const comment = commentToText(definition.comment?.value);
 	const length = definition.definition?.length ?? -1; // flag : no max length
 	const autoIncrement = !Predicate.isNullable(definition.auto_increment);
 	return objectToCamel({
@@ -45,7 +54,10 @@ export const createSchemaFile = (
 ): Effect.Effect<SchemaResult, string> =>
 	Effect.gen(function* () {
 		const [tableName, tableDefinitionString] = tableDefinition;
-		if (Predicate.isNullable(tableName) || Predicate.isNullable(tableDefinitionString)) {
+		if (
+			Predicate.isNullable(tableName) ||
+			Predicate.isNullable(tableDefinitionString)
+		) {
 			return yield* Effect.fail(
 				"createSchemaFileError. tableName or tableDefinitionString is nil",
 			);
@@ -62,11 +74,13 @@ export const createSchemaFile = (
 			writeLocalFile(options?.output, `${tableName}_ast.json`, astJson);
 		}
 
-		const columns = columnsSchema.array().parse(
-			ast.create_definitions
-				?.map((x) => convertToColumn(x as CreateColumnDefinition))
-				.flatMap((x) => (Predicate.isNullable(x) ? [] : x)),
-		);
+		const columns = columnsSchema
+			.array()
+			.parse(
+				(ast.create_definitions ?? [])
+					.map(convertToColumn)
+					.flatMap((x) => (Predicate.isNullable(x) ? [] : x)),
+			);
 
 		const tableComment = getTableComment({
 			ast,

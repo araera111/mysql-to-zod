@@ -96,8 +96,11 @@ describe("composeGlobalSchema maxLength", () => {
 		});
 
 	it("case1 maxLength active + global message", () => {
-		const option = optionWithMaxLength("Too many characters. Maximum ${limit}.");
-		const result = `import { z, RefinementCtx } from "zod";
+		const option = optionWithMaxLength(
+			"Too many characters. Maximum ${limit}.",
+		);
+		const result =
+			`import { z, RefinementCtx } from "zod";
 export const globalSchema = {
 mysqlVARCHAR: z.string(),
 maxLength: (arg: any, limit: number, ctx?: RefinementCtx): boolean => {
@@ -108,7 +111,9 @@ maxLength: (arg: any, limit: number, ctx?: RefinementCtx): boolean => {
 				maximum: limit,
 				type: typeof arg === "number" ? "number" : "string",
 				inclusive: true,
-				message: ` + "`Too many characters. Maximum ${limit}.`" + `,
+				message: ` +
+			"`Too many characters. Maximum ${limit}.`" +
+			`,
 			});
 		return false;
 	}
@@ -150,9 +155,15 @@ mysqlVARCHAR: z.string(),
 	});
 
 	it("case4 非activeの呼び出し後にactiveで呼んでも正しく出力される", () => {
-		composeGlobalSchema({ typeList: ["VARCHAR"], option: optionWithoutMaxLength() });
-		const option = optionWithMaxLength("Too many characters. Maximum ${limit}.");
-		const result = `import { z, RefinementCtx } from "zod";
+		composeGlobalSchema({
+			typeList: ["VARCHAR"],
+			option: optionWithoutMaxLength(),
+		});
+		const option = optionWithMaxLength(
+			"Too many characters. Maximum ${limit}.",
+		);
+		const result =
+			`import { z, RefinementCtx } from "zod";
 export const globalSchema = {
 mysqlVARCHAR: z.string(),
 maxLength: (arg: any, limit: number, ctx?: RefinementCtx): boolean => {
@@ -163,7 +174,9 @@ maxLength: (arg: any, limit: number, ctx?: RefinementCtx): boolean => {
 				maximum: limit,
 				type: typeof arg === "number" ? "number" : "string",
 				inclusive: true,
-				message: ` + "`Too many characters. Maximum ${limit}.`" + `,
+				message: ` +
+			"`Too many characters. Maximum ${limit}.`" +
+			`,
 			});
 		return false;
 	}

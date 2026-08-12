@@ -14,14 +14,16 @@ export const composeGlobalSchemaRow = ({
 	const existReference = option.schema?.zod?.references?.find(
 		(x) => x[0] === type,
 	);
-	return `${existReference ? existReference[1] : `mysql${type}`}: ${convertToZodType({
-		type,
-		option: produce(option, (draft) => {
-			if (draft.schema) {
-				draft.schema.inline = true;
-			}
-		}),
-	})},\n`;
+	return `${existReference ? existReference[1] : `mysql${type}`}: ${convertToZodType(
+		{
+			type,
+			option: produce(option, (draft) => {
+				if (draft.schema) {
+					draft.schema.inline = true;
+				}
+			}),
+		},
+	)},\n`;
 };
 
 type ComposeGlobalSchemaParams = {
@@ -58,7 +60,8 @@ const buildMaxLengthFunction = (option: MysqlToZodOption): string => {
 };
 
 const buildImportStatement = (option: MysqlToZodOption): string =>
-	option.schema?.inline === false && option.schema?.zod?.maxLength?.active === true
+	option.schema?.inline === false &&
+	option.schema?.zod?.maxLength?.active === true
 		? 'import { z, RefinementCtx } from "zod";'
 		: 'import { z } from "zod";';
 
