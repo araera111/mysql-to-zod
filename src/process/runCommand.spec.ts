@@ -24,6 +24,7 @@ describe("runCommand", async () => {
 				port: container.getMappedPort(3306),
 				user: container.getUsername(),
 			},
+			schema: { inline: false },
 		};
 		const todo = `CREATE TABLE todo (
     id SERIAL PRIMARY KEY,
@@ -48,12 +49,12 @@ describe("runCommand", async () => {
 		const result = `import { z } from "zod";
 import { globalSchema } from "./globalSchema";
 export const todoSchema = z.object({
-	id: z.number(),
-	title: z.string(),
-	description: z.string().nullable(),
-	is_completed: z.number().nullable(),
-	created_at: z.date().nullable(),
-	updated_at: z.date().nullable(),
+	id: globalSchema.mysqlBIGINT,
+	title: globalSchema.mysqlVARCHAR,
+	description: globalSchema.mysqlTEXT.nullable(),
+	is_completed: globalSchema.mysqlTINYINT.nullable(),
+	created_at: globalSchema.mysqlTIMESTAMP.nullable(),
+	updated_at: globalSchema.mysqlTIMESTAMP.nullable(),
 });
 export type Todo = z.infer<typeof todoSchema>;
 `;
@@ -70,6 +71,7 @@ export type Todo = z.infer<typeof todoSchema>;
 				user: container.getUsername(),
 			},
 			tableNames: ["posts"],
+			schema: { inline: false },
 		};
 		const todo2 = `CREATE TABLE todo2 (
     id SERIAL PRIMARY KEY,
@@ -103,12 +105,12 @@ export type Todo = z.infer<typeof todoSchema>;
 		const result = `import { z } from "zod";
 import { globalSchema } from "./globalSchema";
 export const postsSchema = z.object({
-	id: z.number(),
-	title: z.string(),
-	content: z.string(),
-	author_id: z.number(),
-	created_at: z.date().nullable(),
-	updated_at: z.date().nullable(),
+	id: globalSchema.mysqlINT,
+	title: globalSchema.mysqlVARCHAR,
+	content: globalSchema.mysqlTEXT,
+	author_id: globalSchema.mysqlINT,
+	created_at: globalSchema.mysqlTIMESTAMP.nullable(),
+	updated_at: globalSchema.mysqlTIMESTAMP.nullable(),
 });
 export type Posts = z.infer<typeof postsSchema>;
 `;
