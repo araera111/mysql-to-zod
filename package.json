@@ -41,7 +41,7 @@
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11",
-    "zod": "^4.5.4",
+    "zod": "^4.6.7",
     "zx": "^8.8.5"
   },
   "dependencies": {
@@ -49,15 +49,15 @@
     "cosmiconfig": "^10.0.1",
     "cosmiconfig-typescript-loader": "^6.3.0",
     "effect": "^3.22.2",
-    "fs-extra": "^11.4.0",
-    "immer": "^11.1.18",
-    "mysql2": "^3.24.4",
+    "fs-extra": "^11.4.1",
+    "immer": "^11.1.21",
+    "mysql2": "^3.24.6",
     "node-sql-parser": "^5.4.0",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.10",
     "prettier-plugin-sql": "^0.20.0",
     "ts-case-convert": "^2.3.1",
-    "ts-pattern": "^5.9.0",
-    "zod": "^4.6.2"
+    "ts-pattern": "^5.9.2",
+    "zod": "^4.6.7"
   },
   "volta": {
     "node": "18.17.0",
